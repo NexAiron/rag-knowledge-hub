@@ -1,0 +1,20 @@
+{
+  "name": "nexairon-rag-knowledge-hub",
+  "version": "0.1.0",
+  "private": true,
+  "author": "NexAiron",
+  "description": "RAG knowledge base QA system scaffold with Next.js + NestJS",
+  "packageManager": "pnpm@9.12.1",
+  "scripts": {
+    "dev": "pnpm -r --parallel dev",
+    "dev:frontend": "pnpm --filter @nexairon/frontend dev",
+    "dev:backend": "pnpm --filter @nexairon/backend start:dev",
+    "build": "pnpm -r build",
+    "lint": "pnpm -r lint",
+    "test": "pnpm --filter @nexairon/backend test"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}
+

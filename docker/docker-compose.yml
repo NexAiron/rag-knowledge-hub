@@ -1,0 +1,42 @@
+version: "3.9"
+
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: nexairon-rag-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456
+      MYSQL_DATABASE: rag_kb
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  vector-db:
+    image: pgvector/pgvector:pg16
+    container_name: nexairon-rag-pgvector
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123456
+      POSTGRES_DB: rag_vector
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgvector_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7.2
+    container_name: nexairon-rag-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+volumes:
+  mysql_data:
+  pgvector_data:
+  redis_data:
+
