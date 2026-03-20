@@ -1,7 +1,9 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from "@nestjs/common";
 import { KbService } from "./kb.service";
 import { CreateKbDto } from "./dto/create-kb.dto";
+import { ListKbDto } from "./dto/list-kb.dto";
 import { UpdateKbDto } from "./dto/update-kb.dto";
+import { UpdateKbStatusDto } from "./dto/update-kb-status.dto";
 
 @Controller("kb")
 export class KbController {
@@ -13,8 +15,8 @@ export class KbController {
   }
 
   @Get()
-  async findAll() {
-    return this.kbService.findAll();
+  async findAll(@Query() query: ListKbDto) {
+    return this.kbService.findAll(query);
   }
 
   @Get(":id")
@@ -27,9 +29,13 @@ export class KbController {
     return this.kbService.update(id, payload);
   }
 
+  @Patch(":id/status")
+  async setStatus(@Param("id") id: string, @Body() payload: UpdateKbStatusDto) {
+    return this.kbService.setEnabled(id, payload.isEnabled);
+  }
+
   @Delete(":id")
   async remove(@Param("id") id: string) {
     return this.kbService.remove(id);
   }
 }
-
