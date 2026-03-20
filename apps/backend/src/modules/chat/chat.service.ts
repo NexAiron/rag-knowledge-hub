@@ -1,4 +1,4 @@
-import { Injectable, MessageEvent } from "@nestjs/common";
+import { Injectable, MessageEvent, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Observable } from "rxjs";
 import { Repository } from "typeorm";
@@ -27,6 +27,8 @@ export class ChatService {
   }
 
   async ask(payload: AskDto) {
+    await this.getSession(payload.sessionId);
+
     await this.messageRepo.save(
       this.messageRepo.create({
         sessionId: payload.sessionId,
@@ -42,13 +44,28 @@ export class ChatService {
     };
   }
 
-  streamAnswer(sessionId: string, question: string): Observable<MessageEvent> {
+  async listMessages(sessionId: string) {
+    await this.getSession(sessionId);
+    return this.messageRepo.find({
+      where: { sessionId },
+      order: { createdAt: "ASC" },
+    });
+  }
+
+  streamAnswer(
+    sessionId: string,
+    question: string,
+    options?: { topK?: number; scoreThreshold?: number },
+  ): Observable<MessageEvent> {
     return new Observable<MessageEvent>((subscriber) => {
       const run = async () => {
+        const session = await this.getSession(sessionId);
+
         const retrieval = await this.retrievalService.retrieve({
-          kbId: "demo-kb",
+          kbId: session.kbId,
           query: question,
-          topK: 5,
+          topK: options?.topK ?? 5,
+          scoreThreshold: options?.scoreThreshold ?? 0,
         });
 
         subscriber.next({
@@ -89,5 +106,16 @@ export class ChatService {
       });
     });
   }
-}
 
+  private async getSession(sessionId: string) {
+    const session = await this.sessionRepo.findOne({
+      where: { id: sessionId },
+    });
+
+    if (!session) {
+      throw new NotFoundException("Chat session not found");
+    }
+
+    return session;
+  }
+}

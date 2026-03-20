@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   MessageEvent,
   Param,
   Post,
@@ -26,12 +27,24 @@ export class ChatController {
     return this.chatService.ask(payload);
   }
 
+  @Get("sessions/:sessionId/messages")
+  async listMessages(@Param("sessionId") sessionId: string) {
+    return this.chatService.listMessages(sessionId);
+  }
+
   @Sse("sessions/:sessionId/stream")
   stream(
     @Param("sessionId") sessionId: string,
     @Query("question") question = "请总结知识库核心内容",
+    @Query("topK") topK?: string,
+    @Query("scoreThreshold") scoreThreshold?: string,
   ): Observable<MessageEvent> {
-    return this.chatService.streamAnswer(sessionId, question);
+    const parsedTopK = topK ? Number(topK) : undefined;
+    const parsedThreshold = scoreThreshold ? Number(scoreThreshold) : undefined;
+
+    return this.chatService.streamAnswer(sessionId, question, {
+      topK: Number.isFinite(parsedTopK) ? parsedTopK : undefined,
+      scoreThreshold: Number.isFinite(parsedThreshold) ? parsedThreshold : undefined,
+    });
   }
 }
-
