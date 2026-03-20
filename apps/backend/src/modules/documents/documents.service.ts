@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { CreateDocumentDto } from "./dto/create-document.dto";
@@ -25,5 +25,21 @@ export class DocumentsService {
       order: { createdAt: "DESC" },
     });
   }
-}
 
+  async findOne(id: string) {
+    const document = await this.documentRepo.findOne({ where: { id } });
+    if (!document) {
+      throw new NotFoundException("Document not found");
+    }
+    return document;
+  }
+
+  async updateStatus(
+    id: string,
+    status: "pending" | "processing" | "indexed" | "failed",
+  ) {
+    const document = await this.findOne(id);
+    document.status = status;
+    return this.documentRepo.save(document);
+  }
+}

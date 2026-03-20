@@ -7,7 +7,10 @@ export class IngestionController {
 
   @Post(":documentId/run")
   async run(@Param("documentId") documentId: string) {
-    return this.ingestionService.run(documentId);
+    const result = await this.ingestionService.run(documentId);
+    return {
+      ...result,
+      nextAction: "worker-consume-queue",
+    };
   }
 }
-
