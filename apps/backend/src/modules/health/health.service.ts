@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, Optional } from "@nestjs/common";
 import { InjectDataSource } from "@nestjs/typeorm";
 import { DataSource } from "typeorm";
 import { RedisService } from "../redis/redis.service";
@@ -8,9 +8,10 @@ export class HealthService {
   constructor(
     @InjectDataSource()
     private readonly mysqlDataSource: DataSource,
-    @InjectDataSource("vector")
-    private readonly vectorDataSource: DataSource,
     private readonly redisService: RedisService,
+    @Optional()
+    @InjectDataSource("vector")
+    private readonly vectorDataSource?: DataSource,
   ) {}
 
   async check() {
@@ -45,6 +46,10 @@ export class HealthService {
   }
 
   private async checkVector() {
+    if (!this.vectorDataSource) {
+      return { up: true, skipped: true, reason: "vector db disabled" };
+    }
+
     try {
       await this.vectorDataSource.query("SELECT 1");
       return { up: true };

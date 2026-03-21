@@ -17,11 +17,14 @@ import { QueueModule } from "./modules/queue/queue.module";
 import { StorageModule } from "./modules/storage/storage.module";
 import { HealthModule } from "./modules/health/health.module";
 
+const useVectorDb =
+  (process.env.USE_VECTOR_DB ?? "false").toLowerCase() === "true";
+
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     MysqlModule,
-    VectorModule,
+    ...(useVectorDb ? [VectorModule] : []),
     AuthModule,
     UsersModule,
     KbModule,

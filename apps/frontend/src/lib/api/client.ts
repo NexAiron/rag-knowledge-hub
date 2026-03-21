@@ -1,4 +1,6 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+const API_BASE_URL = (
+  globalThis as { process?: { env?: Record<string, string | undefined> } }
+).process?.env?.NEXT_PUBLIC_API_BASE_URL;
 
 export async function apiRequest<T>(
   path: string,
@@ -25,4 +27,3 @@ export async function apiRequest<T>(
 
   return response.json() as Promise<T>;
 }
-

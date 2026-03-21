@@ -6,13 +6,136 @@
   color-scheme: light;
 }
 
-body {
-  background:
-    radial-gradient(circle at 15% 15%, rgba(201, 94, 45, 0.14), transparent 42%),
-    radial-gradient(circle at 82% 8%, rgba(29, 36, 51, 0.11), transparent 38%),
-    #f3f1eb;
-  color: #1d2433;
-  font-family: "Plus Jakarta Sans", system-ui, sans-serif;
-  min-height: 100vh;
+* {
+  box-sizing: border-box;
 }
 
+body {
+  min-height: 100vh;
+  margin: 0;
+  background:
+    radial-gradient(circle at 8% 12%, rgba(201, 94, 45, 0.14), transparent 40%),
+    radial-gradient(circle at 82% 10%, rgba(29, 36, 51, 0.12), transparent 36%),
+    radial-gradient(circle at 70% 88%, rgba(54, 133, 98, 0.12), transparent 40%),
+    #f3f1eb;
+  color: #1d2433;
+}
+
+.markdown-body {
+  line-height: 1.65;
+  word-break: break-word;
+}
+
+.markdown-body > :first-child {
+  margin-top: 0;
+}
+
+.markdown-body > :last-child {
+  margin-bottom: 0;
+}
+
+.markdown-body h1,
+.markdown-body h2,
+.markdown-body h3 {
+  margin: 0.7rem 0 0.35rem;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.markdown-body h1 {
+  font-size: 1.1rem;
+}
+
+.markdown-body h2 {
+  font-size: 1rem;
+}
+
+.markdown-body h3 {
+  font-size: 0.92rem;
+}
+
+.markdown-body p {
+  margin: 0.4rem 0;
+}
+
+.markdown-body ul,
+.markdown-body ol {
+  margin: 0.45rem 0;
+  padding-left: 1.25rem;
+}
+
+.markdown-body li {
+  margin: 0.2rem 0;
+  padding-left: 0.1rem;
+}
+
+.markdown-body blockquote {
+  margin: 0.55rem 0;
+  border-left: 3px solid #c9ced8;
+  padding-left: 0.7rem;
+  color: #4b5563;
+}
+
+.markdown-body a {
+  color: #2563eb;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
+
+.markdown-body :not(pre) > code {
+  border-radius: 0.4rem;
+  background: #f3f4f6;
+  padding: 0.05rem 0.35rem;
+  font-size: 0.82em;
+}
+
+.markdown-body pre {
+  margin: 0.55rem 0;
+  overflow-x: auto;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  background: #0b1020;
+  padding: 0.85rem 0.9rem;
+}
+
+.markdown-body pre code {
+  display: block;
+  background: transparent;
+  padding: 0;
+  color: #e5e7eb;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+    "Courier New", monospace;
+  font-size: 0.82rem;
+  line-height: 1.55;
+}
+
+/* rehype-highlight token colors */
+.markdown-body .hljs-comment,
+.markdown-body .hljs-quote {
+  color: #94a3b8;
+}
+
+.markdown-body .hljs-keyword,
+.markdown-body .hljs-selector-tag,
+.markdown-body .hljs-subst {
+  color: #f472b6;
+}
+
+.markdown-body .hljs-string,
+.markdown-body .hljs-attr,
+.markdown-body .hljs-template-tag {
+  color: #34d399;
+}
+
+.markdown-body .hljs-number,
+.markdown-body .hljs-literal,
+.markdown-body .hljs-variable {
+  color: #f59e0b;
+}
+
+.markdown-body .hljs-title,
+.markdown-body .hljs-function,
+.markdown-body .hljs-section {
+  color: #60a5fa;
+}
