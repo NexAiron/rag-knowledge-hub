@@ -1,40 +1,33 @@
 import { NextResponse } from "next/server";
-import { createDocument } from "@/lib/mock/documents-db";
-
-function resolveFileType(fileName: string): "pdf" | "md" | null {
-  const lower = fileName.toLowerCase();
-  if (lower.endsWith(".pdf")) return "pdf";
-  if (lower.endsWith(".md")) return "md";
-  return null;
-}
+import { BackendProxyError, proxyToBackend } from "@/lib/server/backend";
+import { mapKnowledgeDocument } from "@/lib/server/mappers";
 
 export async function POST(request: Request) {
   const formData = await request.formData();
-  const kbId = String(formData.get("kbId") ?? "").trim();
-  const file = formData.get("file");
 
-  if (!kbId) {
-    return NextResponse.json({ message: "kbId is required." }, { status: 400 });
+  try {
+    const data = await proxyToBackend<{
+      id: string;
+      knowledgeBaseId: string;
+      fileName: string;
+      mimeType: string;
+      size: number;
+      status: "uploaded" | "processing" | "completed" | "failed";
+      createdAt: string;
+      updatedAt: string;
+    }>("/documents/upload", {
+      method: "POST",
+      body: formData,
+    });
+
+    return NextResponse.json({ data: mapKnowledgeDocument(data) }, { status: 201 });
+  } catch (error) {
+    const message =
+      error instanceof BackendProxyError
+        ? error.message
+        : "Failed to upload document.";
+    const status = error instanceof BackendProxyError ? error.status : 500;
+
+    return NextResponse.json({ message }, { status });
   }
-
-  if (!(file instanceof File)) {
-    return NextResponse.json({ message: "File is required." }, { status: 400 });
-  }
-
-  const fileType = resolveFileType(file.name);
-  if (!fileType) {
-    return NextResponse.json(
-      { message: "Only PDF and Markdown files are supported." },
-      { status: 400 },
-    );
-  }
-
-  const created = createDocument({
-    kbId,
-    fileName: file.name,
-    fileType,
-    size: file.size,
-  });
-
-  return NextResponse.json({ data: created }, { status: 201 });
 }

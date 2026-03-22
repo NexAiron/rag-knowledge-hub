@@ -43,7 +43,11 @@ export class ResponseInterceptor<T>
           typeof data === "object" &&
           "success" in (data as Record<string, unknown>)
         ) {
-          return data as { success: true; data: T; timestamp: string };
+          return data as unknown as {
+            success: true;
+            data: T;
+            timestamp: string;
+          };
         }
 
         return {

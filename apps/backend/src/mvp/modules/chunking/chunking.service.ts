@@ -1,20 +1,52 @@
 import { Injectable } from "@nestjs/common";
-import { ChunkingOptions, ChunkOutput } from "./interfaces/chunk.interface";
+import { ParsedDocument } from "../parser/interfaces/parsed-document.interface";
+import {
+  ChunkingOptions,
+  ChunkOutput,
+  ChunkSegmentInput,
+} from "./interfaces/chunk.interface";
 
 @Injectable()
 export class ChunkingService {
   splitText(text: string, options?: ChunkingOptions): ChunkOutput[] {
+    const segments = this.splitByHeadingAndParagraph(text).map((content) => ({
+      content,
+      page: null,
+      section: null,
+    }));
+
+    return this.splitSegments(segments, options);
+  }
+
+  splitParsedDocument(
+    parsedDocument: ParsedDocument,
+    options?: ChunkingOptions,
+  ): ChunkOutput[] {
+    return this.splitSegments(
+      parsedDocument.blocks.map((block) => ({
+        content: block.content,
+        page: block.page ?? null,
+        section: block.section ?? null,
+        order: block.order,
+        title: block.title,
+      })),
+      options,
+    );
+  }
+
+  private splitSegments(
+    segments: ChunkSegmentInput[],
+    options?: ChunkingOptions,
+  ): ChunkOutput[] {
     const maxTokens =
       options?.maxTokens ?? Number(process.env.CHUNK_SIZE ?? 800);
     const overlapTokens =
       options?.overlapTokens ?? Number(process.env.CHUNK_OVERLAP ?? 100);
     const minTokens = Math.min(300, maxTokens);
-
-    const segments = this.splitByHeadingAndParagraph(text);
     const chunks: ChunkOutput[] = [];
 
     let currentTokens: string[] = [];
-    let currentSegmentIndexes: number[] = [];
+    let currentSegments: ChunkSegmentInput[] = [];
     let chunkIndex = 0;
 
     const flushChunk = () => {
@@ -22,22 +54,37 @@ export class ChunkingService {
         return;
       }
 
+      const firstSegment = currentSegments[0];
+      const lastSegment = currentSegments[currentSegments.length - 1];
+
       chunks.push({
         content: this.joinTokens(currentTokens),
         chunkIndex: chunkIndex++,
         tokenCount: currentTokens.length,
+        page: firstSegment?.page ?? null,
         metadata: {
-          segmentIndexes: currentSegmentIndexes,
+          segmentCount: currentSegments.length,
+          startOrder: firstSegment?.order ?? null,
+          endOrder: lastSegment?.order ?? null,
+          section: firstSegment?.section ?? null,
+          title: firstSegment?.title ?? null,
+          pages: Array.from(
+            new Set(
+              currentSegments
+                .map((segment) => segment.page)
+                .filter((page): page is number => typeof page === "number"),
+            ),
+          ),
         },
       });
 
       const overlap = currentTokens.slice(-Math.min(overlapTokens, currentTokens.length));
       currentTokens = [...overlap];
-      currentSegmentIndexes = [];
+      currentSegments = [];
     };
 
-    segments.forEach((segment, segmentIndex) => {
-      const segmentTokens = this.tokenize(segment);
+    segments.forEach((segment) => {
+      const segmentTokens = this.tokenize(segment.content);
       if (segmentTokens.length === 0) {
         return;
       }
@@ -49,22 +96,37 @@ export class ChunkingService {
 
       if (shouldAppend) {
         currentTokens.push(...segmentTokens);
-        currentSegmentIndexes.push(segmentIndex);
+        currentSegments.push(segment);
         return;
       }
 
       flushChunk();
       currentTokens.push(...segmentTokens);
-      currentSegmentIndexes.push(segmentIndex);
+      currentSegments.push(segment);
     });
 
     if (currentTokens.length > 0) {
+      const firstSegment = currentSegments[0];
+      const lastSegment = currentSegments[currentSegments.length - 1];
+
       chunks.push({
         content: this.joinTokens(currentTokens),
         chunkIndex: chunkIndex++,
         tokenCount: currentTokens.length,
+        page: firstSegment?.page ?? null,
         metadata: {
-          segmentIndexes: currentSegmentIndexes,
+          segmentCount: currentSegments.length,
+          startOrder: firstSegment?.order ?? null,
+          endOrder: lastSegment?.order ?? null,
+          section: firstSegment?.section ?? null,
+          title: firstSegment?.title ?? null,
+          pages: Array.from(
+            new Set(
+              currentSegments
+                .map((segment) => segment.page)
+                .filter((page): page is number => typeof page === "number"),
+            ),
+          ),
         },
       });
     }

@@ -1,5 +1,5 @@
 import { Injectable, Logger, NotFoundException } from "@nestjs/common";
-import { DocumentStatus } from "@prisma/client";
+import { DocumentStatus, Prisma } from "@prisma/client";
 import { ChunkingService } from "../chunking/chunking.service";
 import { EmbeddingsService } from "../embeddings/embeddings.service";
 import { ParserService } from "../parser/parser.service";
@@ -42,7 +42,7 @@ export class IngestionService {
         throw new Error("Document content is empty after parsing");
       }
 
-      const chunkResults = this.chunkingService.splitText(cleanedText, {
+      const chunkResults = this.chunkingService.splitParsedDocument(parsedDocument, {
         maxTokens: Number(process.env.CHUNK_SIZE ?? 800),
         overlapTokens: Number(process.env.CHUNK_OVERLAP ?? 100),
       });
@@ -60,7 +60,10 @@ export class IngestionService {
               page: chunk.page ?? null,
               chunkIndex: chunk.chunkIndex,
               tokenCount: chunk.tokenCount,
-              metadata: chunk.metadata ?? null,
+              metadata:
+                chunk.metadata === undefined
+                  ? undefined
+                  : (chunk.metadata as Prisma.InputJsonValue),
             },
             select: {
               id: true,

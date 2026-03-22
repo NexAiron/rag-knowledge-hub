@@ -1,4 +1,18 @@
 import { NextResponse } from "next/server";
+import {
+  BackendProxyError,
+  proxyToBackend,
+  setAccessTokenCookie,
+} from "@/lib/server/backend";
+
+interface BackendAuthResponse {
+  access_token: string;
+  user: {
+    id: string;
+    name: string | null;
+    email: string;
+  };
+}
 
 export async function POST(request: Request) {
   const body = (await request.json()) as {
@@ -6,29 +20,30 @@ export async function POST(request: Request) {
     password?: string;
   };
 
-  const email = body.email?.trim() ?? "";
-  const password = body.password?.trim() ?? "";
+  try {
+    const data = await proxyToBackend<BackendAuthResponse>("/auth/login", {
+      method: "POST",
+      body: JSON.stringify(body),
+      headers: {
+        "Content-Type": "application/json",
+      },
+      skipAuth: true,
+    });
 
-  if (!email || !password) {
-    return NextResponse.json(
-      { message: "Email and password are required." },
-      { status: 400 },
-    );
+    await setAccessTokenCookie(data.access_token);
+
+    return NextResponse.json({
+      token: data.access_token,
+      user: {
+        id: data.user.id,
+        email: data.user.email,
+        name: data.user.name ?? data.user.email.split("@")[0],
+      },
+    });
+  } catch (error) {
+    const message =
+      error instanceof BackendProxyError ? error.message : "Login failed.";
+
+    return NextResponse.json({ message }, { status: 401 });
   }
-
-  if (password.length < 6) {
-    return NextResponse.json(
-      { message: "Password must be at least 6 characters." },
-      { status: 400 },
-    );
-  }
-
-  return NextResponse.json({
-    token: "mock-jwt-token",
-    user: {
-      id: `u-${Date.now()}`,
-      name: email.split("@")[0],
-      email,
-    },
-  });
 }

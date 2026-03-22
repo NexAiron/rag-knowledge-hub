@@ -1,21 +1,29 @@
 import { NextResponse } from "next/server";
-import { removeDocument } from "@/lib/mock/documents-db";
+import { BackendProxyError, proxyToBackend } from "@/lib/server/backend";
 
 interface RouteContext {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 export async function DELETE(
   _request: Request,
   { params }: RouteContext,
 ) {
-  const success = removeDocument(params.id);
-  if (!success) {
-    return NextResponse.json(
-      { message: "Document not found." },
-      { status: 404 },
-    );
-  }
+  const { id } = await params;
 
-  return new NextResponse(null, { status: 204 });
+  try {
+    await proxyToBackend(`/documents/${encodeURIComponent(id)}`, {
+      method: "DELETE",
+    });
+
+    return NextResponse.json({ deleted: true });
+  } catch (error) {
+    const message =
+      error instanceof BackendProxyError
+        ? error.message
+        : "Failed to delete document.";
+    const status = error instanceof BackendProxyError ? error.status : 500;
+
+    return NextResponse.json({ message }, { status });
+  }
 }

@@ -34,7 +34,7 @@ export class EmbeddingsService {
       const operations = batch.map((chunk, index) =>
         this.prisma.chunk.update({
           where: { id: chunk.id },
-          data: { embedding: JSON.stringify(vectors[index]) },
+          data: { embedding: vectors[index] },
         }),
       );
 

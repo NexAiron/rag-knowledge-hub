@@ -37,6 +37,7 @@ export interface SourceChunk {
 
 export type DocumentStatus =
   | "uploading"
+  | "uploaded"
   | "processing"
   | "completed"
   | "failed";

@@ -1,4 +1,5 @@
 import { Injectable } from "@nestjs/common";
+import { Prisma } from "@prisma/client";
 import { EmbeddingsService } from "../embeddings/embeddings.service";
 import { PrismaService } from "../../prisma/prisma.service";
 import { RetrieveDto } from "./dto/retrieve.dto";
@@ -19,7 +20,7 @@ export class RetrievalService {
     const chunks = await this.prisma.chunk.findMany({
       where: {
         knowledgeBaseId: dto.knowledgeBaseId,
-        embedding: { not: null },
+        embedding: { not: Prisma.AnyNull },
       },
       select: {
         id: true,
@@ -79,21 +80,27 @@ export class RetrievalService {
     return dot / (Math.sqrt(normA) * Math.sqrt(normB));
   }
 
-  private parseEmbedding(raw: string | null): number[] | null {
+  private parseEmbedding(raw: unknown): number[] | null {
     if (!raw) {
       return null;
     }
 
-    try {
-      const parsed = JSON.parse(raw) as unknown;
-      if (
-        Array.isArray(parsed) &&
-        parsed.every((item) => typeof item === "number")
-      ) {
-        return parsed;
+    if (Array.isArray(raw) && raw.every((item) => typeof item === "number")) {
+      return raw;
+    }
+
+    if (typeof raw === "string") {
+      try {
+        const parsed = JSON.parse(raw) as unknown;
+        if (
+          Array.isArray(parsed) &&
+          parsed.every((item) => typeof item === "number")
+        ) {
+          return parsed;
+        }
+      } catch {
+        return null;
       }
-    } catch {
-      return null;
     }
 
     return null;

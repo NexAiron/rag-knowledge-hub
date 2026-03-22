@@ -5,18 +5,28 @@ import { cleanText } from "../utils/text-cleaner";
 
 const PAGE_MARKER_PREFIX = "__NEXAIRON_PAGE__";
 
+interface PdfTextContentItem {
+  str?: string;
+}
+
+interface PdfPageData {
+  getTextContent: () => Promise<{
+    items: PdfTextContentItem[];
+  }>;
+}
+
 @Injectable()
 export class PdfParserService {
   async parse(buffer: Buffer, fallbackTitle: string): Promise<ParsedDocument> {
     let pageNumber = 0;
 
     const parsed = await pdfParse(buffer, {
-      pagerender: async (pageData) => {
+      pagerender: async (pageData: PdfPageData) => {
         pageNumber += 1;
 
         const textContent = await pageData.getTextContent();
         const pageText = textContent.items
-          .map((item) => ("str" in item ? item.str : ""))
+          .map((item: PdfTextContentItem) => item.str ?? "")
           .join(" ");
 
         return `\n${PAGE_MARKER_PREFIX}${pageNumber}\n${pageText}\n`;

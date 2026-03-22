@@ -10,3 +10,11 @@ export interface ChunkingOptions {
   maxTokens?: number;
   overlapTokens?: number;
 }
+
+export interface ChunkSegmentInput {
+  content: string;
+  page?: number | null;
+  section?: string | null;
+  order?: number;
+  title?: string;
+}

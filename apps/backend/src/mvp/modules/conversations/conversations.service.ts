@@ -3,7 +3,7 @@ import {
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
-import { MessageRole } from "@prisma/client";
+import { MessageRole, Prisma } from "@prisma/client";
 import { KbService } from "../kb/kb.service";
 import { PrismaService } from "../../prisma/prisma.service";
 
@@ -107,7 +107,10 @@ export class ConversationsService {
         conversationId: input.conversationId,
         role: input.role,
         content: input.content,
-        sources: input.sources as object | null | undefined,
+        sources:
+          input.sources === undefined
+            ? undefined
+            : (input.sources as Prisma.InputJsonValue),
       },
     });
   }
