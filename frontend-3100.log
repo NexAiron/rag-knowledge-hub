@@ -1,8 +1,0 @@
-   ▲ Next.js 15.5.14
-   - Local:        http://localhost:3100
-   - Network:      http://198.18.0.1:3100
-
- ✓ Starting...
- ✓ Ready in 690ms
-SyntaxError: Expected property name or '}' in JSON at position 1 (line 1 column 2)
-    at JSON.parse (<anonymous>)
