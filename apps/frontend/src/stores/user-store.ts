@@ -25,6 +25,19 @@ interface UserStoreState {
   logout: () => void;
 }
 
+const applyAuthSuccess = (
+  set: (partial: Partial<UserStoreState>) => void,
+  payload: { user: UserProfile; token: string },
+) => {
+  set({
+    user: payload.user,
+    token: payload.token,
+    isLoading: false,
+    error: null,
+    hasBootstrapped: true,
+  });
+};
+
 export const useUserStore = create<UserStoreState>((set) => ({
   user: null,
   token: null,
@@ -63,13 +76,7 @@ export const useUserStore = create<UserStoreState>((set) => ({
     set({ isLoading: true, error: null });
     try {
       const response = await loginByPassword({ email, password });
-      set({
-        user: response.user,
-        token: response.token,
-        isLoading: false,
-        error: null,
-        hasBootstrapped: true,
-      });
+      applyAuthSuccess(set, response);
     } catch (error) {
       set({
         isLoading: false,
@@ -86,13 +93,7 @@ export const useUserStore = create<UserStoreState>((set) => ({
     set({ isLoading: true, error: null });
     try {
       const response = await registerByPassword({ email, password, name });
-      set({
-        user: response.user,
-        token: response.token,
-        isLoading: false,
-        error: null,
-        hasBootstrapped: true,
-      });
+      applyAuthSuccess(set, response);
     } catch (error) {
       set({
         isLoading: false,

@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { Alert, Card, Tag, Typography } from "antd";
+import { MessageSquareText } from "lucide-react";
 import { ChatInput } from "@/components/chat/chat-input";
 import { MessageList } from "@/components/chat/message-list";
 import { SessionList } from "@/components/chat/session-list";
@@ -27,7 +28,9 @@ export function ChatWindow({ kbId }: ChatWindowProps) {
   const setActiveSession = useChatStore((state) => state.setActiveSession);
   const sendMessage = useChatStore((state) => state.sendMessage);
   const stopStream = useChatStore((state) => state.stopStream);
-  const clearActiveSessionMessages = useChatStore((state) => state.clearActiveSessionMessages);
+  const clearActiveSessionMessages = useChatStore(
+    (state) => state.clearActiveSessionMessages,
+  );
 
   useEffect(() => {
     if (sessions.length === 0) {
@@ -89,10 +92,14 @@ export function ChatWindow({ kbId }: ChatWindowProps) {
         <Card bordered={false} className="glass-panel !rounded-[30px] !shadow-none">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <Typography.Text className="!text-[11px] !font-semibold !uppercase !tracking-[0.24em] !text-brand">
-                RAG Chat
+              <Typography.Text className="!flex !items-center !gap-2 !text-[11px] !font-semibold !uppercase !tracking-[0.24em] !text-brand">
+                <MessageSquareText className="h-4 w-4" strokeWidth={2} />
+                对话工作区
               </Typography.Text>
-              <Typography.Title level={3} className="!mb-0 !mt-2 !text-xl !font-semibold !tracking-[-0.04em] !text-ink">
+              <Typography.Title
+                level={3}
+                className="!mb-0 !mt-2 !text-xl !font-semibold !tracking-[-0.04em] !text-ink"
+              >
                 {t("chat.pageTitle")}
               </Typography.Title>
             </div>
@@ -109,11 +116,17 @@ export function ChatWindow({ kbId }: ChatWindowProps) {
           onClear={clearActiveSessionMessages}
           isStreaming={streamStatus === "streaming"}
         />
-        {error ? <Alert message={error} type="error" showIcon className="!rounded-2xl" /> : null}
+        {error ? (
+          <Alert message={error} type="error" showIcon className="!rounded-2xl" />
+        ) : null}
       </div>
 
       <div className="hidden xl:block">
-        <SourcePanel status={streamStatus} answer={latestAssistantAnswer} sources={activeSources} />
+        <SourcePanel
+          status={streamStatus}
+          answer={latestAssistantAnswer}
+          sources={activeSources}
+        />
       </div>
     </section>
   );

@@ -1,13 +1,13 @@
 "use client";
 
-import { ChangeEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { ChangeEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Alert, Button, Card, Empty, Statistic, Tag, Typography } from "antd";
-import { Layout } from "@/components/layout/layout";
 import { DocumentsTable } from "@/components/documents/documents-table";
-import { useI18n } from "@/lib/i18n/use-i18n";
+import { Layout } from "@/components/layout/layout";
 import { deleteDocument, listDocuments, uploadDocument } from "@/lib/api/documents";
+import { useI18n } from "@/lib/i18n/use-i18n";
 import { useKbStore } from "@/stores/kb-store";
 import type { KnowledgeDocument } from "@/types";
 
@@ -30,7 +30,11 @@ export default function DocumentsPage() {
   const [error, setError] = useState<string | null>(null);
 
   const hasPending = useMemo(
-    () => documents.some((document) => document.status === "uploading" || document.status === "processing"),
+    () =>
+      documents.some(
+        (document) =>
+          document.status === "uploading" || document.status === "processing",
+      ),
     [documents],
   );
 
@@ -40,7 +44,11 @@ export default function DocumentsPage() {
       setDocuments(data);
       setError(null);
     } catch (fetchError) {
-      setError(fetchError instanceof Error ? fetchError.message : t("documents.fetchFailed"));
+      setError(
+        fetchError instanceof Error
+          ? fetchError.message
+          : t("documents.fetchFailed"),
+      );
     } finally {
       setIsLoading(false);
     }
@@ -53,10 +61,12 @@ export default function DocumentsPage() {
 
   useEffect(() => {
     if (!hasPending) return undefined;
+
     const timer = window.setInterval(() => {
       void fetchDocuments();
       void syncKnowledgeBases();
     }, 3000);
+
     return () => window.clearInterval(timer);
   }, [fetchDocuments, hasPending, syncKnowledgeBases]);
 
@@ -89,12 +99,18 @@ export default function DocumentsPage() {
 
     try {
       const created = await uploadDocument(kbId, file);
-      setDocuments((prev) => prev.map((item) => (item.id === tempId ? created : item)));
+      setDocuments((prev) =>
+        prev.map((item) => (item.id === tempId ? created : item)),
+      );
       void syncKnowledgeBases();
       void fetchDocuments();
     } catch (uploadError) {
       setDocuments((prev) => prev.filter((item) => item.id !== tempId));
-      setError(uploadError instanceof Error ? uploadError.message : t("documents.uploadFailed"));
+      setError(
+        uploadError instanceof Error
+          ? uploadError.message
+          : t("documents.uploadFailed"),
+      );
     } finally {
       setIsUploading(false);
       event.target.value = "";
@@ -104,12 +120,17 @@ export default function DocumentsPage() {
   const handleDelete = async (id: string) => {
     setDeletingId(id);
     setError(null);
+
     try {
       await deleteDocument(id);
       setDocuments((prev) => prev.filter((item) => item.id !== id));
       void syncKnowledgeBases();
     } catch (deleteError) {
-      setError(deleteError instanceof Error ? deleteError.message : t("documents.deleteFailed"));
+      setError(
+        deleteError instanceof Error
+          ? deleteError.message
+          : t("documents.deleteFailed"),
+      );
     } finally {
       setDeletingId(null);
     }
@@ -127,18 +148,28 @@ export default function DocumentsPage() {
     >
       <div className="space-y-5">
         <section className="grid gap-4 xl:grid-cols-[1.35fr_0.65fr]">
-          <Card bordered={false} className="glass-panel !rounded-[32px] !shadow-none">
-            <Tag color="blue" bordered={false} className="!m-0 !rounded-full !px-3 !py-1 !text-[10px] !font-semibold !uppercase !tracking-[0.22em]">
+          <Card
+            bordered={false}
+            className="glass-panel !rounded-[32px] !shadow-none"
+          >
+            <Tag
+              color="blue"
+              bordered={false}
+              className="!m-0 !rounded-full !px-3 !py-1 !text-[10px] !font-semibold !uppercase !tracking-[0.22em]"
+            >
               {t("common.documents")}
             </Tag>
-            <Typography.Title level={2} className="!mb-0 !mt-4 min-h-[2.25rem] !text-[1.75rem] !font-semibold !tracking-[-0.04em] !text-ink">
+            <Typography.Title
+              level={2}
+              className="!mb-0 !mt-4 !text-[1.75rem] !font-semibold !tracking-[-0.04em] !text-ink"
+            >
               {t("documents.title")}
             </Typography.Title>
-            <Typography.Paragraph className="!mb-0 !mt-3 min-h-[3.5rem] max-w-2xl !text-[13px] !leading-7 !text-ink/62">
+            <Typography.Paragraph className="!mb-0 !mt-3 max-w-2xl !text-[13px] !leading-7 !text-ink/62">
               {t("documents.description")}
             </Typography.Paragraph>
 
-            <div className="mt-8 flex min-h-[42px] flex-wrap items-center gap-3">
+            <div className="mt-8 flex flex-wrap items-center gap-3">
               <Button
                 type="primary"
                 onClick={() => fileInputRef.current?.click()}
@@ -162,30 +193,51 @@ export default function DocumentsPage() {
           </Card>
 
           <aside className="space-y-4">
-            <Card bordered={false} className="accent-panel !rounded-[30px] !shadow-none" styles={{ body: { color: "white", padding: 20 } }}>
+            <Card
+              bordered={false}
+              className="accent-panel !rounded-[30px] !shadow-none"
+              styles={{ body: { color: "white", padding: 20 } }}
+            >
               <Typography.Text className="!text-[10px] !uppercase !tracking-[0.2em] !text-white/62">
                 {t("documents.flowLabel")}
               </Typography.Text>
-              <Typography.Title level={3} className="!mb-0 !mt-3 min-h-[3rem] !text-[1.45rem] !font-semibold !tracking-[-0.04em] !text-white">
+              <Typography.Title
+                level={3}
+                className="!mb-0 !mt-3 !text-[1.45rem] !font-semibold !tracking-[-0.04em] !text-white"
+              >
                 {t("documents.flowTitle")}
               </Typography.Title>
-              <Typography.Paragraph className="!mb-0 !mt-3 min-h-[4.5rem] !text-[13px] !leading-6 !text-white/74">
+              <Typography.Paragraph className="!mb-0 !mt-3 !text-[13px] !leading-6 !text-white/74">
                 {t("documents.flowDesc")}
               </Typography.Paragraph>
             </Card>
 
-            <Card bordered={false} className="glass-panel !rounded-[30px] !shadow-none">
+            <Card
+              bordered={false}
+              className="glass-panel !rounded-[30px] !shadow-none"
+            >
               <Typography.Text className="!text-xs !font-semibold !uppercase !tracking-[0.18em] !text-ink/52">
                 {t("documents.snapshotLabel")}
               </Typography.Text>
               <div className="mt-4 grid gap-3">
-                <Card size="small" className="!rounded-[22px] !border-ink/8 !bg-white/78 !shadow-none">
-                  <Statistic title={t("documents.snapshotTotal")} value={documents.length} />
+                <Card
+                  size="small"
+                  className="!rounded-[22px] !border-ink/8 !bg-white/78 !shadow-none"
+                >
+                  <Statistic
+                    title={t("documents.snapshotTotal")}
+                    value={documents.length}
+                  />
                 </Card>
-                <Card size="small" className="!rounded-[22px] !border-ink/8 !bg-white/78 !shadow-none">
+                <Card
+                  size="small"
+                  className="!rounded-[22px] !border-ink/8 !bg-white/78 !shadow-none"
+                >
                   <Statistic
                     title={t("documents.snapshotProcessing")}
-                    value={documents.filter((item) => item.status === "processing").length}
+                    value={
+                      documents.filter((item) => item.status === "processing").length
+                    }
                   />
                 </Card>
               </div>
@@ -193,7 +245,9 @@ export default function DocumentsPage() {
           </aside>
         </section>
 
-        {error ? <Alert message={error} type="error" showIcon className="!rounded-2xl" /> : null}
+        {error ? (
+          <Alert message={error} type="error" showIcon className="!rounded-2xl" />
+        ) : null}
 
         {isLoading ? (
           <Card bordered={false} className="glass-panel !rounded-[30px] !shadow-none">
@@ -201,10 +255,17 @@ export default function DocumentsPage() {
           </Card>
         ) : documents.length === 0 ? (
           <Card bordered={false} className="glass-panel !rounded-[30px] !shadow-none">
-            <Empty description={t("documents.empty")} image={Empty.PRESENTED_IMAGE_SIMPLE} />
+            <Empty
+              description={t("documents.empty")}
+              image={Empty.PRESENTED_IMAGE_SIMPLE}
+            />
           </Card>
         ) : (
-          <DocumentsTable documents={documents} deletingId={deletingId} onDelete={handleDelete} />
+          <DocumentsTable
+            documents={documents}
+            deletingId={deletingId}
+            onDelete={handleDelete}
+          />
         )}
       </div>
     </Layout>

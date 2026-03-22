@@ -1,6 +1,6 @@
 "use client";
 
-import { Empty, Typography } from "antd";
+import { Empty } from "antd";
 import { useEffect, useRef } from "react";
 import type { ChatMessage } from "@/types";
 import { MessageItem } from "@/components/chat/message-item";

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { ReactNode } from "react";
-import { Button, Space, Tag, Typography } from "antd";
+import { Button, Tag, Typography } from "antd";
 import { LogOut, Sparkles } from "lucide-react";
 import { useI18n } from "@/lib/i18n/use-i18n";
 import { useUserStore } from "@/stores/user-store";
