@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, KeyboardEvent } from "react";
+import { useI18n } from "@/lib/i18n/use-i18n";
 
 interface ChatInputProps {
   value: string;
@@ -19,6 +20,8 @@ export function ChatInput({
   onStop,
   onClear,
 }: ChatInputProps) {
+  const { t } = useI18n();
+
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     onSubmit();
@@ -32,39 +35,36 @@ export function ChatInput({
   };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="rounded-2xl border border-ink/15 bg-panel p-4"
-    >
+    <form onSubmit={handleSubmit} className="glass-panel rounded-[30px] p-4">
       <textarea
         value={value}
         onChange={(event) => onChange(event.target.value)}
         onKeyDown={handleKeyDown}
-        placeholder="Ask about your documents..."
-        className="h-28 w-full resize-none rounded-xl border border-ink/20 bg-white px-3 py-2 text-sm outline-none transition focus:border-brand"
+        placeholder={t("chat.askPlaceholder")}
+        className="h-28 w-full resize-none rounded-[22px] border border-ink/12 bg-white px-4 py-3 text-sm outline-none transition focus:border-brand focus:shadow-[0_0_0_4px_rgba(201,94,45,0.08)]"
       />
 
       <div className="mt-3 flex flex-wrap items-center gap-2">
         <button
           type="submit"
           disabled={isStreaming}
-          className="rounded-lg bg-ink px-4 py-2 text-xs font-medium text-white disabled:opacity-60"
+          className="rounded-2xl bg-ink px-4 py-2 text-xs font-semibold text-white shadow-lg shadow-ink/10 disabled:opacity-60"
         >
-          {isStreaming ? "Generating..." : "Send"}
+          {isStreaming ? t("chat.generating") : t("chat.send")}
         </button>
         <button
           type="button"
           onClick={onStop}
-          className="rounded-lg border border-ink/20 px-4 py-2 text-xs font-medium"
+          className="rounded-2xl border border-ink/20 bg-white/78 px-4 py-2 text-xs font-semibold transition hover:-translate-y-0.5 hover:border-brand"
         >
-          Stop
+          {t("chat.stop")}
         </button>
         <button
           type="button"
           onClick={onClear}
-          className="rounded-lg border border-ink/20 px-4 py-2 text-xs font-medium"
+          className="rounded-2xl border border-ink/20 bg-white/78 px-4 py-2 text-xs font-semibold transition hover:-translate-y-0.5 hover:border-brand"
         >
-          Clear
+          {t("chat.clear")}
         </button>
       </div>
     </form>

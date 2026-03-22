@@ -5,6 +5,7 @@ import { ChatInput } from "@/components/chat/chat-input";
 import { MessageList } from "@/components/chat/message-list";
 import { SessionList } from "@/components/chat/session-list";
 import { SourcePanel } from "@/components/chat/source-panel";
+import { useI18n } from "@/lib/i18n/use-i18n";
 import { useChatStore } from "@/stores/chat-store";
 
 interface ChatWindowProps {
@@ -13,6 +14,7 @@ interface ChatWindowProps {
 
 export function ChatWindow({ kbId }: ChatWindowProps) {
   const [question, setQuestion] = useState("");
+  const { t } = useI18n();
 
   const sessions = useChatStore((state) => state.sessions);
   const activeSessionId = useChatStore((state) => state.activeSessionId);
@@ -30,7 +32,7 @@ export function ChatWindow({ kbId }: ChatWindowProps) {
 
   useEffect(() => {
     if (sessions.length === 0) {
-      createSession(kbId, "New Chat");
+      createSession(kbId, t("chat.newSession"));
       return;
     }
 
@@ -40,10 +42,10 @@ export function ChatWindow({ kbId }: ChatWindowProps) {
       if (firstSessionForKb) {
         setActiveSession(firstSessionForKb.id);
       } else {
-        createSession(kbId, "New Chat");
+        createSession(kbId, t("chat.newSession"));
       }
     }
-  }, [activeSessionId, createSession, kbId, sessions, setActiveSession]);
+  }, [activeSessionId, createSession, kbId, sessions, setActiveSession, t]);
 
   const activeMessages = useMemo(() => {
     if (!activeSessionId) return [];
@@ -80,11 +82,11 @@ export function ChatWindow({ kbId }: ChatWindowProps) {
   };
 
   const handleNewSession = () => {
-    createSession(kbId, "New Chat");
+    createSession(kbId, t("chat.newSession"));
   };
 
   return (
-    <section className="grid gap-4 xl:grid-cols-[260px_minmax(0,1fr)_320px]">
+    <section className="grid gap-4 xl:grid-cols-[280px_minmax(0,1fr)_340px]">
       <SessionList
         sessions={currentSessions}
         activeSessionId={activeSessionId}
@@ -93,6 +95,22 @@ export function ChatWindow({ kbId }: ChatWindowProps) {
       />
 
       <div className="flex min-h-[70vh] flex-col gap-4">
+        <div className="glass-panel rounded-[30px] p-5">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-brand">
+                RAG Chat
+              </p>
+              <h2 className="mt-2 text-xl font-semibold tracking-[-0.04em] text-ink">
+                {t("chat.pageTitle")}
+              </h2>
+            </div>
+            <div className="rounded-full border border-ink/10 bg-white/78 px-3 py-1.5 text-xs font-medium text-ink/65">
+              KB · {kbId}
+            </div>
+          </div>
+        </div>
+
         <MessageList messages={activeMessages} />
         <ChatInput
           value={question}
@@ -103,7 +121,7 @@ export function ChatWindow({ kbId }: ChatWindowProps) {
           isStreaming={streamStatus === "streaming"}
         />
         {error ? (
-          <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">
+          <p className="rounded-2xl border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">
             {error}
           </p>
         ) : null}

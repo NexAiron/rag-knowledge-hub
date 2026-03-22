@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { Layout } from "@/components/layout/layout";
 import { DocumentsTable } from "@/components/documents/documents-table";
+import { useI18n } from "@/lib/i18n/use-i18n";
 import { deleteDocument, listDocuments, uploadDocument } from "@/lib/api/documents";
 import type { KnowledgeDocument } from "@/types";
 
@@ -16,6 +17,7 @@ function isSupportedFile(file: File): boolean {
 export default function DocumentsPage() {
   const params = useParams<{ id: string }>();
   const kbId = params.id;
+  const { t } = useI18n();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [documents, setDocuments] = useState<KnowledgeDocument[]>([]);
@@ -40,14 +42,12 @@ export default function DocumentsPage() {
       setError(null);
     } catch (fetchError) {
       setError(
-        fetchError instanceof Error
-          ? fetchError.message
-          : "Failed to fetch documents.",
+        fetchError instanceof Error ? fetchError.message : t("documents.fetchFailed"),
       );
     } finally {
       setIsLoading(false);
     }
-  }, [kbId]);
+  }, [kbId, t]);
 
   useEffect(() => {
     void fetchDocuments();
@@ -70,7 +70,7 @@ export default function DocumentsPage() {
     if (!file) return;
 
     if (!isSupportedFile(file)) {
-      setError("Only PDF and Markdown files are supported.");
+      setError(t("documents.unsupported"));
       event.target.value = "";
       return;
     }
@@ -94,16 +94,12 @@ export default function DocumentsPage() {
 
     try {
       const created = await uploadDocument(kbId, file);
-      setDocuments((prev) =>
-        prev.map((item) => (item.id === tempId ? created : item)),
-      );
+      setDocuments((prev) => prev.map((item) => (item.id === tempId ? created : item)));
       void fetchDocuments();
     } catch (uploadError) {
       setDocuments((prev) => prev.filter((item) => item.id !== tempId));
       setError(
-        uploadError instanceof Error
-          ? uploadError.message
-          : "Failed to upload document.",
+        uploadError instanceof Error ? uploadError.message : t("documents.uploadFailed"),
       );
     } finally {
       setIsUploading(false);
@@ -119,9 +115,7 @@ export default function DocumentsPage() {
       setDocuments((prev) => prev.filter((item) => item.id !== id));
     } catch (deleteError) {
       setError(
-        deleteError instanceof Error
-          ? deleteError.message
-          : "Failed to delete document.",
+        deleteError instanceof Error ? deleteError.message : t("documents.deleteFailed"),
       );
     } finally {
       setDeletingId(null);
@@ -130,32 +124,49 @@ export default function DocumentsPage() {
 
   return (
     <Layout
-      title="Document Management"
-      description={`Upload and manage files for KB: ${kbId}`}
+      title={t("documents.title")}
+      description={`${t("documents.description")} · ${kbId}`}
       action={
         <Link
           href={`/kb/${kbId}`}
-          className="rounded-lg border border-ink/20 px-4 py-2 text-xs font-medium"
+          className="rounded-2xl border border-ink/20 bg-white/78 px-4 py-2 text-xs font-semibold transition hover:-translate-y-0.5 hover:border-brand hover:text-brand"
         >
-          Back to KB
+          {t("documents.backToKb")}
         </Link>
       }
     >
       <div className="space-y-4">
-        <section className="rounded-2xl border border-ink/15 bg-panel p-5">
-          <div className="flex flex-wrap items-center gap-3">
-            <button
-              type="button"
-              onClick={handlePickFile}
-              disabled={isUploading}
-              className="rounded-lg bg-ink px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
-            >
-              {isUploading ? "Uploading..." : "Upload PDF / Markdown"}
-            </button>
-            <p className="text-xs text-ink/60">
-              Supported types: `.pdf`, `.md`
-            </p>
+        <section className="glass-panel overflow-hidden rounded-[32px] p-6 lg:p-7">
+          <div className="grid gap-5 lg:grid-cols-[1.22fr_0.78fr] lg:items-center">
+            <div>
+              <p className="inline-flex rounded-full border border-brand/15 bg-brand/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.24em] text-brand">
+                {t("common.documents")}
+              </p>
+              <h2 className="mt-4 text-[2rem] font-semibold tracking-[-0.04em] text-ink">
+                {t("documents.title")}
+              </h2>
+              <p className="mt-3 max-w-2xl text-sm leading-8 text-ink/68">
+                {t("documents.description")}
+              </p>
+            </div>
+
+            <div className="ambient-card rounded-[26px] p-4">
+              <div className="flex flex-wrap items-center gap-3">
+                <button
+                  type="button"
+                  onClick={handlePickFile}
+                  disabled={isUploading}
+                  className="rounded-2xl bg-ink px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-ink/10 disabled:opacity-60"
+                >
+                  {isUploading ? t("common.uploading") : t("documents.uploadButton")}
+                </button>
+                <p className="text-xs text-ink/60">
+                  {t("common.supportedTypes")}: `.pdf`, `.md`
+                </p>
+              </div>
+            </div>
           </div>
+
           <input
             ref={fileInputRef}
             type="file"
@@ -166,14 +177,14 @@ export default function DocumentsPage() {
         </section>
 
         {error ? (
-          <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          <p className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
             {error}
           </p>
         ) : null}
 
         {isLoading ? (
-          <section className="rounded-2xl border border-ink/15 bg-panel p-5 text-sm text-ink/70">
-            Loading documents...
+          <section className="glass-panel rounded-[30px] p-5 text-sm text-ink/70">
+            {t("documents.loading")}
           </section>
         ) : (
           <DocumentsTable

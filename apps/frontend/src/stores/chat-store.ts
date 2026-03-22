@@ -1,7 +1,9 @@
 "use client";
 
 import { create } from "zustand";
+import { getMessage } from "@/lib/i18n/messages";
 import { createChatStream } from "@/lib/sse/chat-stream";
+import { useLocaleStore } from "@/stores/locale-store";
 import type { ChatMessage, ChatSession, SourceChunk } from "@/types";
 
 type StreamStatus = "idle" | "streaming" | "done" | "error";
@@ -30,8 +32,11 @@ interface ChatStoreState {
 const createId = (prefix: string) =>
   `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
 
+const getLocale = () => useLocaleStore.getState().locale;
+const t = (key: string) => getMessage(getLocale(), key);
+
 const buildSessionTitle = (question?: string): string => {
-  if (!question) return "New Chat";
+  if (!question) return t("chat.newSession");
   return question.length > 32 ? `${question.slice(0, 32)}...` : question;
 };
 
@@ -42,13 +47,13 @@ function normalizeSources(payload: unknown): SourceChunk[] {
     const source = item as Record<string, unknown>;
     return {
       id: String(source.id ?? `source-${index}`),
-      doc: String(source.doc ?? source.title ?? "Unknown Document"),
+      doc: String(source.doc ?? source.title ?? t("chat.unknownDocument")),
       content: String(source.content ?? source.snippet ?? ""),
       page:
         source.page !== undefined && source.page !== null
           ? String(source.page)
           : undefined,
-      title: String(source.title ?? source.doc ?? "Unknown Document"),
+      title: String(source.title ?? source.doc ?? t("chat.unknownDocument")),
       snippet: String(source.snippet ?? source.content ?? ""),
       score:
         typeof source.score === "number"
@@ -279,7 +284,7 @@ export const useChatStore = create<ChatStoreState>((set, get) => ({
       set((state) => ({
         streamStatus: "error",
         controller: null,
-        error:
+          error:
           error instanceof Error ? error.message : "Failed to stream response.",
         messagesBySession: {
           ...state.messagesBySession,

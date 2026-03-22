@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useI18n } from "@/lib/i18n/use-i18n";
 import type { SourceChunk } from "@/types";
 
 interface SourcePanelProps {
@@ -20,7 +21,7 @@ function toDisplaySource(source: SourceChunk, index: number): DisplaySource {
   const doc =
     source.doc ??
     source.title ??
-    "Unknown Document";
+    "";
 
   const content =
     source.content ??
@@ -46,6 +47,7 @@ function previewText(text: string, max = 160): string {
 }
 
 export function SourcePanel({ status, answer, sources }: SourcePanelProps) {
+  const { t } = useI18n();
   const [expandedMap, setExpandedMap] = useState<Record<string, boolean>>({});
 
   const displaySources = useMemo(
@@ -61,18 +63,21 @@ export function SourcePanel({ status, answer, sources }: SourcePanelProps) {
   };
 
   return (
-    <aside className="rounded-2xl border border-ink/15 bg-panel p-4">
+    <aside className="glass-panel rounded-[30px] p-4">
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold uppercase tracking-wide text-ink/70">
-          Sources
+          {t("chat.sources")}
         </h3>
-        <span className="text-xs text-ink/60">Status: {status}</span>
+        <span className="rounded-full border border-ink/10 bg-white/76 px-2.5 py-1 text-xs text-ink/60">
+          {t("chat.status")}: {status}
+        </span>
       </div>
+      <p className="mt-2 text-xs leading-5 text-ink/55">{t("chat.sourcesPanelHint")}</p>
 
       {answer ? (
-        <div className="mt-3 rounded-xl border border-ink/10 bg-white px-3 py-2">
+        <div className="mt-3 rounded-[24px] border border-ink/10 bg-white/75 px-3 py-3">
           <p className="text-[11px] font-medium uppercase tracking-wide text-ink/55">
-            Related Answer
+            {t("chat.relatedAnswer")}
           </p>
           <p className="mt-1 text-xs text-ink/75">{previewText(answer, 120)}</p>
         </div>
@@ -81,23 +86,23 @@ export function SourcePanel({ status, answer, sources }: SourcePanelProps) {
       <div className="mt-3 space-y-2">
         {displaySources.length === 0 ? (
           <p className="text-sm text-ink/60">
-            No references yet. Source cards will appear after retrieval.
+            {t("chat.noSources")}
           </p>
         ) : (
           displaySources.map((source) => {
             const isExpanded = Boolean(expandedMap[source.id]);
             const shownContent = isExpanded
-              ? source.content || "No content."
-              : previewText(source.content || "No content.");
+              ? source.content || t("chat.noContent")
+              : previewText(source.content || t("chat.noContent"));
 
             return (
               <article
                 key={source.id}
-                className="rounded-xl border border-ink/15 bg-white p-3"
+                className="rounded-[24px] border border-ink/15 bg-white/78 p-3"
               >
                 <div className="flex items-center justify-between gap-2">
                   <p className="truncate text-xs font-semibold text-ink/85">
-                    {source.doc}
+                    {source.doc || t("chat.unknownDocument")}
                   </p>
                   <span className="rounded-full border border-ink/15 px-2 py-0.5 text-[11px] text-ink/60">
                     p.{source.page}
@@ -113,7 +118,7 @@ export function SourcePanel({ status, answer, sources }: SourcePanelProps) {
                   onClick={() => toggleExpanded(source.id)}
                   className="mt-2 text-xs font-medium text-brand hover:underline"
                 >
-                  {isExpanded ? "Collapse" : "Expand full text"}
+                  {isExpanded ? t("chat.collapse") : t("chat.expand")}
                 </button>
               </article>
             );

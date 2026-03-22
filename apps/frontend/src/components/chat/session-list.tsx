@@ -1,6 +1,7 @@
 "use client";
 
 import type { ChatSession } from "@/types";
+import { useI18n } from "@/lib/i18n/use-i18n";
 
 interface SessionListProps {
   sessions: ChatSession[];
@@ -15,29 +16,31 @@ export function SessionList({
   onSelect,
   onCreate,
 }: SessionListProps) {
+  const { locale, t } = useI18n();
+
   return (
-    <aside className="rounded-2xl border border-ink/15 bg-panel p-4">
+    <aside className="glass-panel rounded-[30px] p-4">
       <button
         type="button"
         onClick={onCreate}
-        className="w-full rounded-lg bg-ink px-3 py-2 text-sm font-medium text-white"
+        className="w-full rounded-[22px] bg-ink px-3 py-2.5 text-sm font-semibold text-white shadow-lg shadow-ink/10 transition hover:-translate-y-0.5"
       >
-        + New Chat
+        + {t("chat.newSession")}
       </button>
 
       <div className="mt-4 space-y-2">
         {sessions.length === 0 ? (
-          <p className="text-xs text-ink/60">No sessions yet.</p>
+          <p className="text-xs text-ink/60">{t("chat.noSessions")}</p>
         ) : (
           sessions.map((session) => (
             <button
               key={session.id}
               type="button"
               onClick={() => onSelect(session.id)}
-              className={`w-full rounded-lg border px-3 py-2 text-left text-sm transition ${
+              className={`w-full rounded-[22px] border px-3 py-3 text-left text-sm transition ${
                 activeSessionId === session.id
-                  ? "border-ink bg-ink text-white"
-                  : "border-ink/15 bg-white text-ink hover:border-brand"
+                  ? "border-ink bg-ink text-white shadow-lg shadow-ink/10"
+                  : "border-ink/15 bg-white/82 text-ink hover:-translate-y-0.5 hover:border-brand"
               }`}
             >
               <p className="truncate font-medium">{session.title}</p>
@@ -46,7 +49,7 @@ export function SessionList({
                   activeSessionId === session.id ? "text-white/80" : "text-ink/55"
                 }`}
               >
-                {new Date(session.updatedAt).toLocaleString()}
+                {new Date(session.updatedAt).toLocaleString(locale === "zh" ? "zh-CN" : "en-US")}
               </p>
             </button>
           ))

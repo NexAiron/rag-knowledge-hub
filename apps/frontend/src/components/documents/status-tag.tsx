@@ -1,5 +1,6 @@
 "use client";
 
+import { useI18n } from "@/lib/i18n/use-i18n";
 import type { DocumentStatus } from "@/types";
 
 interface StatusTagProps {
@@ -23,11 +24,13 @@ const statusLabelMap: Record<DocumentStatus, string> = {
 };
 
 export function StatusTag({ status }: StatusTagProps) {
+  const { t } = useI18n();
+
   return (
     <span
       className={`inline-flex rounded-full border px-2 py-0.5 text-xs font-medium ${statusStyleMap[status]}`}
     >
-      {statusLabelMap[status]}
+      {t(`status.${status}`) ?? statusLabelMap[status]}
     </span>
   );
 }
