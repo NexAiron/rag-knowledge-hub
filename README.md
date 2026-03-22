@@ -1,97 +1,69 @@
 # NexAiron RAG Knowledge Hub
 
-一个面向学习资料问答场景的 RAG 项目脚手架，采用前后端分离架构：
+基于 RAG 的学习资料问答系统 MVP，采用前后端分离架构：
 
-- 前端：Next.js 15 + TypeScript + Tailwind CSS
+- 前端：Next.js 15 + TypeScript + Tailwind CSS + Zustand
 - 后端：NestJS + Prisma ORM
 - 数据库：MySQL
-- 文件上传：Multer + 本地 `uploads` 目录
+- 文件上传：Multer + 本地 `uploads`
 
-当前版本聚焦 MVP，已经覆盖认证、知识库管理、文档上传、文档解析、Chunk 入库和基础检索链路。
+当前版本已经具备从用户认证、知识库管理、文档上传、文档解析到 chunk 入库的主链路能力，并完成了双语界面、淡蓝主题视觉和图标系统整理。
 
-## 项目目标
+## 当前已完成
 
-- 支持用户注册、登录和 JWT 鉴权
-- 支持创建和管理知识库
-- 支持上传 PDF / Markdown 文档
-- 支持文档解析、文本清洗和 Chunk 切分
-- 为后续问答、引用来源展示和向量检索预留结构
+- 用户注册、登录、JWT 鉴权
+- `auth/me` 用户态恢复
+- 知识库创建、列表、详情、删除
+- PDF / Markdown 文档上传
+- 文档状态流转：`uploaded / processing / completed / failed`
+- Markdown 解析、PDF 文本提取、基础清洗
+- Chunk 切分与 metadata 保留
+- Embedding 写入 MySQL JSON 字段
+- 前后端真实代理联调
+- 中英文切换
+- 淡蓝主题、现代化工作台界面、统一图标系统
 
-## 技术栈
+## 当前主链路
 
-### Frontend
+1. 用户注册或登录
+2. 创建知识库
+3. 上传 PDF / Markdown 文档
+4. 后端保存文档元信息，状态写入 `uploaded`
+5. ingestion 流程将状态更新为 `processing`
+6. parser 解析文档并输出统一结构
+7. chunking 切分文本并保留 `page / section / order`
+8. 写入 chunks 与 embeddings
+9. 文档状态更新为 `completed`
 
-- Next.js 15
-- React 18
-- TypeScript
-- Tailwind CSS
-- Zustand
+## 关键技术说明
 
-### Backend
+### 数据库同步
 
-- NestJS 10
-- Prisma ORM
-- MySQL
-- Passport JWT
-- Multer
-- `pdf-parse`
+后端启动前会自动执行：
 
-## 当前实现范围
+- `prisma db push`
+- `prisma generate`
 
-### 已完成
+这样可以避免 schema 已修改但数据库表未同步的情况。
 
-- `auth`
-  - 用户注册
-  - 用户登录
-  - JWT 鉴权
-  - `GET /api/auth/me`
-- `kb`
-  - 创建知识库
-  - 查询当前用户知识库列表
-  - 查询知识库详情
-  - 删除知识库
-- `documents`
-  - 上传 PDF / Markdown
-  - 保存文档元信息
-  - 文档状态管理：`uploaded / processing / completed / failed`
-  - 查询知识库下文档列表
-  - 删除文档
-- `parser`
-  - Markdown 解析
-  - PDF 文本提取
-  - 统一输出结构
-  - 文本清洗
-- `ingestion`
-  - 文档解析
-  - Chunk 切分
-  - Embedding 存储
+### 前端数据同步
 
-### 进行中 / 待完善
+- 登录后通过 cookie 保存 `access_token`
+- 前端启动时通过 `/api/me` 恢复用户状态
+- 文档上传、删除、处理轮询时会同步刷新知识库统计
 
-- Chat API 与前端对接
-- 更完整的引用来源结构
-- 队列化异步处理
-- 测试与部署文档
+### UI 设计方向
 
-## 目录结构
+- 主色调：淡蓝色
+- 风格：现代、克制、非平铺式信息布局
+- 特点：双语切换、统一字体基线、统一图标语言
 
-```txt
-.
-├─ apps
-│  ├─ backend
-│  └─ frontend
-├─ docker
-├─ docs
-├─ packages
-└─ scripts
-```
+## 目录
 
-详细说明见：
+- [docs/STRUCTURE.md](./docs/STRUCTURE.md)
+- [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md)
 
-- `docs/STRUCTURE.md`
-- `docs/ARCHITECTURE.md`
-
-## 快速开始
+## 快速启动
 
 ### 1. 安装依赖
 
@@ -101,10 +73,10 @@ pnpm install
 
 ### 2. 配置环境变量
 
-- `apps/frontend/.env.example` -> `apps/frontend/.env.local`
-- `apps/backend/.env.example` -> `apps/backend/.env`
+- `apps/frontend/.env.local`
+- `apps/backend/.env`
 
-建议至少确认以下变量：
+至少确认：
 
 - 前端：`NEXT_PUBLIC_API_BASE_URL`
 - 后端：`DATABASE_URL`
@@ -112,23 +84,18 @@ pnpm install
 
 ### 3. 启动 MySQL
 
-项目当前依赖 MySQL。请确保 `apps/backend/.env` 中的 `DATABASE_URL` 和本地 MySQL 实际连接信息一致。
+请确保 `DATABASE_URL` 指向可访问的 MySQL 实例。
 
-如果使用 Docker，请先检查 `docker/docker-compose.yml` 中的数据库账号密码，再和 `DATABASE_URL` 保持一致。
+### 4. 启动项目
 
-### 4. 生成 Prisma Client
-
-```bash
-pnpm --filter @nexairon/backend prisma:generate
-```
-
-### 5. 启动开发环境
+分别启动：
 
 ```bash
-pnpm dev
+pnpm --filter @nexairon/backend start
+pnpm --filter @nexairon/frontend start
 ```
 
-或分别启动：
+开发模式：
 
 ```bash
 pnpm --filter @nexairon/backend start:dev
@@ -156,21 +123,10 @@ pnpm --filter @nexairon/frontend dev
 - `GET /api/documents?kbId=xxx`
 - `DELETE /api/documents/:id`
 
-## 文档状态说明
+## 当前仍待完善
 
-- `uploaded`：文件已上传，等待处理
-- `processing`：正在解析、切块、生成 embedding
-- `completed`：处理完成，可参与检索
-- `failed`：处理失败，可根据 `errorMessage` 排查
-
-## 开发说明
-
-- 后端当前以 `src/mvp` 目录下的模块为主
-- Prisma schema 位于 `apps/backend/prisma/schema.prisma`
-- 前端 `/api/*` 路由当前作为代理层，转发到 NestJS 后端
-
-## 后续建议
-
-- 增加数据库迁移说明
-- 增加联调说明与示例账号
-- 增加测试、日志和部署文档
+- Chat 后端主链路继续增强
+- 更完整的 sources 展示与引用结构
+- 未登录保护和页面守卫进一步完善
+- 更稳定的数据库运行环境
+- 测试、部署、日志与监控

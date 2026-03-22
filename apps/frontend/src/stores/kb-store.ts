@@ -19,6 +19,7 @@ interface KbStoreState {
   isCreating: boolean;
   error: string | null;
   fetchKnowledgeBases: () => Promise<void>;
+  syncKnowledgeBases: () => Promise<void>;
   createKnowledgeBase: (payload: CreateKnowledgeBaseInput) => Promise<KnowledgeBase>;
   selectKnowledgeBase: (id: string) => void;
 }
@@ -47,6 +48,26 @@ export const useKbStore = create<KbStoreState>((set) => ({
           error instanceof Error
             ? error.message
             : "Failed to load knowledge bases.",
+      });
+      throw error;
+    }
+  },
+
+  syncKnowledgeBases: async () => {
+    try {
+      const data = await listKnowledgeBases();
+      set((state) => ({
+        knowledgeBases: data,
+        error: null,
+        activeKbId:
+          data.find((item) => item.id === state.activeKbId)?.id ?? data[0]?.id ?? null,
+      }));
+    } catch (error) {
+      set({
+        error:
+          error instanceof Error
+            ? error.message
+            : "Failed to sync knowledge bases.",
       });
       throw error;
     }

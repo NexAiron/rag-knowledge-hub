@@ -7,6 +7,7 @@ import { Layout } from "@/components/layout/layout";
 import { DocumentsTable } from "@/components/documents/documents-table";
 import { useI18n } from "@/lib/i18n/use-i18n";
 import { deleteDocument, listDocuments, uploadDocument } from "@/lib/api/documents";
+import { useKbStore } from "@/stores/kb-store";
 import type { KnowledgeDocument } from "@/types";
 
 function isSupportedFile(file: File): boolean {
@@ -19,6 +20,7 @@ export default function DocumentsPage() {
   const kbId = params.id;
   const { t } = useI18n();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const syncKnowledgeBases = useKbStore((state) => state.syncKnowledgeBases);
 
   const [documents, setDocuments] = useState<KnowledgeDocument[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -51,15 +53,17 @@ export default function DocumentsPage() {
 
   useEffect(() => {
     void fetchDocuments();
-  }, [fetchDocuments]);
+    void syncKnowledgeBases();
+  }, [fetchDocuments, syncKnowledgeBases]);
 
   useEffect(() => {
     if (!hasPending) return undefined;
     const timer = window.setInterval(() => {
       void fetchDocuments();
+      void syncKnowledgeBases();
     }, 3000);
     return () => window.clearInterval(timer);
-  }, [fetchDocuments, hasPending]);
+  }, [fetchDocuments, hasPending, syncKnowledgeBases]);
 
   const handlePickFile = () => {
     fileInputRef.current?.click();
@@ -95,6 +99,7 @@ export default function DocumentsPage() {
     try {
       const created = await uploadDocument(kbId, file);
       setDocuments((prev) => prev.map((item) => (item.id === tempId ? created : item)));
+      void syncKnowledgeBases();
       void fetchDocuments();
     } catch (uploadError) {
       setDocuments((prev) => prev.filter((item) => item.id !== tempId));
@@ -113,6 +118,7 @@ export default function DocumentsPage() {
     try {
       await deleteDocument(id);
       setDocuments((prev) => prev.filter((item) => item.id !== id));
+      void syncKnowledgeBases();
     } catch (deleteError) {
       setError(
         deleteError instanceof Error ? deleteError.message : t("documents.deleteFailed"),
@@ -129,51 +135,75 @@ export default function DocumentsPage() {
       action={
         <Link
           href={`/kb/${kbId}`}
-          className="rounded-2xl border border-ink/20 bg-white/78 px-4 py-2 text-xs font-semibold transition hover:-translate-y-0.5 hover:border-brand hover:text-brand"
+          className="min-w-[126px] rounded-2xl border border-ink/20 bg-white/78 px-4 py-2 text-center text-xs font-semibold transition hover:-translate-y-0.5 hover:border-brand hover:text-brand"
         >
           {t("documents.backToKb")}
         </Link>
       }
     >
-      <div className="space-y-4">
-        <section className="glass-panel overflow-hidden rounded-[32px] p-6 lg:p-7">
-          <div className="grid gap-5 lg:grid-cols-[1.22fr_0.78fr] lg:items-center">
-            <div>
-              <p className="inline-flex rounded-full border border-brand/15 bg-brand/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.24em] text-brand">
-                {t("common.documents")}
-              </p>
-              <h2 className="mt-4 text-[2rem] font-semibold tracking-[-0.04em] text-ink">
-                {t("documents.title")}
-              </h2>
-              <p className="mt-3 max-w-2xl text-sm leading-8 text-ink/68">
-                {t("documents.description")}
+      <div className="space-y-5">
+        <section className="grid gap-4 xl:grid-cols-[1.35fr_0.65fr]">
+          <div className="glass-panel overflow-hidden rounded-[32px] p-6 lg:p-7">
+            <p className="inline-flex min-h-[28px] items-center rounded-full border border-brand/20 bg-brand/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.22em] text-brand">
+              {t("common.documents")}
+            </p>
+            <h2 className="mt-4 min-h-[2.25rem] text-[1.75rem] font-semibold tracking-[-0.04em] text-ink">
+              {t("documents.title")}
+            </h2>
+            <p className="mt-3 min-h-[3.5rem] max-w-2xl text-[13px] leading-7 text-ink/62">
+              {t("documents.description")}
+            </p>
+
+            <div className="mt-8 flex min-h-[42px] flex-wrap items-center gap-3">
+              <button
+                type="button"
+                onClick={handlePickFile}
+                disabled={isUploading}
+                className="min-w-[188px] rounded-2xl bg-ink px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-ink/10 disabled:opacity-60"
+              >
+                {isUploading ? t("common.uploading") : t("documents.uploadButton")}
+              </button>
+              <p className="text-xs text-ink/60">
+                {t("common.supportedTypes")}: `.pdf`, `.md`
               </p>
             </div>
 
-            <div className="ambient-card rounded-[26px] p-4">
-              <div className="flex flex-wrap items-center gap-3">
-                <button
-                  type="button"
-                  onClick={handlePickFile}
-                  disabled={isUploading}
-                  className="rounded-2xl bg-ink px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-ink/10 disabled:opacity-60"
-                >
-                  {isUploading ? t("common.uploading") : t("documents.uploadButton")}
-                </button>
-                <p className="text-xs text-ink/60">
-                  {t("common.supportedTypes")}: `.pdf`, `.md`
-                </p>
-              </div>
-            </div>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".pdf,.md,application/pdf,text/markdown"
+              className="hidden"
+              onChange={handleFileChange}
+            />
           </div>
 
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept=".pdf,.md,application/pdf,text/markdown"
-            className="hidden"
-            onChange={handleFileChange}
-          />
+          <aside className="space-y-4">
+            <div className="accent-panel rounded-[30px] p-5 text-white">
+              <p className="text-[10px] uppercase tracking-[0.2em] text-white/62">{t("documents.flowLabel")}</p>
+              <h3 className="mt-3 min-h-[3rem] text-[1.45rem] font-semibold tracking-[-0.04em]">
+                {t("documents.flowTitle")}
+              </h3>
+              <p className="mt-3 min-h-[4.5rem] text-[13px] leading-6 text-white/74">
+                {t("documents.flowDesc")}
+              </p>
+            </div>
+
+            <div className="glass-panel rounded-[30px] p-5">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-ink/52">{t("documents.snapshotLabel")}</p>
+              <div className="mt-4 grid gap-3">
+                <div className="min-h-[92px] rounded-[22px] border border-ink/8 bg-white/78 p-4">
+                  <p className="text-xs uppercase tracking-[0.18em] text-ink/45">{t("documents.snapshotTotal")}</p>
+                  <p className="mt-2 text-[1.65rem] font-semibold text-ink">{documents.length}</p>
+                </div>
+                <div className="min-h-[92px] rounded-[22px] border border-ink/8 bg-white/78 p-4">
+                  <p className="text-xs uppercase tracking-[0.18em] text-ink/45">{t("documents.snapshotProcessing")}</p>
+                  <p className="mt-2 text-[1.65rem] font-semibold text-ink">
+                    {documents.filter((item) => item.status === "processing").length}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </aside>
         </section>
 
         {error ? (

@@ -41,7 +41,7 @@ export function ChatInput({
         onChange={(event) => onChange(event.target.value)}
         onKeyDown={handleKeyDown}
         placeholder={t("chat.askPlaceholder")}
-        className="h-28 w-full resize-none rounded-[22px] border border-ink/12 bg-white px-4 py-3 text-sm outline-none transition focus:border-brand focus:shadow-[0_0_0_4px_rgba(201,94,45,0.08)]"
+        className="h-28 w-full resize-none rounded-[22px] border border-ink/12 bg-white px-4 py-3 text-sm outline-none transition focus:border-brand focus:shadow-[0_0_0_4px_rgba(120,174,235,0.16)]"
       />
 
       <div className="mt-3 flex flex-wrap items-center gap-2">

@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import {
   BackendProxyError,
+  getAccessTokenCookieOptions,
   proxyToBackend,
-  setAccessTokenCookie,
 } from "@/lib/server/backend";
 
 interface BackendAuthResponse {
@@ -30,9 +30,7 @@ export async function POST(request: Request) {
       skipAuth: true,
     });
 
-    await setAccessTokenCookie(data.access_token);
-
-    return NextResponse.json({
+    const response = NextResponse.json({
       token: data.access_token,
       user: {
         id: data.user.id,
@@ -40,6 +38,14 @@ export async function POST(request: Request) {
         name: data.user.name ?? data.user.email.split("@")[0],
       },
     });
+
+    response.cookies.set(
+      "access_token",
+      data.access_token,
+      getAccessTokenCookieOptions(),
+    );
+
+    return response;
   } catch (error) {
     const message =
       error instanceof BackendProxyError ? error.message : "Login failed.";

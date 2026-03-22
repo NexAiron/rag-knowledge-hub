@@ -90,22 +90,20 @@ export async function proxyToBackend<T>(
 
 export async function clearAccessTokenCookie(): Promise<void> {
   const cookieStore = await cookies();
-  cookieStore.set(ACCESS_TOKEN_COOKIE, "", {
-    httpOnly: true,
-    sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
-    path: "/",
-    maxAge: 0,
-  });
+  cookieStore.set(ACCESS_TOKEN_COOKIE, "", getAccessTokenCookieOptions(0));
 }
 
 export async function setAccessTokenCookie(token: string): Promise<void> {
   const cookieStore = await cookies();
-  cookieStore.set(ACCESS_TOKEN_COOKIE, token, {
+  cookieStore.set(ACCESS_TOKEN_COOKIE, token, getAccessTokenCookieOptions());
+}
+
+export function getAccessTokenCookieOptions(maxAge = 60 * 60 * 24 * 7) {
+  return {
     httpOnly: true,
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
     path: "/",
-    maxAge: 60 * 60 * 24 * 7,
-  });
+    maxAge,
+  } as const;
 }

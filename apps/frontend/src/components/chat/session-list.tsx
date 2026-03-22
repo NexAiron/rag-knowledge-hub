@@ -1,5 +1,6 @@
 "use client";
 
+import { Clock3, MessageSquarePlus, MessagesSquare } from "lucide-react";
 import type { ChatSession } from "@/types";
 import { useI18n } from "@/lib/i18n/use-i18n";
 
@@ -25,7 +26,10 @@ export function SessionList({
         onClick={onCreate}
         className="w-full rounded-[22px] bg-ink px-3 py-2.5 text-sm font-semibold text-white shadow-lg shadow-ink/10 transition hover:-translate-y-0.5"
       >
-        + {t("chat.newSession")}
+        <span className="flex items-center justify-center gap-2">
+          <MessageSquarePlus className="h-4 w-4" strokeWidth={2} />
+          {t("chat.newSession")}
+        </span>
       </button>
 
       <div className="mt-4 space-y-2">
@@ -43,12 +47,16 @@ export function SessionList({
                   : "border-ink/15 bg-white/82 text-ink hover:-translate-y-0.5 hover:border-brand"
               }`}
             >
-              <p className="truncate font-medium">{session.title}</p>
+              <p className="flex items-center gap-2 truncate font-medium">
+                <MessagesSquare className="h-3.5 w-3.5 shrink-0" strokeWidth={2} />
+                <span className="truncate">{session.title}</span>
+              </p>
               <p
-                className={`mt-1 text-[11px] ${
+                className={`mt-1 flex items-center gap-1.5 text-[11px] ${
                   activeSessionId === session.id ? "text-white/80" : "text-ink/55"
                 }`}
               >
+                <Clock3 className="h-3 w-3" strokeWidth={2} />
                 {new Date(session.updatedAt).toLocaleString(locale === "zh" ? "zh-CN" : "en-US")}
               </p>
             </button>

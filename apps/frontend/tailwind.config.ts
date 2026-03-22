@@ -9,13 +9,13 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        bg: "#F3F1EB",
-        ink: "#1D2433",
-        brand: "#C95E2D",
-        panel: "#FFFDF7",
+        bg: "#F2F6FC",
+        ink: "#1F2A3D",
+        brand: "#78AEEB",
+        panel: "#FCFDFF",
       },
       fontFamily: {
-        sans: ["'Plus Jakarta Sans'", "system-ui", "sans-serif"],
+        sans: ["var(--font-noto-sans-sc)", "system-ui", "sans-serif"],
       },
     },
   },
@@ -23,4 +23,3 @@ const config: Config = {
 };
 
 export default config;
-

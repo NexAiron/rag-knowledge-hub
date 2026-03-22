@@ -1,5 +1,6 @@
 "use client";
 
+import { BookMarked, FileSearch, PanelRightOpen, Sparkles } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useI18n } from "@/lib/i18n/use-i18n";
 import type { SourceChunk } from "@/types";
@@ -65,7 +66,8 @@ export function SourcePanel({ status, answer, sources }: SourcePanelProps) {
   return (
     <aside className="glass-panel rounded-[30px] p-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold uppercase tracking-wide text-ink/70">
+        <h3 className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-ink/70">
+          <PanelRightOpen className="h-4 w-4 text-brand" strokeWidth={2} />
           {t("chat.sources")}
         </h3>
         <span className="rounded-full border border-ink/10 bg-white/76 px-2.5 py-1 text-xs text-ink/60">
@@ -76,7 +78,8 @@ export function SourcePanel({ status, answer, sources }: SourcePanelProps) {
 
       {answer ? (
         <div className="mt-3 rounded-[24px] border border-ink/10 bg-white/75 px-3 py-3">
-          <p className="text-[11px] font-medium uppercase tracking-wide text-ink/55">
+          <p className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-ink/55">
+            <Sparkles className="h-3.5 w-3.5 text-brand" strokeWidth={2} />
             {t("chat.relatedAnswer")}
           </p>
           <p className="mt-1 text-xs text-ink/75">{previewText(answer, 120)}</p>
@@ -101,7 +104,8 @@ export function SourcePanel({ status, answer, sources }: SourcePanelProps) {
                 className="rounded-[24px] border border-ink/15 bg-white/78 p-3"
               >
                 <div className="flex items-center justify-between gap-2">
-                  <p className="truncate text-xs font-semibold text-ink/85">
+                  <p className="flex items-center gap-1.5 truncate text-xs font-semibold text-ink/85">
+                    <BookMarked className="h-3.5 w-3.5 shrink-0 text-brand" strokeWidth={2} />
                     {source.doc || t("chat.unknownDocument")}
                   </p>
                   <span className="rounded-full border border-ink/15 px-2 py-0.5 text-[11px] text-ink/60">
@@ -116,8 +120,9 @@ export function SourcePanel({ status, answer, sources }: SourcePanelProps) {
                 <button
                   type="button"
                   onClick={() => toggleExpanded(source.id)}
-                  className="mt-2 text-xs font-medium text-brand hover:underline"
+                  className="mt-2 inline-flex items-center gap-1.5 text-xs font-medium text-brand hover:underline"
                 >
+                  <FileSearch className="h-3.5 w-3.5" strokeWidth={2} />
                   {isExpanded ? t("chat.collapse") : t("chat.expand")}
                 </button>
               </article>

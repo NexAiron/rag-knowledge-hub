@@ -1,13 +1,20 @@
 "use client";
 
 import Link from "next/link";
-import { FormEvent, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { Alert, Button, Card, Form, Input, Space, Tag, Typography } from "antd";
+import { BookOpenText, ShieldCheck, Sparkles } from "lucide-react";
+import { BrandMark } from "@/components/layout/brand-mark";
 import { LanguageSwitcher } from "@/components/layout/language-switcher";
+import { ThemeSwitcher } from "@/components/layout/theme-switcher";
 import { useI18n } from "@/lib/i18n/use-i18n";
 import { useUserStore } from "@/stores/user-store";
 
-const emailRegExp = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+interface RegisterFormValues {
+  name: string;
+  email: string;
+  password: string;
+}
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -16,56 +23,13 @@ export default function RegisterPage() {
   const isLoading = useUserStore((state) => state.isLoading);
   const storeError = useUserStore((state) => state.error);
 
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [formError, setFormError] = useState<string | null>(null);
-
-  const emailError = useMemo(() => {
-    if (!email) return null;
-    return emailRegExp.test(email) ? null : t("login.emailInvalid");
-  }, [email, t]);
-
-  const passwordError = useMemo(() => {
-    if (!password) return null;
-    return password.length >= 6 ? null : t("login.passwordInvalid");
-  }, [password, t]);
-
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setFormError(null);
-
-    const normalizedName = name.trim();
-    const normalizedEmail = email.trim();
-    const normalizedPassword = password.trim();
-
-    if (!normalizedName) {
-      setFormError(t("register.nameRequired"));
-      return;
-    }
-    if (!normalizedEmail || !normalizedPassword) {
-      setFormError(t("login.emailRequired"));
-      return;
-    }
-    if (!emailRegExp.test(normalizedEmail)) {
-      setFormError(t("login.emailInvalid"));
-      return;
-    }
-    if (normalizedPassword.length < 6) {
-      setFormError(t("login.passwordInvalid"));
-      return;
-    }
-
-    try {
-      await register({
-        name: normalizedName,
-        email: normalizedEmail,
-        password: normalizedPassword,
-      });
-      router.push("/dashboard");
-    } catch {
-      // Error is handled by store state.
-    }
+  const handleSubmit = async (values: RegisterFormValues) => {
+    await register({
+      name: values.name.trim(),
+      email: values.email.trim(),
+      password: values.password.trim(),
+    });
+    router.push("/dashboard");
   };
 
   return (
@@ -74,108 +38,115 @@ export default function RegisterPage() {
         <div className="accent-panel relative overflow-hidden px-7 py-8 text-white lg:px-12 lg:py-12">
           <div className="relative z-10">
             <div className="flex items-center justify-between gap-4">
-              <span className="rounded-full border border-white/16 bg-white/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.3em] text-white/78">
-                {t("register.badge")}
-              </span>
-              <LanguageSwitcher />
+              <div className="flex items-center gap-3">
+                <BrandMark inverted />
+                <Tag bordered={false} className="!m-0 !rounded-full !border !border-white/16 !bg-white/10 !px-3 !py-1 !text-[10px] !font-semibold !uppercase !tracking-[0.26em] !text-white/78">
+                  {t("register.badge")}
+                </Tag>
+              </div>
+              <Space size={8}>
+                <LanguageSwitcher />
+                <ThemeSwitcher />
+              </Space>
             </div>
 
             <div className="mt-12 max-w-xl">
-              <h1 className="text-4xl font-semibold tracking-[-0.05em] lg:text-[4rem] lg:leading-[1.02]">
+              <Typography.Title className="!mb-0 min-h-[7.5rem] !text-[2.45rem] !font-semibold !tracking-[-0.05em] !text-white lg:min-h-[10rem] lg:!text-[3.15rem] lg:!leading-[1.04]">
                 {t("register.title")}
-              </h1>
-              <p className="mt-5 text-base leading-8 text-white/78 lg:max-w-lg">
+              </Typography.Title>
+              <Typography.Paragraph className="!mb-0 !mt-5 min-h-[5.5rem] !text-[14px] !leading-7 !text-white/78 lg:max-w-lg">
                 {t("register.subtitle")}
-              </p>
+              </Typography.Paragraph>
             </div>
 
             <div className="mt-10 grid gap-3 sm:grid-cols-3">
-              <div className="rounded-[26px] border border-white/12 bg-white/10 p-4">
-                <p className="text-[11px] uppercase tracking-[0.22em] text-white/56">01</p>
-                <p className="mt-2 text-sm font-medium text-white/88">Account</p>
-                <p className="mt-2 text-xs leading-6 text-white/62">{t("login.tip1")}</p>
-              </div>
-              <div className="rounded-[26px] border border-white/12 bg-white/10 p-4">
-                <p className="text-[11px] uppercase tracking-[0.22em] text-white/56">02</p>
-                <p className="mt-2 text-sm font-medium text-white/88">Knowledge</p>
-                <p className="mt-2 text-xs leading-6 text-white/62">{t("login.tip2")}</p>
-              </div>
-              <div className="rounded-[26px] border border-white/12 bg-white/10 p-4">
-                <p className="text-[11px] uppercase tracking-[0.22em] text-white/56">03</p>
-                <p className="mt-2 text-sm font-medium text-white/88">Pipeline</p>
-                <p className="mt-2 text-xs leading-6 text-white/62">{t("login.tip3")}</p>
-              </div>
+              {[
+                { icon: ShieldCheck, index: "01", label: t("register.accountLabel"), desc: t("login.tip1") },
+                { icon: BookOpenText, index: "02", label: t("register.knowledgeLabel"), desc: t("login.tip2") },
+                { icon: Sparkles, index: "03", label: t("register.pipelineLabel"), desc: t("login.tip3") },
+              ].map((item) => {
+                const Icon = item.icon;
+                return (
+                  <Card
+                    key={item.index}
+                    bordered={false}
+                    className="!rounded-[26px] !border !border-white/12 !bg-white/10 !shadow-none sm:min-h-[156px]"
+                    styles={{ body: { padding: 16, color: "white" } }}
+                  >
+                    <p className="text-[10px] uppercase tracking-[0.2em] text-white/56">{item.index}</p>
+                    <p className="mt-2 flex items-center gap-1.5 text-[13px] font-medium text-white/88">
+                      <Icon className="h-3.5 w-3.5" strokeWidth={2} />
+                      {item.label}
+                    </p>
+                    <p className="mt-2 text-xs leading-6 text-white/62">{item.desc}</p>
+                  </Card>
+                );
+              })}
             </div>
           </div>
         </div>
 
         <div className="px-7 py-8 lg:px-12 lg:py-12">
-          <div className="ambient-card max-w-md rounded-[30px] p-6 lg:p-7">
-            <h2 className="text-[1.85rem] font-semibold tracking-[-0.04em] text-ink">
+          <Card bordered={false} className="ambient-card max-w-md !rounded-[30px] !shadow-none" styles={{ body: { padding: 28 } }}>
+            <Typography.Title level={2} className="!mb-0 min-h-[2.25rem] !text-[1.55rem] !font-semibold !tracking-[-0.04em] !text-ink">
               {t("register.panelTitle")}
-            </h2>
-            <p className="mt-3 text-sm leading-7 text-ink/68">{t("register.panelSubtitle")}</p>
+            </Typography.Title>
+            <Typography.Paragraph className="!mb-0 !mt-3 min-h-[3rem] !text-[13px] !leading-6 !text-ink/64">
+              {t("register.panelSubtitle")}
+            </Typography.Paragraph>
 
-            <form onSubmit={handleSubmit} className="mt-8 space-y-4">
-              <label className="block">
-                <span className="text-sm font-medium text-ink">{t("register.name")}</span>
-                <input
-                  type="text"
-                  value={name}
-                  onChange={(event) => setName(event.target.value)}
-                  placeholder={t("register.namePlaceholder")}
-                  className="mt-2 w-full rounded-[22px] border border-ink/12 bg-white px-4 py-3.5 text-sm text-ink outline-none transition focus:border-brand focus:shadow-[0_0_0_4px_rgba(201,94,45,0.08)]"
-                />
-              </label>
-
-              <label className="block">
-                <span className="text-sm font-medium text-ink">{t("login.email")}</span>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(event) => setEmail(event.target.value)}
-                  placeholder={t("login.emailPlaceholder")}
-                  className="mt-2 w-full rounded-[22px] border border-ink/12 bg-white px-4 py-3.5 text-sm text-ink outline-none transition focus:border-brand focus:shadow-[0_0_0_4px_rgba(201,94,45,0.08)]"
-                />
-                {emailError ? <p className="mt-2 text-xs text-red-600">{emailError}</p> : null}
-              </label>
-
-              <label className="block">
-                <span className="text-sm font-medium text-ink">{t("login.password")}</span>
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(event) => setPassword(event.target.value)}
-                  placeholder={t("login.passwordPlaceholder")}
-                  className="mt-2 w-full rounded-[22px] border border-ink/12 bg-white px-4 py-3.5 text-sm text-ink outline-none transition focus:border-brand focus:shadow-[0_0_0_4px_rgba(201,94,45,0.08)]"
-                />
-                {passwordError ? (
-                  <p className="mt-2 text-xs text-red-600">{passwordError}</p>
-                ) : null}
-              </label>
-
-              <button
-                type="submit"
-                disabled={isLoading}
-                className="w-full rounded-[22px] bg-ink px-4 py-3.5 text-sm font-semibold text-white shadow-[0_20px_50px_rgba(29,36,51,0.18)] transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60"
+            <Form<RegisterFormValues>
+              layout="vertical"
+              className="!mt-8"
+              onFinish={handleSubmit}
+              requiredMark={false}
+            >
+              <Form.Item
+                label={t("register.name")}
+                name="name"
+                rules={[{ required: true, message: t("register.nameRequired") }]}
               >
-                {isLoading ? t("register.submitting") : t("register.submit")}
-              </button>
-            </form>
+                <Input placeholder={t("register.namePlaceholder")} />
+              </Form.Item>
 
-            {formError ? <p className="mt-4 text-xs text-red-600">{formError}</p> : null}
-            {storeError ? <p className="mt-2 text-xs text-red-600">{storeError}</p> : null}
+              <Form.Item
+                label={t("login.email")}
+                name="email"
+                rules={[
+                  { required: true, message: t("login.emailRequired") },
+                  { type: "email", message: t("login.emailInvalid") },
+                ]}
+              >
+                <Input placeholder={t("login.emailPlaceholder")} />
+              </Form.Item>
 
-            <div className="mt-6 flex items-center justify-between border-t border-ink/8 pt-4 text-sm text-ink/62">
+              <Form.Item
+                label={t("login.password")}
+                name="password"
+                rules={[
+                  { required: true, message: t("login.emailRequired") },
+                  { min: 6, message: t("login.passwordInvalid") },
+                ]}
+              >
+                <Input.Password placeholder={t("login.passwordPlaceholder")} />
+              </Form.Item>
+
+              <Form.Item className="!mb-0 !mt-6">
+                <Button htmlType="submit" type="primary" loading={isLoading} block className="!h-[52px] !rounded-[22px] !bg-ink !text-sm !font-semibold shadow-[0_20px_50px_rgba(29,36,51,0.18)]">
+                  {isLoading ? t("register.submitting") : t("register.submit")}
+                </Button>
+              </Form.Item>
+            </Form>
+
+            {storeError ? <Alert className="!mt-4 !rounded-2xl" type="error" showIcon message={storeError} /> : null}
+
+            <div className="mt-6 flex min-h-[44px] items-center justify-between border-t border-ink/8 pt-4 text-sm text-ink/62">
               <span>{t("register.hasAccount")}</span>
-              <Link
-                href="/login"
-                className="font-semibold text-brand transition hover:text-ink"
-              >
+              <Link href="/login" className="font-semibold text-brand transition hover:text-ink">
                 {t("register.goLogin")}
               </Link>
             </div>
-          </div>
+          </Card>
         </div>
       </section>
     </main>
