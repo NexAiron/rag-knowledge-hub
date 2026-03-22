@@ -13,7 +13,7 @@ interface LayoutProps {
 
 export function Layout({ title, description, action, children }: LayoutProps) {
   return (
-    <div className="mx-auto flex min-h-screen w-full max-w-[1500px] gap-5 px-4 py-5 lg:px-6 lg:py-6">
+    <div className="mx-auto flex min-h-screen w-full max-w-[1360px] gap-4 px-4 py-4 lg:gap-5 lg:px-5 lg:py-5 2xl:max-w-[1440px] 2xl:px-6 2xl:py-6">
       <Sidebar />
       <div className="flex min-h-full flex-1 flex-col gap-4">
         <Header title={title} description={description} action={action} />

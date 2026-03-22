@@ -86,7 +86,7 @@ export default function RegisterPage() {
               label={t("login.password")}
               name="password"
               rules={[
-                { required: true, message: t("login.emailRequired") },
+                { required: true, message: t("login.passwordRequired") },
                 { min: 6, message: t("login.passwordInvalid") },
               ]}
             >

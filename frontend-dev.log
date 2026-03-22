@@ -1,0 +1,184 @@
+   ▲ Next.js 15.5.14
+   - Local:        http://localhost:3000
+   - Network:      http://198.18.0.1:3000
+   - Environments: .env.local
+
+ ✓ Starting...
+ ✓ Ready in 6.6s
+ ○ Compiling / ...
+ ✓ Compiled / in 11.6s (3436 modules)
+ GET / 307 in 12722ms
+ ○ Compiling /dashboard ...
+ ✓ Compiled /dashboard in 7.1s (3592 modules)
+Warning: [antd: Card] `bordered` is deprecated. Please use `variant` instead.
+Warning: [antd: Tag] `bordered={false}` is deprecated. Please use `variant="filled"` instead.
+ GET /dashboard 200 in 6233ms
+ GET /dashboard 200 in 7358ms
+ ○ Compiling /api/kb ...
+ ✓ Compiled /api/kb in 2.2s (3613 modules)
+ GET /api/me 200 in 2551ms
+ GET /api/kb 200 in 3538ms
+ GET /api/kb 200 in 353ms
+ ○ Compiling /api/logout ...
+ ✓ Compiled /api/logout in 1259ms (3615 modules)
+ POST /api/logout 200 in 1428ms
+ ○ Compiling /login ...
+ ✓ Compiled /login in 1533ms (3634 modules)
+ GET /login 200 in 1882ms
+ ○ Compiling /api/login ...
+ ✓ Compiled /api/login in 1324ms (3636 modules)
+ POST /api/login 200 in 2671ms
+ GET /dashboard 200 in 155ms
+ ○ Compiling /kb/[id]/chat ...
+ ✓ Compiled /kb/[id]/chat in 5.7s (4627 modules)
+ GET /kb/cmn1j0ch4000qtfxs4wp6e2vy/chat 200 in 8601ms
+ ○ Compiling /api/chat ...
+ ✓ Compiled /api/chat in 2.2s (4614 modules)
+ POST /api/chat 200 in 6944ms
+ ○ Compiling /kb/[id] ...
+ ✓ Compiled /kb/[id] in 4.2s (4608 modules)
+ GET /kb/cmn1j0ch4000qtfxs4wp6e2vy 200 in 5916ms
+ GET /kb/cmn1j0ch4000qtfxs4wp6e2vy 200 in 90ms
+ ⨯ [Error: ENOENT: no such file or directory, open 'D:\project\nexairon-rag-knowledge-hub\apps\frontend\.next\server\app-paths-manifest.json'] {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'D:\\project\\nexairon-rag-knowledge-hub\\apps\\frontend\\.next\\server\\app-paths-manifest.json',
+  page: '/kb/cmn1j0ch4000qtfxs4wp6e2vy/chat'
+}
+ ○ Compiling /_error ...
+ ✓ Compiled /_error in 5.1s (4939 modules)
+ ⨯ [Error: ENOENT: no such file or directory, open 'D:\project\nexairon-rag-knowledge-hub\apps\frontend\.next\routes-manifest.json'] {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'D:\\project\\nexairon-rag-knowledge-hub\\apps\\frontend\\.next\\routes-manifest.json',
+  page: '/kb/cmn1j0ch4000qtfxs4wp6e2vy'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open 'D:\project\nexairon-rag-knowledge-hub\apps\frontend\.next\routes-manifest.json'] {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'D:\\project\\nexairon-rag-knowledge-hub\\apps\\frontend\\.next\\routes-manifest.json'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open 'D:\project\nexairon-rag-knowledge-hub\apps\frontend\.next\routes-manifest.json'] {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'D:\\project\\nexairon-rag-knowledge-hub\\apps\\frontend\\.next\\routes-manifest.json'
+}
+ ⨯ Failed to generate static paths for /kb/[id]:
+[Error: Cannot find module './vendor-chunks/antd@6.3.3_react-dom@18.3.1_react@18.3.1__react@18.3.1.js'
+Require stack:
+- D:\project\nexairon-rag-knowledge-hub\apps\frontend\.next\server\webpack-runtime.js
+- D:\project\nexairon-rag-knowledge-hub\apps\frontend\.next\server\app\kb\[id]\page.js
+- D:\project\nexairon-rag-knowledge-hub\node_modules\.pnpm\next@15.5.14_react-dom@18.3.1_react@18.3.1__react@18.3.1\node_modules\next\dist\server\require.js
+- D:\project\nexairon-rag-knowledge-hub\node_modules\.pnpm\next@15.5.14_react-dom@18.3.1_react@18.3.1__react@18.3.1\node_modules\next\dist\server\load-components.js
+- D:\project\nexairon-rag-knowledge-hub\node_modules\.pnpm\next@15.5.14_react-dom@18.3.1_react@18.3.1__react@18.3.1\node_modules\next\dist\build\utils.js
+- D:\project\nexairon-rag-knowledge-hub\node_modules\.pnpm\next@15.5.14_react-dom@18.3.1_react@18.3.1__react@18.3.1\node_modules\next\dist\server\dev\static-paths-worker.js
+- D:\project\nexairon-rag-knowledge-hub\node_modules\.pnpm\next@15.5.14_react-dom@18.3.1_react@18.3.1__react@18.3.1\node_modules\next\dist\compiled\jest-worker\processChild.js] {
+  type: 'Error',
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array]
+}
+[Error: ENOENT: no such file or directory, open 'D:\project\nexairon-rag-knowledge-hub\apps\frontend\.next\server\app-paths-manifest.json'] {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'D:\\project\\nexairon-rag-knowledge-hub\\apps\\frontend\\.next\\server\\app-paths-manifest.json',
+  page: '/kb/cmn1j0ch4000qtfxs4wp6e2vy/chat'
+}
+[Error: ENOENT: no such file or directory, open 'D:\project\nexairon-rag-knowledge-hub\apps\frontend\.next\routes-manifest.json'] {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'D:\\project\\nexairon-rag-knowledge-hub\\apps\\frontend\\.next\\routes-manifest.json',
+  page: '/kb/cmn1j0ch4000qtfxs4wp6e2vy'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open 'D:\project\nexairon-rag-knowledge-hub\apps\frontend\.next\routes-manifest.json'] {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'D:\\project\\nexairon-rag-knowledge-hub\\apps\\frontend\\.next\\routes-manifest.json'
+}
+[Error: ENOENT: no such file or directory, open 'D:\project\nexairon-rag-knowledge-hub\apps\frontend\.next\routes-manifest.json'] {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'D:\\project\\nexairon-rag-knowledge-hub\\apps\\frontend\\.next\\routes-manifest.json'
+}
+ GET /kb/cmn1j0ch4000qtfxs4wp6e2vy/chat 500 in 15738ms
+ GET /kb/cmn1j0ch4000qtfxs4wp6e2vy/chat 500 in 682ms
+ GET /kb/cmn1j0ch4000qtfxs4wp6e2vy 500 in 12664ms
+ GET /kb/cmn1j0ch4000qtfxs4wp6e2vy 500 in 267ms
+ ⨯ [Error: ENOENT: no such file or directory, open 'D:\project\nexairon-rag-knowledge-hub\apps\frontend\.next\routes-manifest.json'] {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'D:\\project\\nexairon-rag-knowledge-hub\\apps\\frontend\\.next\\routes-manifest.json'
+}
+[Error: ENOENT: no such file or directory, open 'D:\project\nexairon-rag-knowledge-hub\apps\frontend\.next\routes-manifest.json'] {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'D:\\project\\nexairon-rag-knowledge-hub\\apps\\frontend\\.next\\routes-manifest.json'
+}
+ ⨯ Error: Cannot find module './923.js'
+Require stack:
+- D:\project\nexairon-rag-knowledge-hub\apps\frontend\.next\server\webpack-runtime.js
+- D:\project\nexairon-rag-knowledge-hub\apps\frontend\.next\server\pages\_document.js
+- D:\project\nexairon-rag-knowledge-hub\node_modules\.pnpm\next@15.5.14_react-dom@18.3.1_react@18.3.1__react@18.3.1\node_modules\next\dist\server\require.js
+- D:\project\nexairon-rag-knowledge-hub\node_modules\.pnpm\next@15.5.14_react-dom@18.3.1_react@18.3.1__react@18.3.1\node_modules\next\dist\server\load-components.js
+- D:\project\nexairon-rag-knowledge-hub\node_modules\.pnpm\next@15.5.14_react-dom@18.3.1_react@18.3.1__react@18.3.1\node_modules\next\dist\build\utils.js
+- D:\project\nexairon-rag-knowledge-hub\node_modules\.pnpm\next@15.5.14_react-dom@18.3.1_react@18.3.1__react@18.3.1\node_modules\next\dist\build\swc\options.js
+- D:\project\nexairon-rag-knowledge-hub\node_modules\.pnpm\next@15.5.14_react-dom@18.3.1_react@18.3.1__react@18.3.1\node_modules\next\dist\build\swc\index.js
+- D:\project\nexairon-rag-knowledge-hub\node_modules\.pnpm\next@15.5.14_react-dom@18.3.1_react@18.3.1__react@18.3.1\node_modules\next\dist\build\next-config-ts\transpile-config.js
+- D:\project\nexairon-rag-knowledge-hub\node_modules\.pnpm\next@15.5.14_react-dom@18.3.1_react@18.3.1__react@18.3.1\node_modules\next\dist\server\config.js
+- D:\project\nexairon-rag-knowledge-hub\node_modules\.pnpm\next@15.5.14_react-dom@18.3.1_react@18.3.1__react@18.3.1\node_modules\next\dist\server\next.js
+- D:\project\nexairon-rag-knowledge-hub\node_modules\.pnpm\next@15.5.14_react-dom@18.3.1_react@18.3.1__react@18.3.1\node_modules\next\dist\server\lib\start-server.js
+    at <unknown> (D:\project\nexairon-rag-knowledge-hub\apps\frontend\.next\server\app\kb\[id]\chat\page.js:2:364426)
+    at Object.<anonymous> (D:\project\nexairon-rag-knowledge-hub\apps\frontend\.next\server\app\kb\[id]\chat\page.js:2:364494) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array],
+  page: '/kb/cmn1j0ch4000qtfxs4wp6e2vy/chat'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open 'D:\project\nexairon-rag-knowledge-hub\apps\frontend\.next\routes-manifest.json'] {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'D:\\project\\nexairon-rag-knowledge-hub\\apps\\frontend\\.next\\routes-manifest.json'
+}
+Error: Cannot find module './923.js'
+Require stack:
+- D:\project\nexairon-rag-knowledge-hub\apps\frontend\.next\server\webpack-runtime.js
+- D:\project\nexairon-rag-knowledge-hub\apps\frontend\.next\server\pages\_document.js
+- D:\project\nexairon-rag-knowledge-hub\node_modules\.pnpm\next@15.5.14_react-dom@18.3.1_react@18.3.1__react@18.3.1\node_modules\next\dist\server\require.js
+- D:\project\nexairon-rag-knowledge-hub\node_modules\.pnpm\next@15.5.14_react-dom@18.3.1_react@18.3.1__react@18.3.1\node_modules\next\dist\server\load-components.js
+- D:\project\nexairon-rag-knowledge-hub\node_modules\.pnpm\next@15.5.14_react-dom@18.3.1_react@18.3.1__react@18.3.1\node_modules\next\dist\build\utils.js
+- D:\project\nexairon-rag-knowledge-hub\node_modules\.pnpm\next@15.5.14_react-dom@18.3.1_react@18.3.1__react@18.3.1\node_modules\next\dist\build\swc\options.js
+- D:\project\nexairon-rag-knowledge-hub\node_modules\.pnpm\next@15.5.14_react-dom@18.3.1_react@18.3.1__react@18.3.1\node_modules\next\dist\build\swc\index.js
+- D:\project\nexairon-rag-knowledge-hub\node_modules\.pnpm\next@15.5.14_react-dom@18.3.1_react@18.3.1__react@18.3.1\node_modules\next\dist\build\next-config-ts\transpile-config.js
+- D:\project\nexairon-rag-knowledge-hub\node_modules\.pnpm\next@15.5.14_react-dom@18.3.1_react@18.3.1__react@18.3.1\node_modules\next\dist\server\config.js
+- D:\project\nexairon-rag-knowledge-hub\node_modules\.pnpm\next@15.5.14_react-dom@18.3.1_react@18.3.1__react@18.3.1\node_modules\next\dist\server\next.js
+- D:\project\nexairon-rag-knowledge-hub\node_modules\.pnpm\next@15.5.14_react-dom@18.3.1_react@18.3.1__react@18.3.1\node_modules\next\dist\server\lib\start-server.js
+    at <unknown> (D:\project\nexairon-rag-knowledge-hub\apps\frontend\.next\server\app\kb\[id]\chat\page.js:2:364426)
+    at Object.<anonymous> (D:\project\nexairon-rag-knowledge-hub\apps\frontend\.next\server\app\kb\[id]\chat\page.js:2:364494) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array],
+  page: '/kb/cmn1j0ch4000qtfxs4wp6e2vy/chat'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open 'D:\project\nexairon-rag-knowledge-hub\apps\frontend\.next\routes-manifest.json'] {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'D:\\project\\nexairon-rag-knowledge-hub\\apps\\frontend\\.next\\routes-manifest.json'
+}
+[Error: ENOENT: no such file or directory, open 'D:\project\nexairon-rag-knowledge-hub\apps\frontend\.next\routes-manifest.json'] {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'D:\\project\\nexairon-rag-knowledge-hub\\apps\\frontend\\.next\\routes-manifest.json'
+}
+ GET /kb/cmn1j0ch4000qtfxs4wp6e2vy/chat 500 in 690ms
+ GET /kb/cmn1j0ch4000qtfxs4wp6e2vy/chat 500 in 312ms
+^C

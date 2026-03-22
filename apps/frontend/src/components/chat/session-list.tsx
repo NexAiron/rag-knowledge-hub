@@ -1,7 +1,7 @@
 "use client";
 
 import { Clock3, MessageSquarePlus, MessagesSquare } from "lucide-react";
-import { Button, Card, Empty, List, Tag, Typography } from "antd";
+import { Button, Card, Empty, Tag, Typography } from "antd";
 import type { ChatSession } from "@/types";
 import { useI18n } from "@/lib/i18n/use-i18n";
 
@@ -21,49 +21,74 @@ export function SessionList({
   const { locale, t } = useI18n();
 
   return (
-    <Card bordered={false} className="glass-panel !rounded-[30px] !shadow-none">
+    <Card
+      bordered={false}
+      className="dashboard-side-panel !rounded-[30px] !shadow-none"
+    >
+      <Typography.Text className="!text-[11px] !font-semibold !uppercase !tracking-[0.18em] !text-ink/48">
+        {t("chat.sessionLabel")}
+      </Typography.Text>
+      <Typography.Paragraph className="!mb-0 !mt-3 !text-[13px] !leading-6 !text-ink/62">
+        {t("chat.sessionHint")}
+      </Typography.Paragraph>
+
       <Button
         type="primary"
         onClick={onCreate}
         block
         icon={<MessageSquarePlus className="h-4 w-4" strokeWidth={2} />}
-        className="!rounded-[22px] !bg-ink !text-sm !font-semibold shadow-lg shadow-ink/10"
+        className="dashboard-primary-button !mt-5 !rounded-[22px] !text-sm !font-semibold shadow-none"
       >
         {t("chat.newSession")}
       </Button>
 
       {sessions.length === 0 ? (
-        <div className="mt-4">
-          <Empty description={t("chat.noSessions")} image={Empty.PRESENTED_IMAGE_SIMPLE} />
+        <div className="mt-5">
+          <Empty
+            description={t("chat.noSessions")}
+            image={Empty.PRESENTED_IMAGE_SIMPLE}
+          />
         </div>
       ) : (
-        <List
-          className="!mt-4"
-          dataSource={sessions}
-          renderItem={(session) => {
+        <div className="mt-4 space-y-2">
+          {sessions.map((session) => {
             const active = activeSessionId === session.id;
             return (
-              <List.Item className="!border-none !px-0 !py-1">
+              <div key={session.id} className="py-1">
                 <Card
                   size="small"
                   hoverable
                   onClick={() => onSelect(session.id)}
                   bordered={false}
-                  className={`w-full !rounded-[22px] !shadow-none ${active ? "!bg-ink text-white" : "ambient-card"}`}
+                  className={`w-full !rounded-[22px] !shadow-none ${
+                    active ? "!bg-ink text-white" : "ambient-card"
+                  }`}
                 >
-                  <Typography.Text className={`!flex !items-center !gap-2 !font-medium ${active ? "!text-white" : "!text-ink"}`}>
-                    <MessagesSquare className="h-3.5 w-3.5 shrink-0" strokeWidth={2} />
+                  <Typography.Text
+                    className={`!flex !items-center !gap-2 !font-medium ${
+                      active ? "!text-white" : "!text-ink"
+                    }`}
+                  >
+                    <MessagesSquare
+                      className="h-3.5 w-3.5 shrink-0"
+                      strokeWidth={2}
+                    />
                     <span className="truncate">{session.title}</span>
                   </Typography.Text>
-                  <Tag className="!mt-3 !rounded-full" color={active ? "default" : "blue"}>
+                  <Tag
+                    className="!mt-3 !rounded-full"
+                    color={active ? "default" : "blue"}
+                  >
                     <Clock3 className="mr-1 inline h-3 w-3" strokeWidth={2} />
-                    {new Date(session.updatedAt).toLocaleString(locale === "zh" ? "zh-CN" : "en-US")}
+                    {new Date(session.updatedAt).toLocaleString(
+                      locale === "zh" ? "zh-CN" : "en-US",
+                    )}
                   </Tag>
                 </Card>
-              </List.Item>
+              </div>
             );
-          }}
-        />
+          })}
+        </div>
       )}
     </Card>
   );

@@ -16,6 +16,11 @@ export interface RegisterPayload {
   name?: string;
 }
 
+export interface UpdateProfilePayload {
+  email?: string;
+  name?: string;
+}
+
 export async function loginByPassword(
   payload: LoginPayload,
 ): Promise<LoginResponse> {
@@ -87,4 +92,41 @@ export async function getCurrentUser(): Promise<UserProfile | null> {
   }
 
   return json.user;
+}
+
+export async function updateCurrentUser(
+  payload: UpdateProfilePayload,
+): Promise<LoginResponse> {
+  const response = await fetch("/api/me", {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+    credentials: "include",
+  });
+
+  const json = (await response.json()) as
+    | { message?: string }
+    | (Partial<LoginResponse> & { message?: string });
+
+  if (!response.ok || !("user" in json) || !("token" in json) || !json.user || !json.token) {
+    throw new Error(json.message ?? "Failed to update profile.");
+  }
+
+  return {
+    user: json.user,
+    token: json.token,
+  };
+}
+
+export async function logoutSession(): Promise<void> {
+  const response = await fetch("/api/logout", {
+    method: "POST",
+    credentials: "include",
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to log out.");
+  }
 }

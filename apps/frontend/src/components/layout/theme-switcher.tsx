@@ -23,8 +23,7 @@ export function ThemeSwitcher() {
           <MoonStar className="h-[18px] w-[18px]" strokeWidth={2} />
         )
       }
-      className="!inline-flex !h-10 !w-10 !items-center !justify-center !rounded-full !border-ink/10 !bg-white/75 !p-0 !text-ink/72 shadow-sm shadow-brand/5 backdrop-blur transition hover:!-translate-y-0.5 hover:!border-brand hover:!text-brand"
-    >
-    </Button>
+      className="dashboard-header-chip dashboard-header-chip-icon !inline-flex !items-center !justify-center !rounded-full !p-0 !text-ink/72"
+    />
   );
 }

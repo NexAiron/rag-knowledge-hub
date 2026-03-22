@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useMemo } from "react";
 import { BookOpen, LayoutDashboard, LibraryBig } from "lucide-react";
-import { Card, Empty, Menu, Spin, Tag, Typography } from "antd";
+import { Card, Empty, Spin, Tag, Typography } from "antd";
 import { useI18n } from "@/lib/i18n/use-i18n";
 import { useKbStore } from "@/stores/kb-store";
 import { BrandMark } from "./brand-mark";
@@ -33,51 +33,68 @@ export function Sidebar() {
 
   return (
     <aside className="hidden w-[320px] shrink-0 lg:block">
-      <Card bordered={false} className="glass-panel h-full !rounded-[32px] !shadow-none">
+      <div className="dashboard-sidebar h-full">
         <Card
           bordered={false}
-          className="accent-panel !rounded-[26px] !shadow-none"
-          styles={{ body: { padding: 20, color: "white" } }}
+          className="dashboard-sidebar-brand !rounded-[28px] !shadow-none"
+          styles={{ body: { padding: 22 } }}
         >
           <div className="flex items-center gap-3">
-            <BrandMark inverted />
+            <BrandMark />
             <div>
-              <Typography.Text className="!text-[10px] !font-semibold !uppercase !tracking-[0.26em] !text-white/70">
+              <Typography.Text className="!text-[10px] !font-semibold !uppercase !tracking-[0.26em] !text-ink/58">
                 {t("common.brand")}
               </Typography.Text>
-              <Typography.Paragraph className="!mb-0 !mt-1 !text-[11px] !text-white/56">
+              <Typography.Paragraph className="!mb-0 !mt-1 !text-[11px] !text-ink/48">
                 {t("sidebar.workspaceLabel")}
               </Typography.Paragraph>
             </div>
           </div>
-          <Typography.Title level={3} className="!mb-0 !mt-3 !text-[1.45rem] !font-semibold !tracking-[-0.04em] !text-white">
-            {t("sidebar.dashboard")}
+          <Typography.Title
+            level={3}
+            className="!mb-0 !mt-5 !text-[1.5rem] !font-semibold !tracking-[-0.05em] !text-ink"
+          >
+            {t("sidebar.title")}
           </Typography.Title>
-          <Typography.Paragraph className="!mb-0 !mt-3 !text-[13px] !leading-6 !text-white/74">
-            {t("sidebar.caption")}
+          <Typography.Paragraph className="!mb-0 !mt-3 !text-[13px] !leading-6 !text-ink/66">
+            {t("sidebar.subtitle")}
           </Typography.Paragraph>
         </Card>
 
         <div className="mt-6">
-          <Menu
-            mode="inline"
-            selectedKeys={selectedKey ? [selectedKey] : []}
-            items={[
-              {
-                key: "dashboard",
-                icon: <LayoutDashboard className="h-4 w-4" strokeWidth={2} />,
-                label: <Link href="/dashboard">{t("sidebar.dashboard")}</Link>,
-              },
-            ]}
-            className="!border-none !bg-transparent"
-          />
+          <Typography.Text className="!text-[11px] !font-semibold !uppercase !tracking-[0.18em] !text-ink/46">
+            {t("sidebar.navigation")}
+          </Typography.Text>
+          <div className="mt-3 space-y-2">
+            <Link
+              href="/dashboard"
+              className={`dashboard-sidebar-link ${selectedKey === "dashboard" ? "is-active" : ""}`}
+            >
+              <div className="dashboard-sidebar-icon">
+                <LayoutDashboard className="h-4 w-4" strokeWidth={2} />
+              </div>
+              <div className="min-w-0">
+                <Typography.Text className="!block !text-sm !font-semibold !text-current">
+                  {t("sidebar.dashboard")}
+                </Typography.Text>
+                <Typography.Text className="!block !text-[12px] !text-current/60">
+                  {t("sidebar.dashboardHint")}
+                </Typography.Text>
+              </div>
+            </Link>
+          </div>
         </div>
 
-        <div className="mt-6">
-          <Typography.Text className="!flex !items-center !gap-2 !text-xs !font-semibold !uppercase !tracking-[0.18em] !text-ink/55">
-            <LibraryBig className="h-3.5 w-3.5" strokeWidth={2} />
-            {t("sidebar.knowledgeBases")}
-          </Typography.Text>
+        <div className="mt-7">
+          <div className="flex items-center justify-between gap-3">
+            <Typography.Text className="!flex !items-center !gap-2 !text-[11px] !font-semibold !uppercase !tracking-[0.18em] !text-ink/46">
+              <LibraryBig className="h-3.5 w-3.5" strokeWidth={2} />
+              {t("sidebar.knowledgeBases")}
+            </Typography.Text>
+            <Tag bordered={false} className="dashboard-soft-tag !m-0">
+              {knowledgeBases.length}
+            </Tag>
+          </div>
 
           {isLoading ? (
             <div className="mt-4 flex items-center gap-2 text-xs text-ink/60">
@@ -85,8 +102,14 @@ export function Sidebar() {
               <span>{t("sidebar.loading")}</span>
             </div>
           ) : knowledgeBases.length === 0 ? (
-            <Card bordered={false} className="ambient-card !mt-4 !rounded-[22px] !shadow-none">
-              <Empty description={t("sidebar.knowledgeBases")} image={Empty.PRESENTED_IMAGE_SIMPLE} />
+            <Card
+              bordered={false}
+              className="ambient-card !mt-4 !rounded-[24px] !shadow-none"
+            >
+              <Empty
+                description={t("sidebar.empty")}
+                image={Empty.PRESENTED_IMAGE_SIMPLE}
+              />
             </Card>
           ) : (
             <div className="mt-3 space-y-2">
@@ -97,28 +120,26 @@ export function Sidebar() {
                     key={kb.id}
                     href={`/kb/${kb.id}`}
                     onClick={() => selectKnowledgeBase(kb.id)}
-                    className="block"
+                    className={`dashboard-sidebar-link ${active ? "is-active" : ""}`}
                   >
-                    <Card
-                      size="small"
-                      bordered={false}
-                      className={`${active ? "accent-panel text-white" : "ambient-card"} !rounded-[22px] !shadow-none transition`}
-                    >
-                      <Typography.Text className={`!flex !items-center !gap-2 !font-medium ${active ? "!text-white" : "!text-ink"}`}>
-                        <BookOpen className="h-3.5 w-3.5 shrink-0" strokeWidth={2} />
-                        <span className="truncate">{kb.name}</span>
+                    <div className="dashboard-sidebar-icon">
+                      <BookOpen className="h-4 w-4" strokeWidth={2} />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <Typography.Text className="!block truncate !text-sm !font-semibold !text-current">
+                        {kb.name}
                       </Typography.Text>
-                      <Tag className="!mt-3 !rounded-full" color={active ? "default" : "blue"}>
+                      <Typography.Text className="!block !text-[12px] !text-current/60">
                         {kb.documentCount} {t("sidebar.docs")}
-                      </Tag>
-                    </Card>
+                      </Typography.Text>
+                    </div>
                   </Link>
                 );
               })}
             </div>
           )}
         </div>
-      </Card>
+      </div>
     </aside>
   );
 }

@@ -44,35 +44,44 @@ export function SourcePanel({ status, answer, sources }: SourcePanelProps) {
   );
 
   return (
-    <Card bordered={false} className="glass-panel !rounded-[30px] !shadow-none">
-      <div className="flex items-center justify-between">
+    <Card
+      bordered={false}
+      className="dashboard-side-panel !rounded-[30px] !shadow-none"
+    >
+      <div className="flex items-center justify-between gap-3">
         <Typography.Text className="!flex !items-center !gap-2 !text-sm !font-semibold !uppercase !tracking-wide !text-ink/70">
           <PanelRightOpen className="h-4 w-4 text-brand" strokeWidth={2} />
           {t("chat.sources")}
         </Typography.Text>
         <Tag className="!rounded-full">
-          {t("chat.status")}: {status}
+          {t(`chat.sourceStatus.${status}`)}
         </Tag>
       </div>
-      <Typography.Paragraph className="!mb-0 !mt-2 !text-xs !leading-5 !text-ink/55">
+      <Typography.Paragraph className="!mb-0 !mt-3 !text-xs !leading-5 !text-ink/55">
         {t("chat.sourcesPanelHint")}
       </Typography.Paragraph>
 
       {answer ? (
-        <Card size="small" className="!mt-3 !rounded-[24px] !border-ink/10 !bg-white/75 !shadow-none">
+        <Card
+          size="small"
+          className="dashboard-overview-row !mt-4 !rounded-[24px] !shadow-none"
+        >
           <Typography.Text className="!flex !items-center !gap-1.5 !text-[11px] !font-medium !uppercase !tracking-wide !text-ink/55">
             <Sparkles className="h-3.5 w-3.5 text-brand" strokeWidth={2} />
             {t("chat.relatedAnswer")}
           </Typography.Text>
-          <Typography.Paragraph className="!mb-0 !mt-1 !text-xs !text-ink/75">
+          <Typography.Paragraph className="!mb-0 !mt-2 !text-xs !text-ink/75">
             {previewText(answer, 120)}
           </Typography.Paragraph>
         </Card>
       ) : null}
 
-      <div className="mt-3 space-y-2">
+      <div className="mt-4 space-y-3">
         {displaySources.length === 0 ? (
-          <Empty description={t("chat.noSources")} image={Empty.PRESENTED_IMAGE_SIMPLE} />
+          <Empty
+            description={t("chat.noSources")}
+            image={Empty.PRESENTED_IMAGE_SIMPLE}
+          />
         ) : (
           displaySources.map((source) => {
             const isExpanded = Boolean(expandedMap[source.id]);
@@ -81,10 +90,17 @@ export function SourcePanel({ status, answer, sources }: SourcePanelProps) {
               : previewText(source.content || t("chat.noContent"));
 
             return (
-              <Card key={source.id} size="small" className="!rounded-[24px] !border-ink/15 !bg-white/78 !shadow-none">
+              <Card
+                key={source.id}
+                size="small"
+                className="dashboard-overview-row !rounded-[24px] !shadow-none"
+              >
                 <div className="flex items-center justify-between gap-2">
                   <Typography.Text className="!flex !items-center !gap-1.5 !text-xs !font-semibold !text-ink/85">
-                    <BookMarked className="h-3.5 w-3.5 shrink-0 text-brand" strokeWidth={2} />
+                    <BookMarked
+                      className="h-3.5 w-3.5 shrink-0 text-brand"
+                      strokeWidth={2}
+                    />
                     {source.doc || t("chat.unknownDocument")}
                   </Typography.Text>
                   <Tag className="!rounded-full">p.{source.page}</Tag>
@@ -98,7 +114,10 @@ export function SourcePanel({ status, answer, sources }: SourcePanelProps) {
                   type="link"
                   icon={<FileSearch className="h-3.5 w-3.5" strokeWidth={2} />}
                   onClick={() =>
-                    setExpandedMap((prev) => ({ ...prev, [source.id]: !prev[source.id] }))
+                    setExpandedMap((prev) => ({
+                      ...prev,
+                      [source.id]: !prev[source.id],
+                    }))
                   }
                   className="!mt-2 !px-0"
                 >

@@ -4,7 +4,9 @@ import { create } from "zustand";
 import {
   getCurrentUser,
   loginByPassword,
+  logoutSession,
   registerByPassword,
+  updateCurrentUser,
 } from "@/lib/api/auth";
 import type { UserProfile } from "@/types";
 
@@ -22,7 +24,8 @@ interface UserStoreState {
     password: string;
     name?: string;
   }) => Promise<void>;
-  logout: () => void;
+  updateProfile: (payload: { email?: string; name?: string }) => Promise<void>;
+  logout: () => Promise<void>;
 }
 
 const applyAuthSuccess = (
@@ -106,12 +109,34 @@ export const useUserStore = create<UserStoreState>((set) => ({
     }
   },
 
-  logout: () =>
-    set({
-      user: null,
-      token: null,
-      error: null,
-      isLoading: false,
-      hasBootstrapped: true,
-    }),
+  updateProfile: async ({ email, name }) => {
+    set({ isLoading: true, error: null });
+    try {
+      const response = await updateCurrentUser({ email, name });
+      applyAuthSuccess(set, response);
+    } catch (error) {
+      set({
+        isLoading: false,
+        error:
+          error instanceof Error
+            ? error.message
+            : "Failed to update profile.",
+      });
+      throw error;
+    }
+  },
+
+  logout: async () => {
+    try {
+      await logoutSession();
+    } finally {
+      set({
+        user: null,
+        token: null,
+        error: null,
+        isLoading: false,
+        hasBootstrapped: true,
+      });
+    }
+  },
 }));

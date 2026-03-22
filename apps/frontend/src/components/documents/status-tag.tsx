@@ -1,7 +1,13 @@
 "use client";
 
 import { Tag } from "antd";
-import { AlertCircle, CheckCircle2, Clock3, LoaderCircle, UploadCloud } from "lucide-react";
+import {
+  AlertCircle,
+  CheckCircle2,
+  Clock3,
+  LoaderCircle,
+  UploadCloud,
+} from "lucide-react";
 import { useI18n } from "@/lib/i18n/use-i18n";
 import type { DocumentStatus } from "@/types";
 
@@ -32,9 +38,12 @@ export function StatusTag({ status }: StatusTagProps) {
   return (
     <Tag
       color={statusColorMap[status]}
-      className="!m-0 !inline-flex !items-center !gap-1 !rounded-full !px-2.5 !py-1 !text-xs !font-medium"
+      className="!m-0 !inline-flex !items-center !gap-1.5 !rounded-full !px-2.5 !py-1 !text-xs !font-medium"
     >
-      <Icon className={`h-3.5 w-3.5 ${status === "processing" ? "animate-spin" : ""}`} strokeWidth={2} />
+      <Icon
+        className={`h-3.5 w-3.5 ${status === "processing" ? "animate-spin" : ""}`}
+        strokeWidth={2}
+      />
       {t(`status.${status}`)}
     </Tag>
   );

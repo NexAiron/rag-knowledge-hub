@@ -1,9 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { ReactNode } from "react";
-import { Button, Tag, Typography } from "antd";
-import { LogOut, Sparkles } from "lucide-react";
+import { ReactNode, useMemo } from "react";
+import { App, Avatar, Button, Dropdown, Tag, Typography } from "antd";
+import {
+  ChevronDown,
+  LogOut,
+  Settings2,
+  Sparkles,
+  UserCircle2,
+} from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useI18n } from "@/lib/i18n/use-i18n";
 import { useUserStore } from "@/stores/user-store";
 import { LanguageSwitcher } from "./language-switcher";
@@ -19,11 +26,48 @@ export function Header({ title, description, action }: HeaderProps) {
   const user = useUserStore((state) => state.user);
   const logout = useUserStore((state) => state.logout);
   const { t } = useI18n();
+  const { message } = App.useApp();
+  const router = useRouter();
+
+  const menuItems = useMemo(
+    () =>
+      user
+        ? [
+            {
+              key: "profile",
+              icon: <Settings2 className="h-4 w-4" strokeWidth={2} />,
+              label: t("header.editProfile"),
+            },
+            {
+              type: "divider" as const,
+            },
+            {
+              key: "logout",
+              icon: <LogOut className="h-4 w-4" strokeWidth={2} />,
+              label: t("common.logout"),
+            },
+          ]
+        : [],
+    [t, user],
+  );
+
+  const handleMenuClick = async ({ key }: { key: string }) => {
+    if (key === "profile") {
+      router.push("/profile");
+      return;
+    }
+
+    if (key === "logout") {
+      await logout();
+      message.success(t("header.logoutSuccess"));
+      router.push("/login");
+    }
+  };
 
   return (
     <header className="glass-panel overflow-hidden rounded-[32px] p-5 lg:p-6">
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div className="max-w-2xl">
+      <div className="dashboard-header-shell">
+        <div className="dashboard-header-copy">
           <Tag
             bordered={false}
             color="blue"
@@ -34,7 +78,7 @@ export function Header({ title, description, action }: HeaderProps) {
           </Tag>
           <Typography.Title
             level={1}
-            className="!mb-0 !mt-4 min-h-[2.2rem] !text-[1.75rem] !font-semibold !tracking-[-0.04em] !text-ink lg:min-h-[2.7rem] lg:!text-[2.1rem]"
+            className="!mb-0 !mt-4 min-h-[2.2rem] !text-[1.75rem] !font-semibold !tracking-[-0.04em] !text-ink lg:min-h-[2.7rem] lg:!text-[2.05rem]"
           >
             {title}
           </Typography.Title>
@@ -45,35 +89,36 @@ export function Header({ title, description, action }: HeaderProps) {
           ) : null}
         </div>
 
-        <div className="flex min-h-[52px] flex-wrap items-center justify-end gap-2">
+        <div className="dashboard-header-actions">
           <LanguageSwitcher />
           <ThemeSwitcher />
           {action}
 
           {user ? (
-            <>
-              <div className="ambient-card rounded-[22px] px-4 py-3 text-right">
-                <Typography.Text className="!text-[11px] uppercase tracking-[0.18em] !text-ink/45">
-                  {t("header.welcome")}
-                </Typography.Text>
-                <Typography.Paragraph className="!mb-0 !mt-1 !text-sm !font-semibold !text-ink">
-                  {user.name}
-                </Typography.Paragraph>
-              </div>
-              <Button
-                onClick={logout}
-                icon={<LogOut className="h-3.5 w-3.5" strokeWidth={2} />}
-                className="!rounded-2xl !border-ink/20 !bg-white/78 !px-4 !text-xs !font-semibold !text-ink shadow-none transition hover:!-translate-y-0.5 hover:!border-brand hover:!text-brand"
-              >
-                {t("common.logout")}
-              </Button>
-            </>
-          ) : (
-            <Link
-              href="/login"
-              className="inline-flex"
+            <Dropdown
+              menu={{ items: menuItems, onClick: handleMenuClick }}
+              placement="bottomRight"
+              trigger={["click"]}
             >
-              <Button type="primary" className="!rounded-2xl !bg-ink !px-4 !text-xs !font-semibold shadow-lg shadow-ink/10">
+              <button type="button" className="dashboard-user-nav">
+                <Avatar
+                  size={30}
+                  className="dashboard-user-avatar"
+                  icon={<UserCircle2 className="h-4 w-4" strokeWidth={2} />}
+                />
+                <span className="dashboard-user-name">{user.name}</span>
+                <ChevronDown
+                  className="h-4 w-4 text-ink/46"
+                  strokeWidth={2}
+                />
+              </button>
+            </Dropdown>
+          ) : (
+            <Link href="/login" className="inline-flex">
+              <Button
+                type="primary"
+                className="dashboard-primary-button !rounded-2xl !px-4 !text-xs !font-semibold shadow-none"
+              >
                 {t("common.signIn")}
               </Button>
             </Link>

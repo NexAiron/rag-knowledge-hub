@@ -80,54 +80,91 @@ export function ChatWindow({ kbId }: ChatWindowProps) {
   };
 
   return (
-    <section className="grid gap-4 xl:grid-cols-[280px_minmax(0,1fr)_340px]">
-      <SessionList
-        sessions={currentSessions}
-        activeSessionId={activeSessionId}
-        onSelect={setActiveSession}
-        onCreate={() => createSession(kbId, t("chat.newSession"))}
-      />
-
-      <div className="flex min-h-[70vh] flex-col gap-4">
-        <Card bordered={false} className="glass-panel !rounded-[30px] !shadow-none">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <Typography.Text className="!flex !items-center !gap-2 !text-[11px] !font-semibold !uppercase !tracking-[0.24em] !text-brand">
-                <MessageSquareText className="h-4 w-4" strokeWidth={2} />
-                对话工作区
-              </Typography.Text>
+    <div className="space-y-4">
+      <Card
+        bordered={false}
+        className="dashboard-hero !rounded-[32px] !shadow-none"
+      >
+        <div className="dashboard-hero-simple">
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div className="max-w-3xl">
+              <Tag bordered={false} className="dashboard-soft-tag !m-0">
+                {t("chat.workspaceLabel")}
+              </Tag>
               <Typography.Title
-                level={3}
-                className="!mb-0 !mt-2 !text-xl !font-semibold !tracking-[-0.04em] !text-ink"
+                level={2}
+                className="!mb-0 !mt-4 !text-[1.8rem] !font-semibold !tracking-[-0.04em] !text-ink"
               >
                 {t("chat.pageTitle")}
               </Typography.Title>
+              <Typography.Paragraph className="!mb-0 !mt-3 !text-[13px] !leading-7 !text-ink/64">
+                {t("chat.workspaceHint")}
+              </Typography.Paragraph>
             </div>
-            <Tag className="!rounded-full">KB · {kbId}</Tag>
+            <Tag className="!rounded-full !px-3 !py-1">KB · {kbId}</Tag>
           </div>
-        </Card>
+        </div>
+      </Card>
 
-        <MessageList messages={activeMessages} />
-        <ChatInput
-          value={question}
-          onChange={setQuestion}
-          onSubmit={() => void handleSend()}
-          onStop={stopStream}
-          onClear={clearActiveSessionMessages}
-          isStreaming={streamStatus === "streaming"}
+      <section className="grid gap-4 xl:grid-cols-[280px_minmax(0,1fr)_340px]">
+        <SessionList
+          sessions={currentSessions}
+          activeSessionId={activeSessionId}
+          onSelect={setActiveSession}
+          onCreate={() => createSession(kbId, t("chat.newSession"))}
         />
-        {error ? (
-          <Alert message={error} type="error" showIcon className="!rounded-2xl" />
-        ) : null}
-      </div>
 
-      <div className="hidden xl:block">
-        <SourcePanel
-          status={streamStatus}
-          answer={latestAssistantAnswer}
-          sources={activeSources}
-        />
-      </div>
-    </section>
+        <div className="flex min-h-[70vh] flex-col gap-4">
+          <Card
+            bordered={false}
+            className="dashboard-side-panel !rounded-[30px] !shadow-none"
+          >
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <Typography.Text className="!flex !items-center !gap-2 !text-[11px] !font-semibold !uppercase !tracking-[0.24em] !text-brand">
+                  <MessageSquareText className="h-4 w-4" strokeWidth={2} />
+                  {t("chat.messageLabel")}
+                </Typography.Text>
+                <Typography.Title
+                  level={3}
+                  className="!mb-0 !mt-2 !text-xl !font-semibold !tracking-[-0.04em] !text-ink"
+                >
+                  {t("chat.pageTitle")}
+                </Typography.Title>
+              </div>
+              <Tag className="!rounded-full">
+                {t(`chat.sourceStatus.${streamStatus}`)}
+              </Tag>
+            </div>
+          </Card>
+
+          <MessageList messages={activeMessages} />
+          <ChatInput
+            value={question}
+            onChange={setQuestion}
+            onSubmit={() => void handleSend()}
+            onStop={stopStream}
+            onClear={clearActiveSessionMessages}
+            isStreaming={streamStatus === "streaming"}
+          />
+          {error ? (
+            <Alert
+              message={error}
+              type="error"
+              showIcon
+              className="!rounded-2xl"
+            />
+          ) : null}
+        </div>
+
+        <div className="hidden xl:block">
+          <SourcePanel
+            status={streamStatus}
+            answer={latestAssistantAnswer}
+            sources={activeSources}
+          />
+        </div>
+      </section>
+    </div>
   );
 }

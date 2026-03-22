@@ -1,0 +1,27 @@
+Environment variables loaded from .env
+Environment variables loaded from .env
+(node:29884) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security vulnerabilities, as the arguments are not escaped, only concatenated.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+^C^Cm[Nest] 26444  - [39m2026/03/22 19:27:01 [31m  ERROR[39m [38;5;3m[NestApplication] [39m[31mError: listen EADDRINUSE: address already in use :::3001[39m[38;5;3m +1ms[39m
+node:net:1940
+    const ex = new UVExceptionWithHostPort(err, 'listen', address, port);
+               ^
+
+Error: listen EADDRINUSE: address already in use :::3001
+    at Server.setupListenHandle [as _listen2] (node:net:1940:16)
+    at listenInCluster (node:net:1997:12)
+    at Server.listen (node:net:2102:7)
+    at ExpressAdapter.listen (D:\project\nexairon-rag-knowledge-hub\node_modules\.pnpm\@nestjs+platform-express@10.4.22_@nestjs+common@10.4.22_class-transformer@0.5.1_class-validat_3e645l3ehqiqb6yhgcfsxu7f44\node_modules\@nestjs\platform-express\adapters\express-adapter.js:95:32)
+    at D:\project\nexairon-rag-knowledge-hub\node_modules\.pnpm\@nestjs+core@10.4.22_@nestjs+common@10.4.22_class-transformer@0.5.1_class-validator@0.14.4_re_wv7sonobpk6cc2m3n6ev6bfqdu\node_modules\@nestjs\core\nest-application.js:183:30
+    at new Promise (<anonymous>)
+    at NestApplication.listen (D:\project\nexairon-rag-knowledge-hub\node_modules\.pnpm\@nestjs+core@10.4.22_@nestjs+common@10.4.22_class-transformer@0.5.1_class-validator@0.14.4_re_wv7sonobpk6cc2m3n6ev6bfqdu\node_modules\@nestjs\core\nest-application.js:173:16)
+    at async bootstrap (D:\project\nexairon-rag-knowledge-hub\apps\backend\src\main.ts:28:3) {
+  code: 'EADDRINUSE',
+  errno: -4091,
+  syscall: 'listen',
+  address: '::',
+  port: 3001
+}
+
+Node.js v25.2.1
+^C

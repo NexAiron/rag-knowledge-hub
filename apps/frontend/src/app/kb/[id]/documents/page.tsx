@@ -3,10 +3,14 @@
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { ChangeEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Alert, Button, Card, Empty, Statistic, Tag, Typography } from "antd";
+import { App, Alert, Button, Card, Empty, Statistic, Tag, Typography } from "antd";
 import { DocumentsTable } from "@/components/documents/documents-table";
 import { Layout } from "@/components/layout/layout";
-import { deleteDocument, listDocuments, uploadDocument } from "@/lib/api/documents";
+import {
+  deleteDocument,
+  listDocuments,
+  uploadDocument,
+} from "@/lib/api/documents";
 import { useI18n } from "@/lib/i18n/use-i18n";
 import { useKbStore } from "@/stores/kb-store";
 import type { KnowledgeDocument } from "@/types";
@@ -20,6 +24,7 @@ export default function DocumentsPage() {
   const params = useParams<{ id: string }>();
   const kbId = params.id;
   const { t } = useI18n();
+  const { message } = App.useApp();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const syncKnowledgeBases = useKbStore((state) => state.syncKnowledgeBases);
 
@@ -37,6 +42,16 @@ export default function DocumentsPage() {
       ),
     [documents],
   );
+
+  const completedCount = useMemo(
+    () => documents.filter((item) => item.status === "completed").length,
+    [documents],
+  );
+
+  const formatLabel = useMemo(() => {
+    const types = new Set(documents.map((item) => item.fileType.toUpperCase()));
+    return types.size > 0 ? Array.from(types).join(" / ") : "PDF / MD";
+  }, [documents]);
 
   const fetchDocuments = useCallback(async () => {
     try {
@@ -102,6 +117,7 @@ export default function DocumentsPage() {
       setDocuments((prev) =>
         prev.map((item) => (item.id === tempId ? created : item)),
       );
+      message.success(t("documents.uploadSuccess"));
       void syncKnowledgeBases();
       void fetchDocuments();
     } catch (uploadError) {
@@ -124,6 +140,7 @@ export default function DocumentsPage() {
     try {
       await deleteDocument(id);
       setDocuments((prev) => prev.filter((item) => item.id !== id));
+      message.success(t("documents.deleteSuccess"));
       void syncKnowledgeBases();
     } catch (deleteError) {
       setError(
@@ -142,7 +159,9 @@ export default function DocumentsPage() {
       description={`${t("documents.description")} · ${kbId}`}
       action={
         <Link href={`/kb/${kbId}`}>
-          <Button className="!rounded-2xl">{t("documents.backToKb")}</Button>
+          <Button className="dashboard-secondary-button !rounded-2xl">
+            {t("documents.backToKb")}
+          </Button>
         </Link>
       }
     >
@@ -150,37 +169,42 @@ export default function DocumentsPage() {
         <section className="grid gap-4 xl:grid-cols-[1.35fr_0.65fr]">
           <Card
             bordered={false}
-            className="glass-panel !rounded-[32px] !shadow-none"
+            className="dashboard-hero !rounded-[32px] !shadow-none"
           >
-            <Tag
-              color="blue"
-              bordered={false}
-              className="!m-0 !rounded-full !px-3 !py-1 !text-[10px] !font-semibold !uppercase !tracking-[0.22em]"
-            >
-              {t("common.documents")}
-            </Tag>
-            <Typography.Title
-              level={2}
-              className="!mb-0 !mt-4 !text-[1.75rem] !font-semibold !tracking-[-0.04em] !text-ink"
-            >
-              {t("documents.title")}
-            </Typography.Title>
-            <Typography.Paragraph className="!mb-0 !mt-3 max-w-2xl !text-[13px] !leading-7 !text-ink/62">
-              {t("documents.description")}
-            </Typography.Paragraph>
+            <div className="dashboard-hero-simple">
+              <div className="dashboard-copy-block !min-h-0">
+                <Tag bordered={false} className="dashboard-soft-tag !m-0">
+                  {t("common.documents")}
+                </Tag>
+                <Typography.Title
+                  level={2}
+                  className="!mb-0 !mt-4 !text-[1.85rem] !font-semibold !tracking-[-0.04em] !text-ink"
+                >
+                  {t("documents.title")}
+                </Typography.Title>
+                <Typography.Paragraph className="!mb-0 !mt-3 max-w-2xl !text-[13px] !leading-7 !text-ink/62">
+                  {t("documents.description")}
+                </Typography.Paragraph>
 
-            <div className="mt-8 flex flex-wrap items-center gap-3">
-              <Button
-                type="primary"
-                onClick={() => fileInputRef.current?.click()}
-                loading={isUploading}
-                className="!rounded-2xl !bg-ink shadow-lg shadow-ink/10"
-              >
-                {isUploading ? t("common.uploading") : t("documents.uploadButton")}
-              </Button>
-              <Typography.Text className="!text-xs !text-ink/60">
-                {t("common.supportedTypes")}: `.pdf`, `.md`
-              </Typography.Text>
+                <div className="mt-7 flex flex-wrap items-center gap-3">
+                  <Button
+                    type="primary"
+                    onClick={() => fileInputRef.current?.click()}
+                    loading={isUploading}
+                    className="dashboard-primary-button !rounded-2xl shadow-none"
+                  >
+                    {isUploading
+                      ? t("common.uploading")
+                      : t("documents.uploadButton")}
+                  </Button>
+                  <span className="dashboard-inline-note">
+                    {t("common.supportedTypes")}: `.pdf`, `.md`
+                  </span>
+                </div>
+                <Typography.Paragraph className="!mb-0 !mt-4 !text-[12px] !leading-6 !text-ink/54">
+                  {t("documents.panelHint")}
+                </Typography.Paragraph>
+              </div>
             </div>
 
             <input
@@ -214,7 +238,7 @@ export default function DocumentsPage() {
 
             <Card
               bordered={false}
-              className="glass-panel !rounded-[30px] !shadow-none"
+              className="dashboard-side-panel !rounded-[30px] !shadow-none"
             >
               <Typography.Text className="!text-xs !font-semibold !uppercase !tracking-[0.18em] !text-ink/52">
                 {t("documents.snapshotLabel")}
@@ -222,7 +246,7 @@ export default function DocumentsPage() {
               <div className="mt-4 grid gap-3">
                 <Card
                   size="small"
-                  className="!rounded-[22px] !border-ink/8 !bg-white/78 !shadow-none"
+                  className="dashboard-overview-row !rounded-[22px] !shadow-none"
                 >
                   <Statistic
                     title={t("documents.snapshotTotal")}
@@ -231,14 +255,35 @@ export default function DocumentsPage() {
                 </Card>
                 <Card
                   size="small"
-                  className="!rounded-[22px] !border-ink/8 !bg-white/78 !shadow-none"
+                  className="dashboard-overview-row !rounded-[22px] !shadow-none"
                 >
                   <Statistic
                     title={t("documents.snapshotProcessing")}
                     value={
-                      documents.filter((item) => item.status === "processing").length
+                      documents.filter((item) => item.status === "processing")
+                        .length
                     }
                   />
+                </Card>
+                <Card
+                  size="small"
+                  className="dashboard-overview-row !rounded-[22px] !shadow-none"
+                >
+                  <Statistic
+                    title={t("documents.snapshotReady")}
+                    value={completedCount}
+                  />
+                </Card>
+                <Card
+                  size="small"
+                  className="dashboard-overview-row !rounded-[22px] !shadow-none"
+                >
+                  <Typography.Text className="!text-xs !uppercase !tracking-[0.16em] !text-ink/56">
+                    {t("documents.snapshotFormats")}
+                  </Typography.Text>
+                  <Typography.Paragraph className="!mb-0 !mt-3 !text-sm !font-semibold !text-ink">
+                    {formatLabel}
+                  </Typography.Paragraph>
                 </Card>
               </div>
             </Card>
@@ -246,15 +291,26 @@ export default function DocumentsPage() {
         </section>
 
         {error ? (
-          <Alert message={error} type="error" showIcon className="!rounded-2xl" />
+          <Alert
+            message={error}
+            type="error"
+            showIcon
+            className="!rounded-2xl"
+          />
         ) : null}
 
         {isLoading ? (
-          <Card bordered={false} className="glass-panel !rounded-[30px] !shadow-none">
+          <Card
+            bordered={false}
+            className="glass-panel !rounded-[30px] !shadow-none"
+          >
             {t("documents.loading")}
           </Card>
         ) : documents.length === 0 ? (
-          <Card bordered={false} className="glass-panel !rounded-[30px] !shadow-none">
+          <Card
+            bordered={false}
+            className="glass-panel !rounded-[30px] !shadow-none"
+          >
             <Empty
               description={t("documents.empty")}
               image={Empty.PRESENTED_IMAGE_SIMPLE}

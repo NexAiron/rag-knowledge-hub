@@ -24,7 +24,7 @@ export function DocumentsTable({
   deletingId,
   onDelete,
 }: DocumentsTableProps) {
-  const { t } = useI18n();
+  const { locale, t } = useI18n();
 
   const columns: ColumnsType<KnowledgeDocument> = [
     {
@@ -38,7 +38,9 @@ export function DocumentsTable({
             <span className="truncate">{record.fileName}</span>
           </Typography.Text>
           <Typography.Text className="!mt-1 !block !text-xs !text-ink/52">
-            {new Date(record.updatedAt).toLocaleString()}
+            {new Date(record.updatedAt).toLocaleString(
+              locale === "zh" ? "zh-CN" : "en-US",
+            )}
           </Typography.Text>
         </div>
       ),
@@ -48,26 +50,30 @@ export function DocumentsTable({
       dataIndex: "fileType",
       key: "fileType",
       width: 120,
-      render: (value) => <span className="uppercase text-ink/70">{value}</span>,
+      render: (value) => (
+        <span className="uppercase text-[13px] text-ink/70">{value}</span>
+      ),
     },
     {
       title: t("documents.tableSize"),
       dataIndex: "size",
       key: "size",
       width: 120,
-      render: (value) => <span className="text-ink/70">{formatSize(value)}</span>,
+      render: (value) => (
+        <span className="text-[13px] text-ink/70">{formatSize(value)}</span>
+      ),
     },
     {
       title: t("documents.tableStatus"),
       dataIndex: "status",
       key: "status",
-      width: 140,
+      width: 150,
       render: (value) => <StatusTag status={value} />,
     },
     {
       title: t("documents.tableAction"),
       key: "action",
-      width: 140,
+      width: 148,
       render: (_value, record) => (
         <Button
           danger
@@ -83,14 +89,19 @@ export function DocumentsTable({
   ];
 
   return (
-    <div className="glass-panel overflow-hidden rounded-[30px]">
+    <div className="glass-panel overflow-hidden rounded-[30px] p-2">
       <Table
         rowKey="id"
         columns={columns}
         dataSource={documents}
         pagination={false}
         locale={{
-          emptyText: <Empty description={t("documents.empty")} image={Empty.PRESENTED_IMAGE_SIMPLE} />,
+          emptyText: (
+            <Empty
+              description={t("documents.empty")}
+              image={Empty.PRESENTED_IMAGE_SIMPLE}
+            />
+          ),
         }}
         className="documents-antd-table"
       />

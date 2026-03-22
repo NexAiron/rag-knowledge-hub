@@ -8,6 +8,12 @@ interface CreateUserInput {
   name?: string;
 }
 
+interface UpdateUserProfileInput {
+  id: string;
+  email?: string;
+  name?: string;
+}
+
 const userWithPasswordSelect = {
   id: true,
   email: true,
@@ -53,6 +59,17 @@ export class UsersService {
         email: input.email,
         passwordHash: input.passwordHash,
         name: input.name,
+      },
+      select: safeUserSelect,
+    });
+  }
+
+  updateProfile(input: UpdateUserProfileInput) {
+    return this.prisma.user.update({
+      where: { id: input.id },
+      data: {
+        ...(input.email ? { email: input.email } : {}),
+        ...(input.name !== undefined ? { name: input.name } : {}),
       },
       select: safeUserSelect,
     });

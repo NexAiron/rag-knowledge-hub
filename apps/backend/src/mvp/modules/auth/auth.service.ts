@@ -1,14 +1,17 @@
 import {
   ConflictException,
   Injectable,
+  NotFoundException,
   UnauthorizedException,
 } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import * as bcrypt from "bcryptjs";
+import { Prisma } from "@prisma/client";
 import { AuthResponseDto } from "./dto/auth-response.dto";
 import { AuthUserDto } from "./dto/auth-user.dto";
 import { LoginDto } from "./dto/login.dto";
 import { RegisterDto } from "./dto/register.dto";
+import { UpdateProfileDto } from "./dto/update-profile.dto";
 import { UsersService } from "../users/users.service";
 
 const PASSWORD_SALT_ROUNDS = 10;
@@ -48,6 +51,32 @@ export class AuthService {
     }
 
     return this.buildAuthResponse(this.usersService.toSafeUser(user));
+  }
+
+  async updateProfile(userId: string, dto: UpdateProfileDto): Promise<AuthResponseDto> {
+    const currentUser = await this.usersService.findById(userId);
+    if (!currentUser) {
+      throw new NotFoundException("User not found");
+    }
+
+    try {
+      const user = await this.usersService.updateProfile({
+        id: userId,
+        email: dto.email?.trim(),
+        name: dto.name?.trim(),
+      });
+
+      return this.buildAuthResponse(user);
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === "P2002"
+      ) {
+        throw new ConflictException("Email is already registered");
+      }
+
+      throw error;
+    }
   }
 
   private async buildAuthResponse(user: AuthUserDto): Promise<AuthResponseDto> {

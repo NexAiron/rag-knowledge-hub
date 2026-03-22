@@ -1,8 +1,10 @@
 "use client";
 
+import Link from "next/link";
 import { useParams } from "next/navigation";
-import { ChatWindow } from "@/components/chat/chat-window";
+import { Button } from "antd";
 import { Layout } from "@/components/layout/layout";
+import { ChatWindow } from "@/components/chat/chat-window";
 import { useI18n } from "@/lib/i18n/use-i18n";
 
 export default function KnowledgeBaseChatPage() {
@@ -14,6 +16,13 @@ export default function KnowledgeBaseChatPage() {
     <Layout
       title={t("chat.pageTitle")}
       description={`${t("chat.pageDescription")} · ${kbId}`}
+      action={
+        <Link href={`/kb/${kbId}`}>
+          <Button className="dashboard-secondary-button !rounded-2xl">
+            {t("documents.backToKb")}
+          </Button>
+        </Link>
+      }
     >
       <ChatWindow kbId={kbId} />
     </Layout>
