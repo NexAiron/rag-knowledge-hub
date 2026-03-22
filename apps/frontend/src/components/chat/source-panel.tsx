@@ -2,6 +2,7 @@
 
 import { BookMarked, FileSearch, PanelRightOpen, Sparkles } from "lucide-react";
 import { useMemo, useState } from "react";
+import { Button, Card, Empty, Tag, Typography } from "antd";
 import { useI18n } from "@/lib/i18n/use-i18n";
 import type { SourceChunk } from "@/types";
 
@@ -19,26 +20,12 @@ interface DisplaySource {
 }
 
 function toDisplaySource(source: SourceChunk, index: number): DisplaySource {
-  const doc =
-    source.doc ??
-    source.title ??
-    "";
-
-  const content =
-    source.content ??
-    source.snippet ??
-    "";
-
-  const page =
-    source.page !== undefined && source.page !== null
-      ? String(source.page)
-      : "-";
-
   return {
     id: source.id ?? `source-${index}`,
-    doc,
-    content,
-    page,
+    doc: source.doc ?? source.title ?? "",
+    content: source.content ?? source.snippet ?? "",
+    page:
+      source.page !== undefined && source.page !== null ? String(source.page) : "-",
   };
 }
 
@@ -56,41 +43,36 @@ export function SourcePanel({ status, answer, sources }: SourcePanelProps) {
     [sources],
   );
 
-  const toggleExpanded = (id: string) => {
-    setExpandedMap((prev) => ({
-      ...prev,
-      [id]: !prev[id],
-    }));
-  };
-
   return (
-    <aside className="glass-panel rounded-[30px] p-4">
+    <Card bordered={false} className="glass-panel !rounded-[30px] !shadow-none">
       <div className="flex items-center justify-between">
-        <h3 className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-ink/70">
+        <Typography.Text className="!flex !items-center !gap-2 !text-sm !font-semibold !uppercase !tracking-wide !text-ink/70">
           <PanelRightOpen className="h-4 w-4 text-brand" strokeWidth={2} />
           {t("chat.sources")}
-        </h3>
-        <span className="rounded-full border border-ink/10 bg-white/76 px-2.5 py-1 text-xs text-ink/60">
+        </Typography.Text>
+        <Tag className="!rounded-full">
           {t("chat.status")}: {status}
-        </span>
+        </Tag>
       </div>
-      <p className="mt-2 text-xs leading-5 text-ink/55">{t("chat.sourcesPanelHint")}</p>
+      <Typography.Paragraph className="!mb-0 !mt-2 !text-xs !leading-5 !text-ink/55">
+        {t("chat.sourcesPanelHint")}
+      </Typography.Paragraph>
 
       {answer ? (
-        <div className="mt-3 rounded-[24px] border border-ink/10 bg-white/75 px-3 py-3">
-          <p className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-ink/55">
+        <Card size="small" className="!mt-3 !rounded-[24px] !border-ink/10 !bg-white/75 !shadow-none">
+          <Typography.Text className="!flex !items-center !gap-1.5 !text-[11px] !font-medium !uppercase !tracking-wide !text-ink/55">
             <Sparkles className="h-3.5 w-3.5 text-brand" strokeWidth={2} />
             {t("chat.relatedAnswer")}
-          </p>
-          <p className="mt-1 text-xs text-ink/75">{previewText(answer, 120)}</p>
-        </div>
+          </Typography.Text>
+          <Typography.Paragraph className="!mb-0 !mt-1 !text-xs !text-ink/75">
+            {previewText(answer, 120)}
+          </Typography.Paragraph>
+        </Card>
       ) : null}
 
       <div className="mt-3 space-y-2">
         {displaySources.length === 0 ? (
-          <p className="text-sm text-ink/60">
-            {t("chat.noSources")}
-          </p>
+          <Empty description={t("chat.noSources")} image={Empty.PRESENTED_IMAGE_SIMPLE} />
         ) : (
           displaySources.map((source) => {
             const isExpanded = Boolean(expandedMap[source.id]);
@@ -99,37 +81,34 @@ export function SourcePanel({ status, answer, sources }: SourcePanelProps) {
               : previewText(source.content || t("chat.noContent"));
 
             return (
-              <article
-                key={source.id}
-                className="rounded-[24px] border border-ink/15 bg-white/78 p-3"
-              >
+              <Card key={source.id} size="small" className="!rounded-[24px] !border-ink/15 !bg-white/78 !shadow-none">
                 <div className="flex items-center justify-between gap-2">
-                  <p className="flex items-center gap-1.5 truncate text-xs font-semibold text-ink/85">
+                  <Typography.Text className="!flex !items-center !gap-1.5 !text-xs !font-semibold !text-ink/85">
                     <BookMarked className="h-3.5 w-3.5 shrink-0 text-brand" strokeWidth={2} />
                     {source.doc || t("chat.unknownDocument")}
-                  </p>
-                  <span className="rounded-full border border-ink/15 px-2 py-0.5 text-[11px] text-ink/60">
-                    p.{source.page}
-                  </span>
+                  </Typography.Text>
+                  <Tag className="!rounded-full">p.{source.page}</Tag>
                 </div>
 
-                <p className="mt-2 whitespace-pre-wrap text-xs leading-5 text-ink/75">
+                <Typography.Paragraph className="!mb-0 !mt-2 !whitespace-pre-wrap !text-xs !leading-5 !text-ink/75">
                   {shownContent}
-                </p>
+                </Typography.Paragraph>
 
-                <button
-                  type="button"
-                  onClick={() => toggleExpanded(source.id)}
-                  className="mt-2 inline-flex items-center gap-1.5 text-xs font-medium text-brand hover:underline"
+                <Button
+                  type="link"
+                  icon={<FileSearch className="h-3.5 w-3.5" strokeWidth={2} />}
+                  onClick={() =>
+                    setExpandedMap((prev) => ({ ...prev, [source.id]: !prev[source.id] }))
+                  }
+                  className="!mt-2 !px-0"
                 >
-                  <FileSearch className="h-3.5 w-3.5" strokeWidth={2} />
                   {isExpanded ? t("chat.collapse") : t("chat.expand")}
-                </button>
-              </article>
+                </Button>
+              </Card>
             );
           })
         )}
       </div>
-    </aside>
+    </Card>
   );
 }

@@ -3,8 +3,9 @@
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect } from "react";
-import { useI18n } from "@/lib/i18n/use-i18n";
+import { Button, Card, Statistic, Tag, Typography } from "antd";
 import { Layout } from "@/components/layout/layout";
+import { useI18n } from "@/lib/i18n/use-i18n";
 import { useKbStore } from "@/stores/kb-store";
 
 export default function KnowledgeBaseDetailPage() {
@@ -31,70 +32,59 @@ export default function KnowledgeBaseDetailPage() {
       description={`${t("kb.currentId")}: ${kbId}`}
       action={
         <div className="flex items-center gap-2">
-          <Link
-            href={`/kb/${kbId}/documents`}
-            className="rounded-2xl border border-ink/20 bg-white/78 px-4 py-2 text-xs font-semibold transition hover:-translate-y-0.5 hover:border-brand hover:text-brand"
-          >
-            {t("kb.openDocuments")}
+          <Link href={`/kb/${kbId}/documents`}>
+            <Button className="!rounded-2xl">{t("kb.openDocuments")}</Button>
           </Link>
-          <Link
-            href={`/kb/${kbId}/chat`}
-            className="rounded-2xl bg-ink px-4 py-2 text-xs font-semibold text-white shadow-lg shadow-ink/10 transition hover:-translate-y-0.5"
-          >
-            {t("kb.openChat")}
+          <Link href={`/kb/${kbId}/chat`}>
+            <Button type="primary" className="!rounded-2xl !bg-ink shadow-lg shadow-ink/10">
+              {t("kb.openChat")}
+            </Button>
           </Link>
         </div>
       }
     >
       <section className="grid gap-4 lg:grid-cols-[1.55fr_0.95fr]">
-        <article className="glass-panel overflow-hidden rounded-[32px] p-6 lg:p-7">
-          <div className="accent-panel rounded-[28px] p-6 text-white">
-            <p className="text-[11px] uppercase tracking-[0.22em] text-white/68">
+        <Card bordered={false} className="glass-panel !rounded-[32px] !shadow-none">
+          <Card bordered={false} className="accent-panel !rounded-[28px] !shadow-none" styles={{ body: { padding: 24, color: "white" } }}>
+            <Tag bordered={false} className="!m-0 !rounded-full !bg-white/10 !px-3 !py-1 !text-[11px] !uppercase !tracking-[0.22em] !text-white/68">
               {t("common.knowledgeBases")}
-            </p>
-            <h2 className="mt-3 text-[2.1rem] font-semibold tracking-[-0.05em] lg:text-[2.6rem]">
+            </Tag>
+            <Typography.Title level={2} className="!mb-0 !mt-3 !text-[2.1rem] !font-semibold !tracking-[-0.05em] !text-white lg:!text-[2.6rem]">
               {knowledgeBase?.name ?? t("kb.notFound")}
-            </h2>
-            <p className="mt-4 max-w-2xl text-sm leading-8 text-white/78">
+            </Typography.Title>
+            <Typography.Paragraph className="!mb-0 !mt-4 max-w-2xl !text-sm !leading-8 !text-white/78">
               {knowledgeBase?.description ?? t("kb.notFoundHint")}
-            </p>
-          </div>
+            </Typography.Paragraph>
+          </Card>
 
-          <div className="mt-4 grid gap-3 text-sm text-ink/75 sm:grid-cols-2">
-            <div className="ambient-card rounded-[24px] p-4">
-              <p className="text-xs uppercase tracking-[0.18em] text-ink/45">
-                {t("kb.documentsCount")}
-              </p>
-              <p className="mt-3 text-3xl font-semibold text-ink">
-                {knowledgeBase?.documentCount ?? 0}
-              </p>
-            </div>
-
-            <div className="ambient-card rounded-[24px] p-4">
-              <p className="text-xs uppercase tracking-[0.18em] text-ink/45">
-                {t("kb.updatedAt")}
-              </p>
-              <p className="mt-3 text-lg font-semibold text-ink">
-                {knowledgeBase?.updatedAt ?? "-"}
-              </p>
-            </div>
+          <div className="mt-4 grid gap-3 sm:grid-cols-2">
+            <Card bordered={false} className="ambient-card !rounded-[24px] !shadow-none">
+              <Statistic title={t("kb.documentsCount")} value={knowledgeBase?.documentCount ?? 0} />
+            </Card>
+            <Card bordered={false} className="ambient-card !rounded-[24px] !shadow-none">
+              <Statistic title={t("kb.updatedAt")} value={knowledgeBase?.updatedAt ?? "-"} />
+            </Card>
           </div>
-        </article>
+        </Card>
 
         <aside className="space-y-4">
-          <div className="glass-panel rounded-[30px] p-5">
-            <h3 className="text-sm font-semibold uppercase tracking-[0.18em] text-ink/70">
+          <Card bordered={false} className="glass-panel !rounded-[30px] !shadow-none">
+            <Typography.Text className="!text-sm !font-semibold !uppercase !tracking-[0.18em] !text-ink/70">
               {t("kb.nextSteps")}
-            </h3>
-            <p className="mt-3 text-sm leading-7 text-ink/68">{t("kb.nextStepsContent")}</p>
-          </div>
+            </Typography.Text>
+            <Typography.Paragraph className="!mb-0 !mt-3 !text-sm !leading-7 !text-ink/68">
+              {t("kb.nextStepsContent")}
+            </Typography.Paragraph>
+          </Card>
 
-          <div className="glass-panel rounded-[30px] p-5">
-            <h3 className="text-sm font-semibold uppercase tracking-[0.18em] text-ink/70">
+          <Card bordered={false} className="glass-panel !rounded-[30px] !shadow-none">
+            <Typography.Text className="!text-sm !font-semibold !uppercase !tracking-[0.18em] !text-ink/70">
               {t("kb.statusTitle")}
-            </h3>
-            <p className="mt-3 text-sm leading-7 text-ink/68">{t("kb.statusContent")}</p>
-          </div>
+            </Typography.Text>
+            <Typography.Paragraph className="!mb-0 !mt-3 !text-sm !leading-7 !text-ink/68">
+              {t("kb.statusContent")}
+            </Typography.Paragraph>
+          </Card>
         </aside>
       </section>
     </Layout>

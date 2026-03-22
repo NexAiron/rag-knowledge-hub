@@ -1,5 +1,6 @@
 "use client";
 
+import { Empty, Typography } from "antd";
 import { useEffect, useRef } from "react";
 import type { ChatMessage } from "@/types";
 import { MessageItem } from "@/components/chat/message-item";
@@ -24,9 +25,7 @@ export function MessageList({ messages }: MessageListProps) {
       className="glass-panel h-[65vh] min-h-[420px] space-y-3 overflow-y-auto rounded-[30px] p-4 lg:p-5"
     >
       {messages.length === 0 ? (
-        <p className="rounded-[24px] border border-ink/8 bg-white/76 px-4 py-4 text-sm text-ink/60">
-          {t("chat.empty")}
-        </p>
+        <Empty description={t("chat.empty")} image={Empty.PRESENTED_IMAGE_SIMPLE} />
       ) : (
         messages.map((message) => <MessageItem key={message.id} message={message} />)
       )}

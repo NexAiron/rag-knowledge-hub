@@ -1,6 +1,7 @@
 "use client";
 
 import { Clock3, MessageSquarePlus, MessagesSquare } from "lucide-react";
+import { Button, Card, Empty, List, Tag, Typography } from "antd";
 import type { ChatSession } from "@/types";
 import { useI18n } from "@/lib/i18n/use-i18n";
 
@@ -20,49 +21,50 @@ export function SessionList({
   const { locale, t } = useI18n();
 
   return (
-    <aside className="glass-panel rounded-[30px] p-4">
-      <button
-        type="button"
+    <Card bordered={false} className="glass-panel !rounded-[30px] !shadow-none">
+      <Button
+        type="primary"
         onClick={onCreate}
-        className="w-full rounded-[22px] bg-ink px-3 py-2.5 text-sm font-semibold text-white shadow-lg shadow-ink/10 transition hover:-translate-y-0.5"
+        block
+        icon={<MessageSquarePlus className="h-4 w-4" strokeWidth={2} />}
+        className="!rounded-[22px] !bg-ink !text-sm !font-semibold shadow-lg shadow-ink/10"
       >
-        <span className="flex items-center justify-center gap-2">
-          <MessageSquarePlus className="h-4 w-4" strokeWidth={2} />
-          {t("chat.newSession")}
-        </span>
-      </button>
+        {t("chat.newSession")}
+      </Button>
 
-      <div className="mt-4 space-y-2">
-        {sessions.length === 0 ? (
-          <p className="text-xs text-ink/60">{t("chat.noSessions")}</p>
-        ) : (
-          sessions.map((session) => (
-            <button
-              key={session.id}
-              type="button"
-              onClick={() => onSelect(session.id)}
-              className={`w-full rounded-[22px] border px-3 py-3 text-left text-sm transition ${
-                activeSessionId === session.id
-                  ? "border-ink bg-ink text-white shadow-lg shadow-ink/10"
-                  : "border-ink/15 bg-white/82 text-ink hover:-translate-y-0.5 hover:border-brand"
-              }`}
-            >
-              <p className="flex items-center gap-2 truncate font-medium">
-                <MessagesSquare className="h-3.5 w-3.5 shrink-0" strokeWidth={2} />
-                <span className="truncate">{session.title}</span>
-              </p>
-              <p
-                className={`mt-1 flex items-center gap-1.5 text-[11px] ${
-                  activeSessionId === session.id ? "text-white/80" : "text-ink/55"
-                }`}
-              >
-                <Clock3 className="h-3 w-3" strokeWidth={2} />
-                {new Date(session.updatedAt).toLocaleString(locale === "zh" ? "zh-CN" : "en-US")}
-              </p>
-            </button>
-          ))
-        )}
-      </div>
-    </aside>
+      {sessions.length === 0 ? (
+        <div className="mt-4">
+          <Empty description={t("chat.noSessions")} image={Empty.PRESENTED_IMAGE_SIMPLE} />
+        </div>
+      ) : (
+        <List
+          className="!mt-4"
+          dataSource={sessions}
+          renderItem={(session) => {
+            const active = activeSessionId === session.id;
+            return (
+              <List.Item className="!border-none !px-0 !py-1">
+                <Card
+                  size="small"
+                  hoverable
+                  onClick={() => onSelect(session.id)}
+                  bordered={false}
+                  className={`w-full !rounded-[22px] !shadow-none ${active ? "!bg-ink text-white" : "ambient-card"}`}
+                >
+                  <Typography.Text className={`!flex !items-center !gap-2 !font-medium ${active ? "!text-white" : "!text-ink"}`}>
+                    <MessagesSquare className="h-3.5 w-3.5 shrink-0" strokeWidth={2} />
+                    <span className="truncate">{session.title}</span>
+                  </Typography.Text>
+                  <Tag className="!mt-3 !rounded-full" color={active ? "default" : "blue"}>
+                    <Clock3 className="mr-1 inline h-3 w-3" strokeWidth={2} />
+                    {new Date(session.updatedAt).toLocaleString(locale === "zh" ? "zh-CN" : "en-US")}
+                  </Tag>
+                </Card>
+              </List.Item>
+            );
+          }}
+        />
+      )}
+    </Card>
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { Alert, Card, Tag, Typography } from "antd";
 import { ChatInput } from "@/components/chat/chat-input";
 import { MessageList } from "@/components/chat/message-list";
 import { SessionList } from "@/components/chat/session-list";
@@ -26,9 +27,7 @@ export function ChatWindow({ kbId }: ChatWindowProps) {
   const setActiveSession = useChatStore((state) => state.setActiveSession);
   const sendMessage = useChatStore((state) => state.sendMessage);
   const stopStream = useChatStore((state) => state.stopStream);
-  const clearActiveSessionMessages = useChatStore(
-    (state) => state.clearActiveSessionMessages,
-  );
+  const clearActiveSessionMessages = useChatStore((state) => state.clearActiveSessionMessages);
 
   useEffect(() => {
     if (sessions.length === 0) {
@@ -47,15 +46,15 @@ export function ChatWindow({ kbId }: ChatWindowProps) {
     }
   }, [activeSessionId, createSession, kbId, sessions, setActiveSession, t]);
 
-  const activeMessages = useMemo(() => {
-    if (!activeSessionId) return [];
-    return messagesBySession[activeSessionId] ?? [];
-  }, [activeSessionId, messagesBySession]);
+  const activeMessages = useMemo(
+    () => (activeSessionId ? messagesBySession[activeSessionId] ?? [] : []),
+    [activeSessionId, messagesBySession],
+  );
 
-  const activeSources = useMemo(() => {
-    if (!activeSessionId) return [];
-    return sourcesBySession[activeSessionId] ?? [];
-  }, [activeSessionId, sourcesBySession]);
+  const activeSources = useMemo(
+    () => (activeSessionId ? sourcesBySession[activeSessionId] ?? [] : []),
+    [activeSessionId, sourcesBySession],
+  );
 
   const latestAssistantAnswer = useMemo(() => {
     for (let index = activeMessages.length - 1; index >= 0; index -= 1) {
@@ -73,16 +72,8 @@ export function ChatWindow({ kbId }: ChatWindowProps) {
   const handleSend = async () => {
     const normalizedQuestion = question.trim();
     if (!normalizedQuestion) return;
-
-    await sendMessage({
-      kbId,
-      question: normalizedQuestion,
-    });
+    await sendMessage({ kbId, question: normalizedQuestion });
     setQuestion("");
-  };
-
-  const handleNewSession = () => {
-    createSession(kbId, t("chat.newSession"));
   };
 
   return (
@@ -91,25 +82,23 @@ export function ChatWindow({ kbId }: ChatWindowProps) {
         sessions={currentSessions}
         activeSessionId={activeSessionId}
         onSelect={setActiveSession}
-        onCreate={handleNewSession}
+        onCreate={() => createSession(kbId, t("chat.newSession"))}
       />
 
       <div className="flex min-h-[70vh] flex-col gap-4">
-        <div className="glass-panel rounded-[30px] p-5">
+        <Card bordered={false} className="glass-panel !rounded-[30px] !shadow-none">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-brand">
+              <Typography.Text className="!text-[11px] !font-semibold !uppercase !tracking-[0.24em] !text-brand">
                 RAG Chat
-              </p>
-              <h2 className="mt-2 text-xl font-semibold tracking-[-0.04em] text-ink">
+              </Typography.Text>
+              <Typography.Title level={3} className="!mb-0 !mt-2 !text-xl !font-semibold !tracking-[-0.04em] !text-ink">
                 {t("chat.pageTitle")}
-              </h2>
+              </Typography.Title>
             </div>
-            <div className="rounded-full border border-ink/10 bg-white/78 px-3 py-1.5 text-xs font-medium text-ink/65">
-              KB · {kbId}
-            </div>
+            <Tag className="!rounded-full">KB · {kbId}</Tag>
           </div>
-        </div>
+        </Card>
 
         <MessageList messages={activeMessages} />
         <ChatInput
@@ -120,19 +109,11 @@ export function ChatWindow({ kbId }: ChatWindowProps) {
           onClear={clearActiveSessionMessages}
           isStreaming={streamStatus === "streaming"}
         />
-        {error ? (
-          <p className="rounded-2xl border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">
-            {error}
-          </p>
-        ) : null}
+        {error ? <Alert message={error} type="error" showIcon className="!rounded-2xl" /> : null}
       </div>
 
       <div className="hidden xl:block">
-        <SourcePanel
-          status={streamStatus}
-          answer={latestAssistantAnswer}
-          sources={activeSources}
-        />
+        <SourcePanel status={streamStatus} answer={latestAssistantAnswer} sources={activeSources} />
       </div>
     </section>
   );
