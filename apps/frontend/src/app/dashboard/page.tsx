@@ -145,7 +145,7 @@ export default function DashboardPage() {
     >
       <div className="space-y-5">
         <Card
-          bordered={false}
+          variant="borderless"
           className="dashboard-hero dashboard-hero-compact overflow-hidden !rounded-[32px] !shadow-none"
           styles={{ body: { padding: 22 } }}
         >
@@ -153,7 +153,7 @@ export default function DashboardPage() {
             <div className="dashboard-copy-block dashboard-copy-block-compact">
               <Tag
                 color="blue"
-                bordered={false}
+                variant="filled"
                 className="!m-0 !inline-flex !items-center !gap-1.5 !rounded-full !px-3 !py-1 !text-[10px] !font-semibold !uppercase !tracking-[0.22em]"
               >
                 <Sparkles className="h-3.5 w-3.5" strokeWidth={2} />
@@ -203,7 +203,7 @@ export default function DashboardPage() {
 
         {showCreateForm ? (
           <Card
-            bordered={false}
+            variant="borderless"
             className="dashboard-form-panel !rounded-[28px] !shadow-none"
           >
             <Typography.Title
@@ -284,7 +284,7 @@ export default function DashboardPage() {
               </Typography.Paragraph>
             </div>
             <Tag
-              bordered={false}
+              variant="filled"
               className="dashboard-soft-tag !hidden !rounded-full md:!inline-flex"
             >
               {knowledgeBases.length}
@@ -292,12 +292,12 @@ export default function DashboardPage() {
           </div>
 
           {isLoading ? (
-            <Card bordered={false} className="glass-panel !rounded-[28px] !shadow-none">
+            <Card variant="borderless" className="glass-panel !rounded-[28px] !shadow-none">
               {t("dashboard.loading")}
             </Card>
           ) : knowledgeBases.length === 0 ? (
             <Card
-              bordered={false}
+              variant="borderless"
               className="dashboard-empty-state !rounded-[28px] !shadow-none"
             >
               <div className="flex flex-col items-center py-7 text-center">

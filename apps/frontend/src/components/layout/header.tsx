@@ -71,7 +71,7 @@ export function Header({ title, description, action }: HeaderProps) {
       <div className="dashboard-header-shell">
         <div className="dashboard-header-copy">
           <Tag
-            bordered={false}
+            variant="filled"
             color="blue"
             className="m-0 inline-flex min-h-[28px] items-center gap-1.5 rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.24em]"
           >

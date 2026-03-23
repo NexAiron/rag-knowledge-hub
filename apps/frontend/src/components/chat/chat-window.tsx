@@ -84,14 +84,14 @@ export function ChatWindow({ kbId }: ChatWindowProps) {
   return (
     <div className="space-y-4">
       <Card
-        bordered={false}
+        variant="borderless"
         className="dashboard-hero dashboard-hero-compact !rounded-[32px] !shadow-none"
         styles={{ body: { padding: 22 } }}
       >
         <div className="dashboard-hero-simple">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div className="dashboard-copy-block dashboard-copy-block-compact !max-w-3xl">
-              <Tag bordered={false} className="dashboard-soft-tag !m-0">
+              <Tag variant="filled" className="dashboard-soft-tag !m-0">
                 {t("chat.pageTitle")}
               </Tag>
               <Typography.Title
@@ -119,7 +119,7 @@ export function ChatWindow({ kbId }: ChatWindowProps) {
 
         <div className="flex min-h-[70vh] flex-col gap-4">
           <Card
-            bordered={false}
+            variant="borderless"
             className="dashboard-side-panel !rounded-[30px] !shadow-none"
           >
             <div className="flex flex-wrap items-center justify-between gap-3">

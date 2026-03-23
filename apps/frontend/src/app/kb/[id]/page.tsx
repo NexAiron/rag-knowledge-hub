@@ -56,13 +56,13 @@ export default function KnowledgeBaseDetailPage() {
       {knowledgeBase ? (
         <div className="space-y-5">
           <Card
-            bordered={false}
+            variant="borderless"
             className="dashboard-hero dashboard-hero-compact !rounded-[32px] !shadow-none"
             styles={{ body: { padding: 22 } }}
           >
             <div className="dashboard-hero-simple">
               <div className="dashboard-copy-block dashboard-copy-block-compact">
-                  <Tag bordered={false} className="dashboard-soft-tag !m-0">
+                  <Tag variant="filled" className="dashboard-soft-tag !m-0">
                     {t("kb.heroLabel")}
                   </Tag>
                   <Typography.Title
@@ -133,7 +133,7 @@ export default function KnowledgeBaseDetailPage() {
 
           <section className="grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
             <Card
-              bordered={false}
+              variant="borderless"
               className="dashboard-side-panel !rounded-[30px] !shadow-none"
             >
               <Typography.Text className="!text-sm !font-semibold !uppercase !tracking-[0.18em] !text-ink/70">
@@ -162,7 +162,7 @@ export default function KnowledgeBaseDetailPage() {
 
             <div className="space-y-4">
               <Card
-                bordered={false}
+                variant="borderless"
                 className="dashboard-side-panel !rounded-[30px] !shadow-none"
               >
                 <Typography.Text className="!text-sm !font-semibold !uppercase !tracking-[0.18em] !text-ink/70">
@@ -191,7 +191,7 @@ export default function KnowledgeBaseDetailPage() {
               </Card>
 
               <Card
-                bordered={false}
+                variant="borderless"
                 className="dashboard-side-panel !rounded-[30px] !shadow-none"
               >
                 <Typography.Text className="!text-sm !font-semibold !uppercase !tracking-[0.18em] !text-ink/70">
@@ -206,7 +206,7 @@ export default function KnowledgeBaseDetailPage() {
         </div>
       ) : (
         <Card
-          bordered={false}
+          variant="borderless"
           className="glass-panel !rounded-[32px] !shadow-none"
         >
           <Empty description={t("kb.notFound")} />

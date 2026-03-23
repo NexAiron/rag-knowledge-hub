@@ -44,7 +44,7 @@ export function AuthShell({
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_18%,rgba(120,174,235,0.18),transparent_24%),radial-gradient(circle_at_82%_14%,rgba(84,127,191,0.12),transparent_20%),linear-gradient(180deg,rgba(255,255,255,0.4),rgba(255,255,255,0))]" />
 
       <Card
-        bordered={false}
+        variant="borderless"
         className="relative z-10 w-full max-w-[1080px] !rounded-[32px] border border-white/45 bg-white/52 shadow-[0_40px_120px_rgba(15,23,42,0.16)] backdrop-blur-2xl"
         styles={{ body: { padding: 0 } }}
       >
@@ -70,7 +70,7 @@ export function AuthShell({
 
             <Tag
               color="blue"
-              bordered={false}
+              variant="filled"
               className="!mt-10 !rounded-full !px-3 !py-1 !text-[10px] !font-semibold !uppercase !tracking-[0.22em]"
             >
               {badge}
@@ -93,7 +93,7 @@ export function AuthShell({
                   <Card
                     key={item.title}
                     size="small"
-                    bordered={false}
+                    variant="borderless"
                     className="ambient-card !rounded-[22px] !shadow-none"
                   >
                     <div className="flex items-start gap-3">
@@ -117,7 +117,7 @@ export function AuthShell({
 
           <section className="flex items-center px-8 py-8 lg:px-10 lg:py-10">
             <Card
-              bordered={false}
+              variant="borderless"
               className="ambient-card w-full !rounded-[28px] !shadow-none"
               styles={{ body: { padding: 28 } }}
             >

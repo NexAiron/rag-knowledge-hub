@@ -21,7 +21,7 @@ export function KbCard({ kb, onSelect }: KbCardProps) {
 
   return (
     <Card
-      bordered={false}
+      variant="borderless"
       className="dashboard-kb-card !rounded-[30px] !shadow-none"
     >
       <div className="space-y-5">
@@ -46,7 +46,7 @@ export function KbCard({ kb, onSelect }: KbCardProps) {
                 {kb.name}
               </Typography.Title>
             </div>
-            <Tag bordered={false} className="dashboard-soft-tag !m-0">
+            <Tag variant="filled" className="dashboard-soft-tag !m-0">
               {t("kb.card.badge")}
             </Tag>
           </div>

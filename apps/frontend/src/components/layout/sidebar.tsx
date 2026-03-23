@@ -35,7 +35,7 @@ export function Sidebar() {
     <aside className="hidden w-[320px] shrink-0 lg:block">
       <div className="dashboard-sidebar h-full">
         <Card
-          bordered={false}
+          variant="borderless"
           className="dashboard-sidebar-brand !rounded-[28px] !shadow-none"
           styles={{ body: { padding: 22 } }}
         >
@@ -91,7 +91,7 @@ export function Sidebar() {
               <LibraryBig className="h-3.5 w-3.5" strokeWidth={2} />
               {t("sidebar.knowledgeBases")}
             </Typography.Text>
-            <Tag bordered={false} className="dashboard-soft-tag !m-0">
+            <Tag variant="filled" className="dashboard-soft-tag !m-0">
               {knowledgeBases.length}
             </Tag>
           </div>
@@ -103,7 +103,7 @@ export function Sidebar() {
             </div>
           ) : knowledgeBases.length === 0 ? (
             <Card
-              bordered={false}
+              variant="borderless"
               className="ambient-card !mt-4 !rounded-[24px] !shadow-none"
             >
               <Empty

@@ -168,13 +168,13 @@ export default function DocumentsPage() {
       <div className="space-y-5">
         <section className="grid gap-4 xl:grid-cols-[1.35fr_0.65fr]">
           <Card
-            bordered={false}
+            variant="borderless"
             className="dashboard-hero dashboard-hero-compact !rounded-[32px] !shadow-none"
             styles={{ body: { padding: 22 } }}
           >
             <div className="dashboard-hero-simple">
               <div className="dashboard-copy-block dashboard-copy-block-compact">
-                <Tag bordered={false} className="dashboard-soft-tag !m-0">
+                <Tag variant="filled" className="dashboard-soft-tag !m-0">
                   {t("common.documents")}
                 </Tag>
                 <Typography.Title
@@ -219,7 +219,7 @@ export default function DocumentsPage() {
 
           <aside className="space-y-4">
             <Card
-              bordered={false}
+              variant="borderless"
               className="dashboard-side-panel !rounded-[30px] !shadow-none"
             >
               <Typography.Text className="!text-xs !font-semibold !uppercase !tracking-[0.18em] !text-ink/52">
@@ -283,14 +283,14 @@ export default function DocumentsPage() {
 
         {isLoading ? (
           <Card
-            bordered={false}
+            variant="borderless"
             className="glass-panel !rounded-[30px] !shadow-none"
           >
             {t("documents.loading")}
           </Card>
         ) : documents.length === 0 ? (
           <Card
-            bordered={false}
+            variant="borderless"
             className="glass-panel !rounded-[30px] !shadow-none"
           >
             <Empty
