@@ -1,1 +1,1 @@
-export { default } from "../dashboard/page";
+export { KnowledgeBaseHome as default } from "@/components/kb/knowledge-base-home";

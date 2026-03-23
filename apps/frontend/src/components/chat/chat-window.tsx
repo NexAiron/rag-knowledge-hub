@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { Alert, Button, Card, Tag, Typography } from "antd";
+import { Alert, App, Button, Card, Tag, Typography } from "antd";
 import { FileStack, MessageSquareText } from "lucide-react";
 import { ChatInput } from "@/components/chat/chat-input";
 import { MessageList } from "@/components/chat/message-list";
@@ -17,12 +17,15 @@ interface ChatWindowProps {
 
 export function ChatWindow({ kbId }: ChatWindowProps) {
   const [question, setQuestion] = useState("");
+  const [deletingSessionId, setDeletingSessionId] = useState<string | null>(null);
+  const [selectedAssistantMessageId, setSelectedAssistantMessageId] = useState<string | null>(null);
   const { t } = useI18n();
+  const { message } = App.useApp();
 
   const sessions = useChatStore((state) => state.sessions);
   const activeSessionId = useChatStore((state) => state.activeSessionId);
   const messagesBySession = useChatStore((state) => state.messagesBySession);
-  const sourcesBySession = useChatStore((state) => state.sourcesBySession);
+  const citationsBySession = useChatStore((state) => state.citationsBySession);
   const streamStatus = useChatStore((state) => state.streamStatus);
   const error = useChatStore((state) => state.error);
   const loadSessions = useChatStore((state) => state.loadSessions);
@@ -34,6 +37,7 @@ export function ChatWindow({ kbId }: ChatWindowProps) {
   const clearActiveSessionMessages = useChatStore(
     (state) => state.clearActiveSessionMessages,
   );
+  const removeSession = useChatStore((state) => state.removeSession);
 
   useEffect(() => {
     void loadSessions(kbId);
@@ -57,9 +61,20 @@ export function ChatWindow({ kbId }: ChatWindowProps) {
     [activeSessionId, messagesBySession],
   );
 
-  const activeSources = useMemo(
-    () => (activeSessionId ? sourcesBySession[activeSessionId] ?? [] : []),
-    [activeSessionId, sourcesBySession],
+  const activeCitations = useMemo(
+    () => (activeSessionId ? citationsBySession[activeSessionId] ?? [] : []),
+    [activeSessionId, citationsBySession],
+  );
+
+  const selectedAssistantMessage = useMemo(
+    () =>
+      selectedAssistantMessageId
+        ? activeMessages.find(
+            (item) =>
+              item.id === selectedAssistantMessageId && item.role === "assistant",
+          ) ?? null
+        : null,
+    [activeMessages, selectedAssistantMessageId],
   );
 
   const latestAssistantAnswer = useMemo(() => {
@@ -70,16 +85,60 @@ export function ChatWindow({ kbId }: ChatWindowProps) {
     return "";
   }, [activeMessages]);
 
+  const displayAnswer = selectedAssistantMessage?.content ?? latestAssistantAnswer;
+  const displayCitations = selectedAssistantMessage?.citations ?? activeCitations;
+
   const currentSessions = useMemo(
     () => sessions.filter((session) => session.kbId === kbId),
     [kbId, sessions],
   );
+
+  useEffect(() => {
+    setSelectedAssistantMessageId(null);
+  }, [activeSessionId]);
+
+  useEffect(() => {
+    if (!selectedAssistantMessageId) return;
+
+    const stillExists = activeMessages.some(
+      (item) => item.id === selectedAssistantMessageId && item.role === "assistant",
+    );
+
+    if (!stillExists) {
+      setSelectedAssistantMessageId(null);
+    }
+  }, [activeMessages, selectedAssistantMessageId]);
 
   const handleSend = async () => {
     const normalizedQuestion = question.trim();
     if (!normalizedQuestion) return;
     await sendMessage({ kbId, question: normalizedQuestion });
     setQuestion("");
+  };
+
+  const handleDeleteSession = async (sessionId: string) => {
+    setDeletingSessionId(sessionId);
+    try {
+      await removeSession(sessionId);
+      message.success(t("chat.deleteSessionSuccess"));
+    } catch (error) {
+      message.error(
+        error instanceof Error ? error.message : t("chat.deleteSessionFailed"),
+      );
+    } finally {
+      setDeletingSessionId(null);
+    }
+  };
+
+  const handleSelectMessage = (selectedMessage: (typeof activeMessages)[number]) => {
+    if (
+      selectedMessage.role !== "assistant" ||
+      selectedMessage.citations.length === 0
+    ) {
+      return;
+    }
+
+    setSelectedAssistantMessageId(selectedMessage.id);
   };
 
   return (
@@ -125,6 +184,8 @@ export function ChatWindow({ kbId }: ChatWindowProps) {
             activeSessionId={activeSessionId}
             onSelect={setActiveSession}
             onCreate={() => createSession(kbId, t("chat.newSession"))}
+            onDelete={(sessionId) => void handleDeleteSession(sessionId)}
+            deletingSessionId={deletingSessionId}
           />
         </div>
 
@@ -152,7 +213,11 @@ export function ChatWindow({ kbId }: ChatWindowProps) {
             </div>
           </Card>
 
-          <MessageList messages={activeMessages} />
+          <MessageList
+            messages={activeMessages}
+            selectedMessageId={selectedAssistantMessageId}
+            onSelectMessage={handleSelectMessage}
+          />
           <ChatInput
             value={question}
             onChange={setQuestion}
@@ -173,8 +238,8 @@ export function ChatWindow({ kbId }: ChatWindowProps) {
           <div className="xl:hidden">
             <SourcePanel
               status={streamStatus}
-              answer={latestAssistantAnswer}
-              sources={activeSources}
+              answer={displayAnswer}
+              sources={displayCitations}
             />
           </div>
         </div>
@@ -182,8 +247,8 @@ export function ChatWindow({ kbId }: ChatWindowProps) {
         <div className="hidden xl:block xl:sticky xl:top-4 xl:self-start">
           <SourcePanel
             status={streamStatus}
-            answer={latestAssistantAnswer}
-            sources={activeSources}
+            answer={displayAnswer}
+            sources={displayCitations}
           />
         </div>
       </section>

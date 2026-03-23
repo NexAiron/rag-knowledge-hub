@@ -8,9 +8,15 @@ import { useI18n } from "@/lib/i18n/use-i18n";
 
 interface MessageListProps {
   messages: ChatMessage[];
+  selectedMessageId?: string | null;
+  onSelectMessage?: (message: ChatMessage) => void;
 }
 
-export function MessageList({ messages }: MessageListProps) {
+export function MessageList({
+  messages,
+  selectedMessageId,
+  onSelectMessage,
+}: MessageListProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const { t } = useI18n();
 
@@ -34,7 +40,12 @@ export function MessageList({ messages }: MessageListProps) {
       ) : (
         <div className="space-y-4">
           {messages.map((message) => (
-            <MessageItem key={message.id} message={message} />
+            <MessageItem
+              key={message.id}
+              message={message}
+              isSelected={message.id === selectedMessageId}
+              onSelect={onSelectMessage}
+            />
           ))}
         </div>
       )}

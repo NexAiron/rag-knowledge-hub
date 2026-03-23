@@ -1,6 +1,6 @@
-import { NextResponse } from "next/server";
-import { BackendProxyError, proxyToBackend } from "@/lib/server/backend";
+import { proxyToBackend } from "@/lib/server/backend";
 import { mapChatSession } from "@/lib/server/mappers";
+import { backendErrorResponse, jsonData } from "@/lib/server/route-response";
 
 export async function GET(request: Request) {
   const url = new URL(request.url);
@@ -17,16 +17,8 @@ export async function GET(request: Request) {
       }>
     >(`/conversations?kbId=${encodeURIComponent(kbId)}`);
 
-    return NextResponse.json({
-      data: data.map(mapChatSession),
-    });
+    return jsonData(data.map(mapChatSession));
   } catch (error) {
-    const message =
-      error instanceof BackendProxyError
-        ? error.message
-        : "Failed to fetch conversations.";
-    const status = error instanceof BackendProxyError ? error.status : 500;
-
-    return NextResponse.json({ message }, { status });
+    return backendErrorResponse(error, "Failed to fetch conversations.");
   }
 }

@@ -1,6 +1,6 @@
-import { NextResponse } from "next/server";
-import { BackendProxyError, proxyToBackend } from "@/lib/server/backend";
+import { proxyToBackend } from "@/lib/server/backend";
 import { mapKnowledgeDocument } from "@/lib/server/mappers";
+import { backendErrorResponse, jsonData } from "@/lib/server/route-response";
 
 export async function POST(request: Request) {
   const formData = await request.formData();
@@ -20,14 +20,8 @@ export async function POST(request: Request) {
       body: formData,
     });
 
-    return NextResponse.json({ data: mapKnowledgeDocument(data) }, { status: 201 });
+    return jsonData(mapKnowledgeDocument(data), { status: 201 });
   } catch (error) {
-    const message =
-      error instanceof BackendProxyError
-        ? error.message
-        : "Failed to upload document.";
-    const status = error instanceof BackendProxyError ? error.status : 500;
-
-    return NextResponse.json({ message }, { status });
+    return backendErrorResponse(error, "Failed to upload document.");
   }
 }

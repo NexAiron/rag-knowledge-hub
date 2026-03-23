@@ -9,6 +9,7 @@ export interface ChatStreamRequest {
   kbId: string;
   sessionId?: string;
   question: string;
+  topK?: number;
   history?: ChatHistoryItem[];
 }
 

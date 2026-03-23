@@ -1,9 +1,17 @@
-import { NextResponse } from "next/server";
 import {
   BackendProxyError,
-  getAccessTokenCookieOptions,
   proxyToBackend,
 } from "@/lib/server/backend";
+import {
+  BackendAuthResponse,
+  createAuthSessionResponse,
+  mapAuthUser,
+} from "@/lib/server/auth-response";
+import {
+  backendErrorResponse,
+  jsonPayload,
+  unauthorizedResponse,
+} from "@/lib/server/route-response";
 
 interface BackendMeResponse {
   id: string;
@@ -15,29 +23,14 @@ export async function GET() {
   try {
     const data = await proxyToBackend<BackendMeResponse>("/auth/me");
 
-    return NextResponse.json({
-      user: {
-        id: data.id,
-        email: data.email,
-        name: data.name ?? data.email.split("@")[0],
-      },
+    return jsonPayload({
+      user: mapAuthUser(data),
     });
   } catch (error) {
     const message =
       error instanceof BackendProxyError ? error.message : "Unauthorized";
-    const response = NextResponse.json({ message }, { status: 401 });
-    response.cookies.set("access_token", "", getAccessTokenCookieOptions(0));
-    return response;
+    return unauthorizedResponse(message);
   }
-}
-
-interface BackendUpdateMeResponse {
-  access_token: string;
-  user: {
-    id: string;
-    email: string;
-    name: string | null;
-  };
 }
 
 export async function PATCH(request: Request) {
@@ -47,7 +40,7 @@ export async function PATCH(request: Request) {
   };
 
   try {
-    const data = await proxyToBackend<BackendUpdateMeResponse>("/auth/me", {
+    const data = await proxyToBackend<BackendAuthResponse>("/auth/me", {
       method: "PATCH",
       body: JSON.stringify(body),
       headers: {
@@ -55,26 +48,8 @@ export async function PATCH(request: Request) {
       },
     });
 
-    const response = NextResponse.json({
-      token: data.access_token,
-      user: {
-        id: data.user.id,
-        email: data.user.email,
-        name: data.user.name ?? data.user.email.split("@")[0],
-      },
-    });
-
-    response.cookies.set(
-      "access_token",
-      data.access_token,
-      getAccessTokenCookieOptions(),
-    );
-
-    return response;
+    return createAuthSessionResponse(data);
   } catch (error) {
-    const message =
-      error instanceof BackendProxyError ? error.message : "Failed to update profile.";
-
-    return NextResponse.json({ message }, { status: 400 });
+    return backendErrorResponse(error, "Failed to update profile.", 400);
   }
 }

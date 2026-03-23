@@ -1,10 +1,9 @@
-import { NextResponse } from "next/server";
+import { jsonPayload } from "@/lib/server/route-response";
 
 export async function GET() {
-  return NextResponse.json({
+  return jsonPayload({
     status: "ok",
     service: "@nexairon/frontend",
     timestamp: new Date().toISOString(),
   });
 }
-

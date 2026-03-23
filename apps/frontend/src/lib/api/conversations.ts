@@ -1,45 +1,28 @@
 import type { ChatMessage, ChatSession } from "@/types";
+import { requestData, requestVoid } from "@/lib/api/client";
 
 export async function listConversations(kbId: string): Promise<ChatSession[]> {
-  const response = await fetch(`/api/conversations?kbId=${encodeURIComponent(kbId)}`, {
-    method: "GET",
-    credentials: "include",
-  });
-
-  const json = (await response.json()) as { data?: ChatSession[]; message?: string };
-
-  if (!response.ok || !json.data) {
-    throw new Error(json.message ?? "Failed to fetch conversations.");
-  }
-
-  return json.data;
+  return requestData<ChatSession[]>(
+    `/api/conversations?kbId=${encodeURIComponent(kbId)}`,
+    { method: "GET" },
+    "Failed to fetch conversations.",
+  );
 }
 
 export async function listConversationMessages(
   id: string,
 ): Promise<ChatMessage[]> {
-  const response = await fetch(`/api/conversations/${encodeURIComponent(id)}/messages`, {
-    method: "GET",
-    credentials: "include",
-  });
-
-  const json = (await response.json()) as { data?: ChatMessage[]; message?: string };
-
-  if (!response.ok || !json.data) {
-    throw new Error(json.message ?? "Failed to fetch conversation messages.");
-  }
-
-  return json.data;
+  return requestData<ChatMessage[]>(
+    `/api/conversations/${encodeURIComponent(id)}/messages`,
+    { method: "GET" },
+    "Failed to fetch conversation messages.",
+  );
 }
 
 export async function deleteConversation(id: string): Promise<void> {
-  const response = await fetch(`/api/conversations/${encodeURIComponent(id)}`, {
-    method: "DELETE",
-    credentials: "include",
-  });
-
-  if (!response.ok) {
-    const json = (await response.json()) as { message?: string };
-    throw new Error(json.message ?? "Failed to delete conversation.");
-  }
+  await requestVoid(
+    `/api/conversations/${encodeURIComponent(id)}`,
+    { method: "DELETE" },
+    "Failed to delete conversation.",
+  );
 }

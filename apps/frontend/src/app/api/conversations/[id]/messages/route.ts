@@ -1,6 +1,6 @@
-import { NextResponse } from "next/server";
-import { BackendProxyError, proxyToBackend } from "@/lib/server/backend";
+import { proxyToBackend } from "@/lib/server/backend";
 import { mapChatMessage } from "@/lib/server/mappers";
+import { backendErrorResponse, jsonData } from "@/lib/server/route-response";
 
 interface RouteContext {
   params: Promise<{ id: string }>;
@@ -18,24 +18,20 @@ export async function GET(_request: Request, { params }: RouteContext) {
         content: string;
         createdAt: string;
         sources?: unknown;
+        citations?: unknown;
       }>
     >(`/conversations/${encodeURIComponent(id)}/messages`);
 
-    return NextResponse.json({
-      data: data.map((message) =>
+    return jsonData(
+      data.map((message) =>
         mapChatMessage({
           ...message,
           sources: Array.isArray(message.sources) ? message.sources : [],
+          citations: Array.isArray(message.citations) ? message.citations : [],
         }),
       ),
-    });
+    );
   } catch (error) {
-    const message =
-      error instanceof BackendProxyError
-        ? error.message
-        : "Failed to fetch conversation messages.";
-    const status = error instanceof BackendProxyError ? error.status : 500;
-
-    return NextResponse.json({ message }, { status });
+    return backendErrorResponse(error, "Failed to fetch conversation messages.");
   }
 }

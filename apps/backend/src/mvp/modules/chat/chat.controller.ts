@@ -22,6 +22,7 @@ export class ChatController {
       knowledgeBaseId: dto.knowledgeBaseId,
       conversationId: dto.conversationId,
       question: dto.question,
+      topK: dto.topK,
     });
   }
 
@@ -41,6 +42,7 @@ export class ChatController {
         knowledgeBaseId: dto.knowledgeBaseId,
         conversationId: dto.conversationId,
         question: dto.question,
+        topK: dto.topK,
       },
       response,
     );

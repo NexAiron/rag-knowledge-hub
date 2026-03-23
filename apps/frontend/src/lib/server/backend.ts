@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
+import { ACCESS_TOKEN_COOKIE } from "@/lib/auth/routes";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
-const ACCESS_TOKEN_COOKIE = "access_token";
 
 interface BackendSuccessResponse<T> {
   success: true;
@@ -30,7 +30,7 @@ export class BackendProxyError extends Error {
   }
 }
 
-function resolveApiBaseUrl(): string {
+export function resolveApiBaseUrl(): string {
   if (!API_BASE_URL) {
     throw new Error("NEXT_PUBLIC_API_BASE_URL is not set");
   }
@@ -38,27 +38,33 @@ function resolveApiBaseUrl(): string {
   return API_BASE_URL.endsWith("/") ? API_BASE_URL.slice(0, -1) : API_BASE_URL;
 }
 
-export async function proxyToBackend<T>(
+export async function proxyToBackendResponse(
   path: string,
   init?: RequestInit & { skipAuth?: boolean },
-): Promise<T> {
+): Promise<Response> {
   const baseUrl = resolveApiBaseUrl();
   const cookieStore = await cookies();
   const accessToken = init?.skipAuth
     ? null
     : cookieStore.get(ACCESS_TOKEN_COOKIE)?.value ?? null;
-
   const headers = new Headers(init?.headers);
 
   if (accessToken) {
     headers.set("Authorization", `Bearer ${accessToken}`);
   }
 
-  const response = await fetch(`${baseUrl}${path}`, {
+  return fetch(`${baseUrl}${path}`, {
     ...init,
     headers,
     cache: "no-store",
   });
+}
+
+export async function proxyToBackend<T>(
+  path: string,
+  init?: RequestInit & { skipAuth?: boolean },
+): Promise<T> {
+  const response = await proxyToBackendResponse(path, init);
 
   const contentType = response.headers.get("content-type") ?? "";
   const isJson = contentType.includes("application/json");

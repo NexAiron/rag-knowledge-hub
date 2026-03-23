@@ -27,7 +27,7 @@ interface ChatStoreState {
   activeSessionId: string | null;
   activeKbId: string | null;
   messagesBySession: Record<string, ChatMessage[]>;
-  sourcesBySession: Record<string, SourceChunk[]>;
+  citationsBySession: Record<string, SourceChunk[]>;
   streamStatus: StreamStatus;
   error: string | null;
   controller: AbortController | null;
@@ -76,6 +76,20 @@ function normalizeSources(payload: unknown): SourceChunk[] {
   });
 }
 
+function getLatestAssistantCitations(messages: ChatMessage[]): SourceChunk[] {
+  for (let index = messages.length - 1; index >= 0; index -= 1) {
+    const message = messages[index];
+    if (message.role !== "assistant") continue;
+
+    const citations = message.citations ?? message.sources ?? [];
+    if (citations.length > 0) {
+      return citations;
+    }
+  }
+
+  return [];
+}
+
 function isDraftSessionId(sessionId: string) {
   return sessionId.startsWith("session-");
 }
@@ -96,7 +110,7 @@ export const useChatStore = create<ChatStoreState>((set, get) => ({
   activeSessionId: null,
   activeKbId: null,
   messagesBySession: {},
-  sourcesBySession: {},
+  citationsBySession: {},
   streamStatus: "idle",
   error: null,
   controller: null,
@@ -124,13 +138,9 @@ export const useChatStore = create<ChatStoreState>((set, get) => ({
         ...state.messagesBySession,
         [sessionId]: messages,
       },
-      sourcesBySession: {
-        ...state.sourcesBySession,
-        [sessionId]:
-          messages
-            .filter((message) => message.role === "assistant")
-            .flatMap((message) => message.sources ?? [])
-            .slice(-5) ?? [],
+      citationsBySession: {
+        ...state.citationsBySession,
+        [sessionId]: getLatestAssistantCitations(messages),
       },
       error: null,
     }));
@@ -155,8 +165,8 @@ export const useChatStore = create<ChatStoreState>((set, get) => ({
         ...state.messagesBySession,
         [id]: [],
       },
-      sourcesBySession: {
-        ...state.sourcesBySession,
+      citationsBySession: {
+        ...state.citationsBySession,
         [id]: [],
       },
       error: null,
@@ -190,6 +200,7 @@ export const useChatStore = create<ChatStoreState>((set, get) => ({
       content: question,
       createdAt: now,
       sources: [],
+      citations: [],
       status: "done",
     };
 
@@ -201,6 +212,7 @@ export const useChatStore = create<ChatStoreState>((set, get) => ({
       content: "",
       createdAt: now + 1,
       sources: [],
+      citations: [],
       status: "streaming",
     };
 
@@ -251,8 +263,8 @@ export const useChatStore = create<ChatStoreState>((set, get) => ({
             set((state) => {
               const provisionalMessages =
                 state.messagesBySession[provisionalSessionId] ?? [];
-              const provisionalSources =
-                state.sourcesBySession[provisionalSessionId] ?? [];
+              const provisionalCitations =
+                state.citationsBySession[provisionalSessionId] ?? [];
               const nextSessions = state.sessions.some(
                 (item) => item.id === realSessionId,
               )
@@ -294,15 +306,15 @@ export const useChatStore = create<ChatStoreState>((set, get) => ({
                   ...state.messagesBySession,
                   [realSessionId]: nextMessages,
                 },
-                sourcesBySession: {
-                  ...state.sourcesBySession,
-                  [realSessionId]: provisionalSources,
+                citationsBySession: {
+                  ...state.citationsBySession,
+                  [realSessionId]: provisionalCitations,
                 },
               };
 
               if (realSessionId !== provisionalSessionId) {
                 delete nextState.messagesBySession?.[provisionalSessionId];
-                delete nextState.sourcesBySession?.[provisionalSessionId];
+                delete nextState.citationsBySession?.[provisionalSessionId];
               }
 
               return nextState as ChatStoreState;
@@ -331,12 +343,12 @@ export const useChatStore = create<ChatStoreState>((set, get) => ({
 
           onSources: (payload) => {
             const targetSessionId = currentSessionId;
-            const sources = normalizeSources(payload);
+            const citations = normalizeSources(payload);
 
             set((state) => ({
-              sourcesBySession: {
-                ...state.sourcesBySession,
-                [targetSessionId]: sources,
+              citationsBySession: {
+                ...state.citationsBySession,
+                [targetSessionId]: citations,
               },
               messagesBySession: {
                 ...state.messagesBySession,
@@ -345,7 +357,8 @@ export const useChatStore = create<ChatStoreState>((set, get) => ({
                     message.id === assistantMessageId
                       ? {
                           ...message,
-                          sources,
+                          citations,
+                          sources: citations,
                         }
                       : message,
                 ),
@@ -456,8 +469,8 @@ export const useChatStore = create<ChatStoreState>((set, get) => ({
         ...state.messagesBySession,
         [sessionId]: [],
       },
-      sourcesBySession: {
-        ...state.sourcesBySession,
+      citationsBySession: {
+        ...state.citationsBySession,
         [sessionId]: [],
       },
     }));
@@ -470,15 +483,15 @@ export const useChatStore = create<ChatStoreState>((set, get) => ({
       const nextActiveSessionId =
         state.activeSessionId === sessionId ? nextSessions[0]?.id ?? null : state.activeSessionId;
       const nextMessages = { ...state.messagesBySession };
-      const nextSources = { ...state.sourcesBySession };
+      const nextCitations = { ...state.citationsBySession };
       delete nextMessages[sessionId];
-      delete nextSources[sessionId];
+      delete nextCitations[sessionId];
 
       return {
         sessions: nextSessions,
         activeSessionId: nextActiveSessionId,
         messagesBySession: nextMessages,
-        sourcesBySession: nextSources,
+        citationsBySession: nextCitations,
       };
     });
   },

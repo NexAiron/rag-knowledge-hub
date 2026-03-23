@@ -1,6 +1,6 @@
-import { NextResponse } from "next/server";
-import { BackendProxyError, proxyToBackend } from "@/lib/server/backend";
+import { proxyToBackend } from "@/lib/server/backend";
 import { mapKnowledgeBase } from "@/lib/server/mappers";
+import { backendErrorResponse, jsonData } from "@/lib/server/route-response";
 
 export async function GET() {
   try {
@@ -12,17 +12,9 @@ export async function GET() {
       _count?: { documents?: number };
     }>>("/kb");
 
-    return NextResponse.json({
-      data: data.map(mapKnowledgeBase),
-    });
+    return jsonData(data.map(mapKnowledgeBase));
   } catch (error) {
-    const message =
-      error instanceof BackendProxyError
-        ? error.message
-        : "Failed to fetch knowledge bases.";
-    const status = error instanceof BackendProxyError ? error.status : 500;
-
-    return NextResponse.json({ message }, { status });
+    return backendErrorResponse(error, "Failed to fetch knowledge bases.");
   }
 }
 
@@ -47,14 +39,8 @@ export async function POST(request: Request) {
       },
     });
 
-    return NextResponse.json({ data: mapKnowledgeBase(data) }, { status: 201 });
+    return jsonData(mapKnowledgeBase(data), { status: 201 });
   } catch (error) {
-    const message =
-      error instanceof BackendProxyError
-        ? error.message
-        : "Failed to create knowledge base.";
-    const status = error instanceof BackendProxyError ? error.status : 500;
-
-    return NextResponse.json({ message }, { status });
+    return backendErrorResponse(error, "Failed to create knowledge base.");
   }
 }

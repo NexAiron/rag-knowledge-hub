@@ -66,13 +66,16 @@ export function mapChatSession(session: BackendChatSession): ChatSession {
 }
 
 export function mapChatMessage(message: BackendChatMessage): ChatMessage {
+  const citations = message.citations ?? message.sources ?? [];
+
   return {
     id: message.id,
     sessionId: message.conversationId,
     role: message.role,
     content: message.content,
     createdAt: new Date(message.createdAt).getTime(),
-    sources: message.sources ?? [],
+    sources: citations,
+    citations,
     status: "done",
   };
 }

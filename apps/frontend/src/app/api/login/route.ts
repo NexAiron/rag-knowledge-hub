@@ -1,18 +1,9 @@
-import { NextResponse } from "next/server";
+import { proxyToBackend } from "@/lib/server/backend";
+import { backendErrorResponse } from "@/lib/server/route-response";
 import {
-  BackendProxyError,
-  getAccessTokenCookieOptions,
-  proxyToBackend,
-} from "@/lib/server/backend";
-
-interface BackendAuthResponse {
-  access_token: string;
-  user: {
-    id: string;
-    name: string | null;
-    email: string;
-  };
-}
+  BackendAuthResponse,
+  createAuthSessionResponse,
+} from "@/lib/server/auth-response";
 
 export async function POST(request: Request) {
   const body = (await request.json()) as {
@@ -30,26 +21,8 @@ export async function POST(request: Request) {
       skipAuth: true,
     });
 
-    const response = NextResponse.json({
-      token: data.access_token,
-      user: {
-        id: data.user.id,
-        email: data.user.email,
-        name: data.user.name ?? data.user.email.split("@")[0],
-      },
-    });
-
-    response.cookies.set(
-      "access_token",
-      data.access_token,
-      getAccessTokenCookieOptions(),
-    );
-
-    return response;
+    return createAuthSessionResponse(data);
   } catch (error) {
-    const message =
-      error instanceof BackendProxyError ? error.message : "Login failed.";
-
-    return NextResponse.json({ message }, { status: 401 });
+    return backendErrorResponse(error, "Login failed.", 401);
   }
 }

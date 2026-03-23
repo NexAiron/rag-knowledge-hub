@@ -17,16 +17,6 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  if (pathname === "/dashboard") {
-    const kbUrl = new URL("/kb", request.url);
-
-    if (search) {
-      kbUrl.search = search;
-    }
-
-    return NextResponse.redirect(kbUrl);
-  }
-
   if (isAuthRoute(pathname)) {
     return NextResponse.next();
   }

@@ -1,4 +1,5 @@
 import type { KnowledgeBase } from "@/types";
+import { requestData } from "@/lib/api/client";
 
 export interface CreateKnowledgeBasePayload {
   name: string;
@@ -6,46 +7,22 @@ export interface CreateKnowledgeBasePayload {
 }
 
 export async function listKnowledgeBases(): Promise<KnowledgeBase[]> {
-  const response = await fetch("/api/kb", {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    credentials: "include",
-  });
-
-  const json = (await response.json()) as {
-    data?: KnowledgeBase[];
-    message?: string;
-  };
-
-  if (!response.ok || !json.data) {
-    throw new Error(json.message ?? "Failed to fetch knowledge bases.");
-  }
-
-  return json.data;
+  return requestData<KnowledgeBase[]>(
+    "/api/kb",
+    { method: "GET" },
+    "Failed to fetch knowledge bases.",
+  );
 }
 
 export async function createKnowledgeBase(
   payload: CreateKnowledgeBasePayload,
 ): Promise<KnowledgeBase> {
-  const response = await fetch("/api/kb", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
+  return requestData<KnowledgeBase>(
+    "/api/kb",
+    {
+      method: "POST",
+      body: JSON.stringify(payload),
     },
-    body: JSON.stringify(payload),
-    credentials: "include",
-  });
-
-  const json = (await response.json()) as {
-    data?: KnowledgeBase;
-    message?: string;
-  };
-
-  if (!response.ok || !json.data) {
-    throw new Error(json.message ?? "Failed to create knowledge base.");
-  }
-
-  return json.data;
+    "Failed to create knowledge base.",
+  );
 }

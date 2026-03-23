@@ -3,8 +3,9 @@
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { ChangeEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { App, Alert, Button, Card, Empty, Statistic, Tag, Typography } from "antd";
+import { App, Alert, Button, Card, Statistic, Tag, Typography } from "antd";
 import { DocumentsTable } from "@/components/documents/documents-table";
+import { PageStateCard } from "@/components/feedback/page-state-card";
 import { Layout } from "@/components/layout/layout";
 import {
   deleteDocument,
@@ -291,22 +292,12 @@ export default function DocumentsPage() {
         ) : null}
 
         {isLoading ? (
-          <Card
-            variant="borderless"
-            className="glass-panel !rounded-[30px] !shadow-none"
-          >
-            {t("documents.loading")}
-          </Card>
+          <PageStateCard message={t("documents.loading")} />
         ) : documents.length === 0 ? (
-          <Card
-            variant="borderless"
-            className="glass-panel !rounded-[30px] !shadow-none"
-          >
-            <Empty
-              description={t("documents.empty")}
-              image={Empty.PRESENTED_IMAGE_SIMPLE}
-            />
-          </Card>
+          <PageStateCard
+            message={t("documents.empty")}
+            description={t("documents.panelHint")}
+          />
         ) : (
           <DocumentsTable
             documents={documents}

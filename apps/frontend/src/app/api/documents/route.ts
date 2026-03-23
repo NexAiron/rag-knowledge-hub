@@ -1,6 +1,6 @@
-import { NextResponse } from "next/server";
-import { BackendProxyError, proxyToBackend } from "@/lib/server/backend";
+import { proxyToBackend } from "@/lib/server/backend";
 import { mapKnowledgeDocument } from "@/lib/server/mappers";
+import { backendErrorResponse, jsonData } from "@/lib/server/route-response";
 
 export async function GET(request: Request) {
   const url = new URL(request.url);
@@ -18,16 +18,8 @@ export async function GET(request: Request) {
       updatedAt: string;
     }>>(`/documents?kbId=${encodeURIComponent(kbId)}`);
 
-    return NextResponse.json({
-      data: data.map(mapKnowledgeDocument),
-    });
+    return jsonData(data.map(mapKnowledgeDocument));
   } catch (error) {
-    const message =
-      error instanceof BackendProxyError
-        ? error.message
-        : "Failed to fetch documents.";
-    const status = error instanceof BackendProxyError ? error.status : 500;
-
-    return NextResponse.json({ message }, { status });
+    return backendErrorResponse(error, "Failed to fetch documents.");
   }
 }

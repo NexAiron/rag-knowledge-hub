@@ -1,7 +1,7 @@
 "use client";
 
 import { BookMarked, FileSearch, PanelRightOpen, Sparkles } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Button, Card, Empty, Tag, Typography } from "antd";
 import { useI18n } from "@/lib/i18n/use-i18n";
 import type { SourceChunk } from "@/types";
@@ -42,6 +42,10 @@ export function SourcePanel({ status, answer, sources }: SourcePanelProps) {
     () => sources.map((item, index) => toDisplaySource(item, index)),
     [sources],
   );
+
+  useEffect(() => {
+    setExpandedMap({});
+  }, [sources]);
 
   return (
     <Card

@@ -69,7 +69,8 @@ export interface ChatMessage {
   role: MessageRole;
   content: string;
   createdAt: number;
-  sources: SourceChunk[];
+  citations: SourceChunk[];
+  sources?: SourceChunk[];
   status: "streaming" | "done" | "error";
 }
 
@@ -88,4 +89,5 @@ export interface BackendChatMessage {
   content: string;
   createdAt: string;
   sources?: SourceChunk[] | null;
+  citations?: SourceChunk[] | null;
 }

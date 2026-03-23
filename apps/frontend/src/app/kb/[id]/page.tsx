@@ -8,7 +8,8 @@ import {
   FileStack,
   MessagesSquare,
 } from "lucide-react";
-import { Button, Card, Empty, Space, Statistic, Tag, Typography } from "antd";
+import { Button, Card, Space, Statistic, Tag, Typography } from "antd";
+import { PageStateCard } from "@/components/feedback/page-state-card";
 import { Layout } from "@/components/layout/layout";
 import { useI18n } from "@/lib/i18n/use-i18n";
 import { useKbStore } from "@/stores/kb-store";
@@ -217,12 +218,10 @@ export default function KnowledgeBaseDetailPage() {
           </section>
         </div>
       ) : (
-        <Card
-          variant="borderless"
-          className="glass-panel !rounded-[32px] !shadow-none"
-        >
-          <Empty description={t("kb.notFound")} />
-        </Card>
+        <PageStateCard
+          message={t("kb.notFound")}
+          description={t("kb.heroDescription")}
+        />
       )}
     </Layout>
   );

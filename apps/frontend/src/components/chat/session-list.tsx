@@ -1,7 +1,7 @@
 "use client";
 
-import { Clock3, MessageSquarePlus, MessagesSquare } from "lucide-react";
-import { Button, Card, Empty, Tag, Typography } from "antd";
+import { Clock3, MessageSquarePlus, MessagesSquare, Trash2 } from "lucide-react";
+import { Button, Card, Empty, Popconfirm, Tag, Typography } from "antd";
 import type { ChatSession } from "@/types";
 import { useI18n } from "@/lib/i18n/use-i18n";
 
@@ -10,6 +10,8 @@ interface SessionListProps {
   activeSessionId: string | null;
   onSelect: (id: string) => void;
   onCreate: () => void;
+  onDelete: (id: string) => void;
+  deletingSessionId?: string | null;
 }
 
 export function SessionList({
@@ -17,6 +19,8 @@ export function SessionList({
   activeSessionId,
   onSelect,
   onCreate,
+  onDelete,
+  deletingSessionId,
 }: SessionListProps) {
   const { locale, t } = useI18n();
 
@@ -57,33 +61,56 @@ export function SessionList({
               <div key={session.id} className="py-1">
                 <Card
                   size="small"
-                  hoverable
-                  onClick={() => onSelect(session.id)}
                   variant="borderless"
                   className={`w-full !rounded-[22px] !shadow-none ${
                     active ? "!bg-ink text-white" : "ambient-card"
                   }`}
                 >
-                  <Typography.Text
-                    className={`!flex !items-center !gap-2 !font-medium ${
-                      active ? "!text-white" : "!text-ink"
-                    }`}
-                  >
-                    <MessagesSquare
-                      className="h-3.5 w-3.5 shrink-0"
-                      strokeWidth={2}
-                    />
-                    <span className="truncate">{session.title}</span>
-                  </Typography.Text>
-                  <Tag
-                    className="!mt-3 !rounded-full"
-                    color={active ? "default" : "blue"}
-                  >
-                    <Clock3 className="mr-1 inline h-3 w-3" strokeWidth={2} />
-                    {new Date(session.updatedAt).toLocaleString(
-                      locale === "zh" ? "zh-CN" : "en-US",
-                    )}
-                  </Tag>
+                  <div className="flex items-start gap-2">
+                    <button
+                      type="button"
+                      onClick={() => onSelect(session.id)}
+                      className="min-w-0 flex-1 text-left"
+                    >
+                      <Typography.Text
+                        className={`!flex !items-center !gap-2 !font-medium ${
+                          active ? "!text-white" : "!text-ink"
+                        }`}
+                      >
+                        <MessagesSquare
+                          className="h-3.5 w-3.5 shrink-0"
+                          strokeWidth={2}
+                        />
+                        <span className="truncate">{session.title}</span>
+                      </Typography.Text>
+                      <Tag
+                        className="!mt-3 !rounded-full"
+                        color={active ? "default" : "blue"}
+                      >
+                        <Clock3 className="mr-1 inline h-3 w-3" strokeWidth={2} />
+                        {new Date(session.updatedAt).toLocaleString(
+                          locale === "zh" ? "zh-CN" : "en-US",
+                        )}
+                      </Tag>
+                    </button>
+
+                    <Popconfirm
+                      title={t("chat.deleteSession")}
+                      description={t("chat.deleteSessionConfirm")}
+                      okText={t("common.delete")}
+                      cancelText={t("common.cancel")}
+                      onConfirm={() => onDelete(session.id)}
+                    >
+                      <Button
+                        type="text"
+                        size="small"
+                        loading={deletingSessionId === session.id}
+                        aria-label={t("chat.deleteSession")}
+                        className={active ? "!text-white/88 hover:!text-white" : ""}
+                        icon={<Trash2 className="h-3.5 w-3.5" strokeWidth={2} />}
+                      />
+                    </Popconfirm>
+                  </div>
                 </Card>
               </div>
             );

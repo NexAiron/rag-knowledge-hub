@@ -15,7 +15,13 @@ const config: Config = {
         panel: "#FCFDFF",
       },
       fontFamily: {
-        sans: ["var(--font-noto-sans-sc)", "system-ui", "sans-serif"],
+        sans: [
+          "PingFang SC",
+          "Microsoft YaHei",
+          "Noto Sans SC",
+          "system-ui",
+          "sans-serif",
+        ],
       },
     },
   },

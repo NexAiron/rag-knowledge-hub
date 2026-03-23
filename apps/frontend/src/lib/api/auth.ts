@@ -1,4 +1,5 @@
 import type { UserProfile } from "@/types";
+import { requestJson, requestVoid } from "@/lib/api/client";
 
 export interface LoginPayload {
   email: string;
@@ -21,112 +22,94 @@ export interface UpdateProfilePayload {
   name?: string;
 }
 
-export async function loginByPassword(
-  payload: LoginPayload,
+async function requestAuthSession(
+  path: string,
+  method: "POST" | "PATCH",
+  payload: LoginPayload | RegisterPayload | UpdateProfilePayload,
+  fallbackMessage: string,
 ): Promise<LoginResponse> {
-  const response = await fetch("/api/login", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(payload),
-    credentials: "include",
-  });
-
-  const json = (await response.json()) as
+  const json = await requestJson<
     | { message?: string }
-    | (Partial<LoginResponse> & { message?: string });
+    | (Partial<LoginResponse> & { message?: string })
+  >(
+    path,
+    {
+      method,
+      body: JSON.stringify(payload),
+    },
+    fallbackMessage,
+  );
 
-  if (!response.ok || !("user" in json) || !("token" in json) || !json.user || !json.token) {
-    throw new Error(json.message ?? "Login failed.");
+  if (!("user" in json) || !("token" in json) || !json.user || !json.token) {
+    throw new Error(json.message ?? fallbackMessage);
   }
 
   return {
     user: json.user,
     token: json.token,
   };
+}
+
+export async function loginByPassword(
+  payload: LoginPayload,
+): Promise<LoginResponse> {
+  return requestAuthSession("/api/login", "POST", payload, "Login failed.");
 }
 
 export async function registerByPassword(
   payload: RegisterPayload,
 ): Promise<LoginResponse> {
-  const response = await fetch("/api/register", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(payload),
-    credentials: "include",
-  });
-
-  const json = (await response.json()) as
-    | { message?: string }
-    | (Partial<LoginResponse> & { message?: string });
-
-  if (!response.ok || !("user" in json) || !("token" in json) || !json.user || !json.token) {
-    throw new Error(json.message ?? "Register failed.");
-  }
-
-  return {
-    user: json.user,
-    token: json.token,
-  };
+  return requestAuthSession(
+    "/api/register",
+    "POST",
+    payload,
+    "Register failed.",
+  );
 }
 
 export async function getCurrentUser(): Promise<UserProfile | null> {
-  const response = await fetch("/api/me", {
-    method: "GET",
-    credentials: "include",
-  });
+  try {
+    const json = await requestJson<
+      | { message?: string }
+      | { user?: UserProfile; message?: string }
+    >(
+      "/api/me",
+      { method: "GET" },
+      "Failed to fetch current user.",
+    );
 
-  if (response.status === 401) {
-    return null;
+    if (!("user" in json) || !json.user) {
+      throw new Error(json.message ?? "Failed to fetch current user.");
+    }
+
+    return json.user;
+  } catch (error) {
+    if (error instanceof Error && error.message === "Unauthorized") {
+      return null;
+    }
+
+    if (
+      error instanceof Error &&
+      error.message.toLowerCase().includes("unauthorized")
+    ) {
+      return null;
+    }
+
+    throw error;
   }
-
-  const json = (await response.json()) as
-    | { message?: string }
-    | { user?: UserProfile; message?: string };
-
-  if (!response.ok || !("user" in json) || !json.user) {
-    throw new Error(json.message ?? "Failed to fetch current user.");
-  }
-
-  return json.user;
 }
 
 export async function updateCurrentUser(
   payload: UpdateProfilePayload,
 ): Promise<LoginResponse> {
-  const response = await fetch("/api/me", {
-    method: "PATCH",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(payload),
-    credentials: "include",
-  });
-
-  const json = (await response.json()) as
-    | { message?: string }
-    | (Partial<LoginResponse> & { message?: string });
-
-  if (!response.ok || !("user" in json) || !("token" in json) || !json.user || !json.token) {
-    throw new Error(json.message ?? "Failed to update profile.");
-  }
-
-  return {
-    user: json.user,
-    token: json.token,
-  };
+  return requestAuthSession(
+    "/api/me",
+    "PATCH",
+    payload,
+    "Failed to update profile.",
+  );
 }
 
 export async function logoutSession(): Promise<void> {
-  const response = await fetch("/api/logout", {
-    method: "POST",
-    credentials: "include",
-  });
-
-  if (!response.ok) {
-    throw new Error("Failed to log out.");
-  }
+  await requestVoid("/api/logout", { method: "POST" }, "Failed to log out.");
 }

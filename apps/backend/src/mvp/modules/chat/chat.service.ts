@@ -12,6 +12,7 @@ interface StreamChatInput {
   knowledgeBaseId: string;
   conversationId?: string;
   question: string;
+  topK?: number;
 }
 
 export interface ChatSource {
@@ -28,6 +29,7 @@ export interface ChatAskResponse {
   conversationId: string;
   answer: string;
   sources: ChatSource[];
+  citations: ChatSource[];
 }
 
 @Injectable()
@@ -41,7 +43,7 @@ export class ChatService {
 
   async ask(input: StreamChatInput): Promise<ChatAskResponse> {
     const prepared = await this.prepareChat(input);
-    const answer = await this.llmService.complete(prepared.messages);
+    const answer = prepared.answer ?? (await this.llmService.complete(prepared.messages));
 
     await this.conversationsService.createMessage({
       conversationId: prepared.conversation.id,
@@ -55,6 +57,7 @@ export class ChatService {
       conversationId: prepared.conversation.id,
       answer,
       sources: prepared.sources,
+      citations: prepared.sources,
     };
   }
 
@@ -71,11 +74,17 @@ export class ChatService {
       });
       this.writeEvent(response, "sources", prepared.sources);
 
-      let answer = "";
+      let answer = prepared.answer ?? "";
 
-      for await (const token of this.llmService.stream(prepared.messages)) {
-        answer += token;
-        this.writeEvent(response, "token", token);
+      if (prepared.answer) {
+        for (const token of this.tokenizeAnswer(prepared.answer)) {
+          this.writeEvent(response, "token", token);
+        }
+      } else {
+        for await (const token of this.llmService.stream(prepared.messages)) {
+          answer += token;
+          this.writeEvent(response, "token", token);
+        }
       }
 
       await this.conversationsService.createMessage({
@@ -115,20 +124,25 @@ export class ChatService {
     const retrieval = await this.retrievalService.retrieve({
       knowledgeBaseId: input.knowledgeBaseId,
       query: question,
+      topK: input.topK,
     });
 
     const sources = await this.buildSources(retrieval);
-    const history = await this.conversationsService.listRecentMessages(
-      conversation.id,
-      input.userId,
-      12,
-    );
+    const shouldRefuse = sources.length === 0;
+    const history = shouldRefuse
+      ? []
+      : await this.conversationsService.listRecentMessages(
+          conversation.id,
+          input.userId,
+          12,
+        );
 
     return {
       question,
       conversation,
       sources,
-      messages: this.buildMessages(history, sources),
+      answer: shouldRefuse ? this.buildNoEvidenceAnswer(question) : undefined,
+      messages: shouldRefuse ? [] : this.buildMessages(history, sources),
     };
   }
 
@@ -214,5 +228,19 @@ export class ChatService {
   private writeEvent(response: Response, event: string, payload: unknown) {
     response.write(`event: ${event}\n`);
     response.write(`data: ${JSON.stringify(payload)}\n\n`);
+  }
+
+  private buildNoEvidenceAnswer(question: string): string {
+    return [
+      "我暂时无法根据当前知识库中的内容可靠回答这个问题。",
+      "没有检索到足够相关的资料片段，所以我不想直接猜测。",
+      `你可以尝试换一种问法，或先补充与“${question}”相关的文档后再提问。`,
+    ].join("\n");
+  }
+
+  private *tokenizeAnswer(answer: string): Generator<string> {
+    for (const char of answer) {
+      yield char;
+    }
   }
 }
