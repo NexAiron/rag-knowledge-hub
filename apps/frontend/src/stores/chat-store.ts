@@ -2,9 +2,18 @@
 
 import { create } from "zustand";
 import { getMessage } from "@/lib/i18n/messages";
+import {
+  deleteConversation,
+  listConversationMessages,
+  listConversations,
+} from "@/lib/api/conversations";
 import { createChatStream } from "@/lib/sse/chat-stream";
 import { useLocaleStore } from "@/stores/locale-store";
-import type { ChatMessage, ChatSession, SourceChunk } from "@/types";
+import type {
+  ChatMessage,
+  ChatSession,
+  SourceChunk,
+} from "@/types";
 
 type StreamStatus = "idle" | "streaming" | "done" | "error";
 
@@ -22,11 +31,14 @@ interface ChatStoreState {
   streamStatus: StreamStatus;
   error: string | null;
   controller: AbortController | null;
+  loadSessions: (kbId: string) => Promise<void>;
+  loadMessages: (sessionId: string) => Promise<void>;
   createSession: (kbId: string, title?: string) => string;
   setActiveSession: (sessionId: string) => void;
   sendMessage: (payload: SendMessageInput) => Promise<void>;
   stopStream: () => void;
   clearActiveSessionMessages: () => void;
+  removeSession: (sessionId: string) => Promise<void>;
 }
 
 const createId = (prefix: string) =>
@@ -64,6 +76,10 @@ function normalizeSources(payload: unknown): SourceChunk[] {
   });
 }
 
+function isDraftSessionId(sessionId: string) {
+  return sessionId.startsWith("session-");
+}
+
 function touchSession(
   sessions: ChatSession[],
   targetId: string,
@@ -84,6 +100,41 @@ export const useChatStore = create<ChatStoreState>((set, get) => ({
   streamStatus: "idle",
   error: null,
   controller: null,
+
+  loadSessions: async (kbId) => {
+    const sessions = await listConversations(kbId);
+
+    set((state) => ({
+      sessions: [
+        ...sessions,
+        ...state.sessions.filter((session) => session.kbId !== kbId),
+      ],
+      activeKbId: kbId,
+      activeSessionId:
+        sessions.find((session) => session.id === state.activeSessionId)?.id ??
+        state.activeSessionId,
+      error: null,
+    }));
+  },
+
+  loadMessages: async (sessionId) => {
+    const messages = await listConversationMessages(sessionId);
+    set((state) => ({
+      messagesBySession: {
+        ...state.messagesBySession,
+        [sessionId]: messages,
+      },
+      sourcesBySession: {
+        ...state.sourcesBySession,
+        [sessionId]:
+          messages
+            .filter((message) => message.role === "assistant")
+            .flatMap((message) => message.sources ?? [])
+            .slice(-5) ?? [],
+      },
+      error: null,
+    }));
+  },
 
   createSession: (kbId, title) => {
     const id = createId("session");
@@ -121,21 +172,20 @@ export const useChatStore = create<ChatStoreState>((set, get) => ({
       activeKbId: target?.kbId ?? get().activeKbId,
       error: null,
     });
+    void get().loadMessages(sessionId);
   },
 
   sendMessage: async ({ kbId, question }) => {
     if (!question.trim()) return;
     if (get().streamStatus === "streaming") return;
 
-    let sessionId = get().activeSessionId;
-    if (!sessionId) {
-      sessionId = get().createSession(kbId, question);
-    }
-
+    const provisionalSessionId =
+      get().activeSessionId ?? get().createSession(kbId, question);
+    let currentSessionId = provisionalSessionId;
     const now = Date.now();
     const userMessage: ChatMessage = {
       id: createId("msg"),
-      sessionId,
+      sessionId: provisionalSessionId,
       role: "user",
       content: question,
       createdAt: now,
@@ -146,7 +196,7 @@ export const useChatStore = create<ChatStoreState>((set, get) => ({
     const assistantMessageId = createId("msg");
     const assistantMessage: ChatMessage = {
       id: assistantMessageId,
-      sessionId,
+      sessionId: provisionalSessionId,
       role: "assistant",
       content: "",
       createdAt: now + 1,
@@ -154,33 +204,24 @@ export const useChatStore = create<ChatStoreState>((set, get) => ({
       status: "streaming",
     };
 
-    const existingMessages = get().messagesBySession[sessionId] ?? [];
-    const history = [...existingMessages, userMessage].map((message) => ({
-      role: message.role,
-      content: message.content,
-    }));
-
+    const existingMessages = get().messagesBySession[provisionalSessionId] ?? [];
     const controller = new AbortController();
 
     set((state) => ({
-      activeSessionId: sessionId,
+      activeSessionId: provisionalSessionId,
       activeKbId: kbId,
       streamStatus: "streaming",
       error: null,
       controller,
       messagesBySession: {
         ...state.messagesBySession,
-        [sessionId]: [...existingMessages, userMessage, assistantMessage],
+        [provisionalSessionId]: [...existingMessages, userMessage, assistantMessage],
       },
-      sessions: touchSession(state.sessions, sessionId, (session) => ({
+      sessions: touchSession(state.sessions, provisionalSessionId, (session) => ({
         ...session,
-        kbId,
         updatedAt: now,
         title:
-          (existingMessages.length === 0 || session.title === "New Chat") &&
-          question.trim()
-            ? buildSessionTitle(question)
-            : session.title,
+          existingMessages.length === 0 ? buildSessionTitle(question) : session.title,
       })),
     }));
 
@@ -188,16 +229,93 @@ export const useChatStore = create<ChatStoreState>((set, get) => ({
       await createChatStream(
         {
           kbId,
-          sessionId,
+          sessionId: isDraftSessionId(provisionalSessionId)
+            ? undefined
+            : provisionalSessionId,
           question,
-          history,
         },
         {
+          onSession: (payload) => {
+            const session = payload as {
+              id?: string;
+              kbId?: string;
+              title?: string;
+              createdAt?: string;
+              updatedAt?: string;
+            } | null;
+
+            if (!session?.id) return;
+
+            const realSessionId = session.id;
+            currentSessionId = realSessionId;
+            set((state) => {
+              const provisionalMessages =
+                state.messagesBySession[provisionalSessionId] ?? [];
+              const provisionalSources =
+                state.sourcesBySession[provisionalSessionId] ?? [];
+              const nextSessions = state.sessions.some(
+                (item) => item.id === realSessionId,
+              )
+                ? touchSession(state.sessions, realSessionId, (item) => ({
+                    ...item,
+                    title: session.title ?? item.title,
+                    kbId: session.kbId ?? item.kbId,
+                    updatedAt: session.updatedAt
+                      ? new Date(session.updatedAt).getTime()
+                      : item.updatedAt,
+                  }))
+                : [
+                    {
+                      id: realSessionId,
+                      kbId: session.kbId ?? kbId,
+                      title: session.title ?? buildSessionTitle(question),
+                      createdAt: session.createdAt
+                        ? new Date(session.createdAt).getTime()
+                        : now,
+                      updatedAt: session.updatedAt
+                        ? new Date(session.updatedAt).getTime()
+                        : now,
+                    },
+                    ...state.sessions.filter(
+                      (item) => item.id !== provisionalSessionId,
+                    ),
+                  ];
+
+              const nextMessages = provisionalMessages.map((message) => ({
+                ...message,
+                sessionId: realSessionId,
+              }));
+
+              const nextState: Partial<ChatStoreState> = {
+                sessions: nextSessions,
+                activeSessionId: realSessionId,
+                activeKbId: session.kbId ?? kbId,
+                messagesBySession: {
+                  ...state.messagesBySession,
+                  [realSessionId]: nextMessages,
+                },
+                sourcesBySession: {
+                  ...state.sourcesBySession,
+                  [realSessionId]: provisionalSources,
+                },
+              };
+
+              if (realSessionId !== provisionalSessionId) {
+                delete nextState.messagesBySession?.[provisionalSessionId];
+                delete nextState.sourcesBySession?.[provisionalSessionId];
+              }
+
+              return nextState as ChatStoreState;
+            });
+
+          },
+
           onToken: (token) => {
+            const targetSessionId = currentSessionId;
             set((state) => ({
               messagesBySession: {
                 ...state.messagesBySession,
-                [sessionId]: (state.messagesBySession[sessionId] ?? []).map(
+                [targetSessionId]: (state.messagesBySession[targetSessionId] ?? []).map(
                   (message) =>
                     message.id === assistantMessageId
                       ? {
@@ -212,16 +330,17 @@ export const useChatStore = create<ChatStoreState>((set, get) => ({
           },
 
           onSources: (payload) => {
+            const targetSessionId = currentSessionId;
             const sources = normalizeSources(payload);
 
             set((state) => ({
               sourcesBySession: {
                 ...state.sourcesBySession,
-                [sessionId]: sources,
+                [targetSessionId]: sources,
               },
               messagesBySession: {
                 ...state.messagesBySession,
-                [sessionId]: (state.messagesBySession[sessionId] ?? []).map(
+                [targetSessionId]: (state.messagesBySession[targetSessionId] ?? []).map(
                   (message) =>
                     message.id === assistantMessageId
                       ? {
@@ -235,12 +354,13 @@ export const useChatStore = create<ChatStoreState>((set, get) => ({
           },
 
           onDone: () => {
+            const targetSessionId = currentSessionId;
             set((state) => ({
               streamStatus: "done",
               controller: null,
               messagesBySession: {
                 ...state.messagesBySession,
-                [sessionId]: (state.messagesBySession[sessionId] ?? []).map(
+                [targetSessionId]: (state.messagesBySession[targetSessionId] ?? []).map(
                   (message) =>
                     message.id === assistantMessageId
                       ? {
@@ -251,16 +371,20 @@ export const useChatStore = create<ChatStoreState>((set, get) => ({
                 ),
               },
             }));
+            if (targetSessionId) {
+              void get().loadSessions(kbId);
+            }
           },
 
           onError: (message) => {
+            const targetSessionId = currentSessionId;
             set((state) => ({
               streamStatus: "error",
               error: message,
               controller: null,
               messagesBySession: {
                 ...state.messagesBySession,
-                [sessionId]: (state.messagesBySession[sessionId] ?? []).map(
+                [targetSessionId]: (state.messagesBySession[targetSessionId] ?? []).map(
                   (item) =>
                     item.id === assistantMessageId
                       ? {
@@ -281,15 +405,17 @@ export const useChatStore = create<ChatStoreState>((set, get) => ({
         return;
       }
 
+    const targetSessionId = provisionalSessionId;
       set((state) => ({
         streamStatus: "error",
         controller: null,
-          error:
+        error:
           error instanceof Error ? error.message : "Failed to stream response.",
         messagesBySession: {
           ...state.messagesBySession,
-          [sessionId]: (state.messagesBySession[sessionId] ?? []).map((item) =>
-            item.id === assistantMessageId ? { ...item, status: "error" } : item,
+          [targetSessionId]: (state.messagesBySession[targetSessionId] ?? []).map(
+            (item) =>
+              item.id === assistantMessageId ? { ...item, status: "error" } : item,
           ),
         },
       }));
@@ -335,5 +461,25 @@ export const useChatStore = create<ChatStoreState>((set, get) => ({
         [sessionId]: [],
       },
     }));
+  },
+
+  removeSession: async (sessionId) => {
+    await deleteConversation(sessionId);
+    set((state) => {
+      const nextSessions = state.sessions.filter((session) => session.id !== sessionId);
+      const nextActiveSessionId =
+        state.activeSessionId === sessionId ? nextSessions[0]?.id ?? null : state.activeSessionId;
+      const nextMessages = { ...state.messagesBySession };
+      const nextSources = { ...state.sourcesBySession };
+      delete nextMessages[sessionId];
+      delete nextSources[sessionId];
+
+      return {
+        sessions: nextSessions,
+        activeSessionId: nextActiveSessionId,
+        messagesBySession: nextMessages,
+        sourcesBySession: nextSources,
+      };
+    });
   },
 }));

@@ -1,4 +1,11 @@
-import type { KnowledgeBase, KnowledgeDocument } from "@/types";
+import type {
+  BackendChatMessage,
+  BackendChatSession,
+  ChatMessage,
+  ChatSession,
+  KnowledgeBase,
+  KnowledgeDocument,
+} from "@/types";
 
 interface BackendKnowledgeBase {
   id: string;
@@ -45,5 +52,27 @@ export function mapKnowledgeDocument(
     status: document.status,
     createdAt: document.createdAt,
     updatedAt: document.updatedAt,
+  };
+}
+
+export function mapChatSession(session: BackendChatSession): ChatSession {
+  return {
+    id: session.id,
+    title: session.title ?? "New session",
+    kbId: session.knowledgeBaseId,
+    createdAt: new Date(session.createdAt).getTime(),
+    updatedAt: new Date(session.updatedAt).getTime(),
+  };
+}
+
+export function mapChatMessage(message: BackendChatMessage): ChatMessage {
+  return {
+    id: message.id,
+    sessionId: message.conversationId,
+    role: message.role,
+    content: message.content,
+    createdAt: new Date(message.createdAt).getTime(),
+    sources: message.sources ?? [],
+    status: "done",
   };
 }

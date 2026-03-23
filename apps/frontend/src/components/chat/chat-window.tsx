@@ -24,6 +24,8 @@ export function ChatWindow({ kbId }: ChatWindowProps) {
   const sourcesBySession = useChatStore((state) => state.sourcesBySession);
   const streamStatus = useChatStore((state) => state.streamStatus);
   const error = useChatStore((state) => state.error);
+  const loadSessions = useChatStore((state) => state.loadSessions);
+  const loadMessages = useChatStore((state) => state.loadMessages);
   const createSession = useChatStore((state) => state.createSession);
   const setActiveSession = useChatStore((state) => state.setActiveSession);
   const sendMessage = useChatStore((state) => state.sendMessage);
@@ -33,21 +35,21 @@ export function ChatWindow({ kbId }: ChatWindowProps) {
   );
 
   useEffect(() => {
-    if (sessions.length === 0) {
-      createSession(kbId, t("chat.newSession"));
+    void loadSessions(kbId);
+  }, [kbId, loadSessions]);
+
+  useEffect(() => {
+    const activeSession = sessions.find((session) => session.id === activeSessionId);
+    if (activeSession && activeSession.kbId === kbId) {
+      void loadMessages(activeSession.id);
       return;
     }
 
-    const activeSession = sessions.find((session) => session.id === activeSessionId);
-    if (!activeSession || activeSession.kbId !== kbId) {
-      const firstSessionForKb = sessions.find((session) => session.kbId === kbId);
-      if (firstSessionForKb) {
-        setActiveSession(firstSessionForKb.id);
-      } else {
-        createSession(kbId, t("chat.newSession"));
-      }
+    const firstSessionForKb = sessions.find((session) => session.kbId === kbId);
+    if (firstSessionForKb) {
+      setActiveSession(firstSessionForKb.id);
     }
-  }, [activeSessionId, createSession, kbId, sessions, setActiveSession, t]);
+  }, [activeSessionId, kbId, loadMessages, sessions, setActiveSession]);
 
   const activeMessages = useMemo(
     () => (activeSessionId ? messagesBySession[activeSessionId] ?? [] : []),
@@ -83,25 +85,26 @@ export function ChatWindow({ kbId }: ChatWindowProps) {
     <div className="space-y-4">
       <Card
         bordered={false}
-        className="dashboard-hero !rounded-[32px] !shadow-none"
+        className="dashboard-hero dashboard-hero-compact !rounded-[32px] !shadow-none"
+        styles={{ body: { padding: 22 } }}
       >
         <div className="dashboard-hero-simple">
           <div className="flex flex-wrap items-start justify-between gap-4">
-            <div className="max-w-3xl">
+            <div className="dashboard-copy-block dashboard-copy-block-compact !max-w-3xl">
               <Tag bordered={false} className="dashboard-soft-tag !m-0">
-                {t("chat.workspaceLabel")}
+                {t("chat.pageTitle")}
               </Tag>
               <Typography.Title
                 level={2}
-                className="!mb-0 !mt-4 !text-[1.8rem] !font-semibold !tracking-[-0.04em] !text-ink"
+                className="dashboard-hero-title dashboard-hero-title-compact !mb-0 !mt-4 !text-ink"
               >
                 {t("chat.pageTitle")}
               </Typography.Title>
-              <Typography.Paragraph className="!mb-0 !mt-3 !text-[13px] !leading-7 !text-ink/64">
-                {t("chat.workspaceHint")}
+              <Typography.Paragraph className="dashboard-hero-description dashboard-hero-description-compact !mb-0 !mt-3 !text-ink/64">
+                {t("chat.pageDescription")}
               </Typography.Paragraph>
             </div>
-            <Tag className="!rounded-full !px-3 !py-1">KB · {kbId}</Tag>
+            <Tag className="!rounded-full !px-3 !py-1">KB ID: {kbId}</Tag>
           </div>
         </div>
       </Card>

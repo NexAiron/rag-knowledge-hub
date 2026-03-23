@@ -7,12 +7,13 @@ export interface ChatHistoryItem {
 
 export interface ChatStreamRequest {
   kbId: string;
-  sessionId: string;
+  sessionId?: string;
   question: string;
   history?: ChatHistoryItem[];
 }
 
 export interface ChatStreamHandlers {
+  onSession?: (payload: unknown) => void;
   onToken?: (token: string) => void;
   onSources?: (payload: unknown) => void;
   onDone?: () => void;
@@ -92,6 +93,15 @@ export async function createChatStream(
 
       if (parsed.event === "token") {
         handlers.onToken?.(parsed.data);
+        continue;
+      }
+
+      if (parsed.event === "session") {
+        try {
+          handlers.onSession?.(JSON.parse(parsed.data));
+        } catch {
+          handlers.onSession?.(null);
+        }
         continue;
       }
 

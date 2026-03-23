@@ -1,82 +1,49 @@
-import type { SourceChunk } from "@/types";
+import { cookies } from "next/headers";
 
-const encoder = new TextEncoder();
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+const ACCESS_TOKEN_COOKIE = "access_token";
 
-function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => {
-    setTimeout(resolve, ms);
-  });
-}
+function resolveApiBaseUrl(): string {
+  if (!API_BASE_URL) {
+    throw new Error("NEXT_PUBLIC_API_BASE_URL is not set");
+  }
 
-function toSSE(event: string, payload: string): Uint8Array {
-  return encoder.encode(`event: ${event}\ndata: ${payload}\n\n`);
+  return API_BASE_URL.endsWith("/") ? API_BASE_URL.slice(0, -1) : API_BASE_URL;
 }
 
 export async function POST(request: Request) {
-  const body = (await request.json()) as {
+  const payload = (await request.json()) as {
     kbId?: string;
     sessionId?: string;
     question?: string;
   };
+  const cookieStore = await cookies();
+  const accessToken = cookieStore.get(ACCESS_TOKEN_COOKIE)?.value;
 
-  const kbId = body.kbId?.trim() ?? "";
-  const sessionId = body.sessionId?.trim() ?? "";
-  const question = body.question?.trim() ?? "";
-
-  if (!kbId || !sessionId || !question) {
-    return new Response("kbId, sessionId and question are required.", {
-      status: 400,
-    });
+  if (!accessToken) {
+    return new Response("Unauthorized", { status: 401 });
   }
 
-  const answer =
-    `### Analysis\n` +
-    `You asked: **${question}**\n\n` +
-    `Based on KB \`${kbId}\`, here is a concise response:\n` +
-    `1. The system retrieves relevant chunks.\n` +
-    `2. The model synthesizes them into a final answer.\n` +
-    `3. You can inspect references in the right panel.\n\n` +
-    `> Session: ${sessionId}`;
-
-  const sources: SourceChunk[] = [
-    {
-      id: "source-1",
-      doc: "retrieval-overview.md",
-      content:
-        "Retrieval pipeline: query rewrite, vector search, and reranking before generation.",
-      page: "12",
+  const response = await fetch(`${resolveApiBaseUrl()}/chat/stream`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "text/event-stream",
+      Authorization: `Bearer ${accessToken}`,
     },
-    {
-      id: "source-2",
-      doc: "qa-policy.md",
-      content:
-        "Responses should remain grounded in indexed documents and include source transparency.",
-      page: "4",
-    },
-  ];
-
-  // Emit one character per token for a natural typewriter effect on the client.
-  const tokens = Array.from(answer);
-
-  const stream = new ReadableStream<Uint8Array>({
-    async start(controller) {
-      try {
-        for (let index = 0; index < tokens.length; index += 1) {
-          controller.enqueue(toSSE("token", tokens[index]));
-          await sleep(12);
-        }
-
-        controller.enqueue(toSSE("sources", JSON.stringify(sources)));
-        controller.enqueue(toSSE("done", "ok"));
-        controller.close();
-      } catch {
-        controller.enqueue(toSSE("error", "Failed during streaming."));
-        controller.close();
-      }
-    },
+    body: JSON.stringify({
+      knowledgeBaseId: payload.kbId,
+      conversationId: payload.sessionId,
+      question: payload.question,
+    }),
+    cache: "no-store",
   });
 
-  return new Response(stream, {
+  if (!response.ok || !response.body) {
+    return new Response(await response.text(), { status: response.status });
+  }
+
+  return new Response(response.body, {
     headers: {
       "Content-Type": "text/event-stream; charset=utf-8",
       "Cache-Control": "no-cache, no-transform",

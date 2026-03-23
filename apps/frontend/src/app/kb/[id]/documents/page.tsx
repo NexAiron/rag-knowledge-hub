@@ -156,7 +156,7 @@ export default function DocumentsPage() {
   return (
     <Layout
       title={t("documents.title")}
-      description={`${t("documents.description")} · ${kbId}`}
+      description={t("documents.description")}
       action={
         <Link href={`/kb/${kbId}`}>
           <Button className="dashboard-secondary-button !rounded-2xl">
@@ -169,20 +169,21 @@ export default function DocumentsPage() {
         <section className="grid gap-4 xl:grid-cols-[1.35fr_0.65fr]">
           <Card
             bordered={false}
-            className="dashboard-hero !rounded-[32px] !shadow-none"
+            className="dashboard-hero dashboard-hero-compact !rounded-[32px] !shadow-none"
+            styles={{ body: { padding: 22 } }}
           >
             <div className="dashboard-hero-simple">
-              <div className="dashboard-copy-block !min-h-0">
+              <div className="dashboard-copy-block dashboard-copy-block-compact">
                 <Tag bordered={false} className="dashboard-soft-tag !m-0">
                   {t("common.documents")}
                 </Tag>
                 <Typography.Title
                   level={2}
-                  className="!mb-0 !mt-4 !text-[1.85rem] !font-semibold !tracking-[-0.04em] !text-ink"
+                  className="dashboard-hero-title dashboard-hero-title-compact !mb-0 !mt-4 !text-ink"
                 >
                   {t("documents.title")}
                 </Typography.Title>
-                <Typography.Paragraph className="!mb-0 !mt-3 max-w-2xl !text-[13px] !leading-7 !text-ink/62">
+                <Typography.Paragraph className="dashboard-hero-description dashboard-hero-description-compact !mb-0 !mt-3 !text-ink/62">
                   {t("documents.description")}
                 </Typography.Paragraph>
 
@@ -201,7 +202,7 @@ export default function DocumentsPage() {
                     {t("common.supportedTypes")}: `.pdf`, `.md`
                   </span>
                 </div>
-                <Typography.Paragraph className="!mb-0 !mt-4 !text-[12px] !leading-6 !text-ink/54">
+                <Typography.Paragraph className="!mb-0 !mt-3 !text-[12px] !leading-6 !text-ink/54">
                   {t("documents.panelHint")}
                 </Typography.Paragraph>
               </div>
@@ -217,25 +218,6 @@ export default function DocumentsPage() {
           </Card>
 
           <aside className="space-y-4">
-            <Card
-              bordered={false}
-              className="accent-panel !rounded-[30px] !shadow-none"
-              styles={{ body: { color: "white", padding: 20 } }}
-            >
-              <Typography.Text className="!text-[10px] !uppercase !tracking-[0.2em] !text-white/62">
-                {t("documents.flowLabel")}
-              </Typography.Text>
-              <Typography.Title
-                level={3}
-                className="!mb-0 !mt-3 !text-[1.45rem] !font-semibold !tracking-[-0.04em] !text-white"
-              >
-                {t("documents.flowTitle")}
-              </Typography.Title>
-              <Typography.Paragraph className="!mb-0 !mt-3 !text-[13px] !leading-6 !text-white/74">
-                {t("documents.flowDesc")}
-              </Typography.Paragraph>
-            </Card>
-
             <Card
               bordered={false}
               className="dashboard-side-panel !rounded-[30px] !shadow-none"

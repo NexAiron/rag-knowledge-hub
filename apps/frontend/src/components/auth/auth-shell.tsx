@@ -58,7 +58,7 @@ export function AuthShell({
                     {t("common.brand")}
                   </Typography.Text>
                   <Typography.Text className="!text-xs !text-ink/55">
-                    {t("header.workspace")}
+                    {t("common.brand")}
                   </Typography.Text>
                 </div>
               </div>

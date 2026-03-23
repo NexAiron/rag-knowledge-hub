@@ -5,8 +5,6 @@ import { useParams } from "next/navigation";
 import { useEffect } from "react";
 import {
   ArrowRight,
-  BookOpenText,
-  Database,
   FileStack,
   MessagesSquare,
 } from "lucide-react";
@@ -36,7 +34,7 @@ export default function KnowledgeBaseDetailPage() {
   return (
     <Layout
       title={t("kb.detailTitle")}
-      description={`${t("kb.heroDescription")} · ${kbId}`}
+      description={t("kb.heroDescription")}
       action={
         <div className="flex items-center gap-2">
           <Link href={`/kb/${kbId}/documents`}>
@@ -59,25 +57,25 @@ export default function KnowledgeBaseDetailPage() {
         <div className="space-y-5">
           <Card
             bordered={false}
-            className="dashboard-hero !rounded-[32px] !shadow-none"
+            className="dashboard-hero dashboard-hero-compact !rounded-[32px] !shadow-none"
+            styles={{ body: { padding: 22 } }}
           >
             <div className="dashboard-hero-simple">
-              <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_320px]">
-                <div className="dashboard-copy-block !min-h-0">
+              <div className="dashboard-copy-block dashboard-copy-block-compact">
                   <Tag bordered={false} className="dashboard-soft-tag !m-0">
                     {t("kb.heroLabel")}
                   </Tag>
                   <Typography.Title
                     level={2}
-                    className="dashboard-hero-title !mb-0 !mt-5 !text-ink"
+                    className="dashboard-hero-title dashboard-hero-title-compact !mb-0 !mt-4 !text-ink"
                   >
                     {knowledgeBase.name}
                   </Typography.Title>
-                  <Typography.Paragraph className="dashboard-hero-description !mb-0 !mt-4 !text-ink/66">
+                  <Typography.Paragraph className="dashboard-hero-description dashboard-hero-description-compact !mb-0 !mt-3 !text-ink/66">
                     {knowledgeBase.description || t("kb.fallbackDescription")}
                   </Typography.Paragraph>
 
-                  <Space className="!mt-6" size={12} wrap>
+                  <Space className="!mt-5" size={12} wrap>
                     <Link href={`/kb/${kbId}/documents`}>
                       <Button
                         type="primary"
@@ -98,45 +96,37 @@ export default function KnowledgeBaseDetailPage() {
                       </Button>
                     </Link>
                   </Space>
-                </div>
+              </div>
 
-                <Card
-                  bordered={false}
-                  className="accent-panel !rounded-[28px] !shadow-none"
-                  styles={{ body: { padding: 24, color: "white" } }}
-                >
-                  <Typography.Text className="!text-[11px] !uppercase !tracking-[0.18em] !text-white/68">
-                    {t("kb.documentsOverview")}
-                  </Typography.Text>
-                  <Typography.Paragraph className="!mb-0 !mt-3 !text-[13px] !leading-6 !text-white/76">
-                    {t("kb.documentsOverviewHint")}
-                  </Typography.Paragraph>
-                  <div className="mt-5 grid gap-3 sm:grid-cols-2">
-                    <Card
-                      bordered={false}
-                      className="!rounded-[22px] !bg-white/10 !shadow-none"
-                      styles={{ body: { padding: 16, color: "white" } }}
-                    >
-                      <Statistic
-                        title={t("kb.documentsCount")}
-                        value={knowledgeBase.documentCount}
-                        valueStyle={{ color: "white" }}
-                      />
-                    </Card>
-                    <Card
-                      bordered={false}
-                      className="!rounded-[22px] !bg-white/10 !shadow-none"
-                      styles={{ body: { padding: 16, color: "white" } }}
-                    >
-                      <Typography.Text className="!text-xs !uppercase !tracking-[0.16em] !text-white/62">
-                        {t("kb.updatedAt")}
-                      </Typography.Text>
-                      <Typography.Paragraph className="!mb-0 !mt-3 !text-base !font-semibold !text-white">
-                        {knowledgeBase.updatedAt}
-                      </Typography.Paragraph>
-                    </Card>
+              <div className="dashboard-summary-grid">
+                <div className="dashboard-summary-pill">
+                  <div className="min-w-0">
+                    <Typography.Text className="!block !text-[11px] !font-semibold !uppercase !tracking-[0.16em] !text-ink/46">
+                      {t("kb.documentsCount")}
+                    </Typography.Text>
+                    <Statistic value={knowledgeBase.documentCount} />
                   </div>
-                </Card>
+                </div>
+                <div className="dashboard-summary-pill">
+                  <div className="min-w-0">
+                    <Typography.Text className="!block !text-[11px] !font-semibold !uppercase !tracking-[0.16em] !text-ink/46">
+                      {t("kb.updatedAt")}
+                    </Typography.Text>
+                    <Typography.Paragraph className="!mb-0 !mt-2 !text-sm !font-semibold !text-ink">
+                      {knowledgeBase.updatedAt}
+                    </Typography.Paragraph>
+                  </div>
+                </div>
+                <div className="dashboard-summary-pill">
+                  <div className="min-w-0">
+                    <Typography.Text className="!block !text-[11px] !font-semibold !uppercase !tracking-[0.16em] !text-ink/46">
+                      ID
+                    </Typography.Text>
+                    <Typography.Paragraph className="!mb-0 !mt-2 !break-all !text-sm !font-medium !text-ink">
+                      {kbId}
+                    </Typography.Paragraph>
+                  </div>
+                </div>
               </div>
             </div>
           </Card>
@@ -146,23 +136,11 @@ export default function KnowledgeBaseDetailPage() {
               bordered={false}
               className="dashboard-side-panel !rounded-[30px] !shadow-none"
             >
-              <Typography.Text className="!flex !items-center !gap-2 !text-sm !font-semibold !uppercase !tracking-[0.18em] !text-ink/70">
-                <Database className="h-4 w-4 text-brand" strokeWidth={2} />
+              <Typography.Text className="!text-sm !font-semibold !uppercase !tracking-[0.18em] !text-ink/70">
                 {t("kb.infoTitle")}
               </Typography.Text>
-              <Typography.Paragraph className="!mb-0 !mt-3 !text-[13px] !leading-6 !text-ink/64">
-                {t("kb.infoDescription")}
-              </Typography.Paragraph>
 
-              <div className="mt-5 grid gap-3">
-                <div className="dashboard-overview-row">
-                  <Typography.Text className="!text-[11px] !font-semibold !uppercase !tracking-[0.18em] !text-ink/46">
-                    {t("kb.currentId")}
-                  </Typography.Text>
-                  <Typography.Paragraph className="!mb-0 !mt-2 !break-all !text-sm !font-medium !text-ink">
-                    {kbId}
-                  </Typography.Paragraph>
-                </div>
+              <div className="mt-4 grid gap-3">
                 <div className="dashboard-overview-row">
                   <Typography.Text className="!text-[11px] !font-semibold !uppercase !tracking-[0.18em] !text-ink/46">
                     {t("kb.name")}
@@ -187,13 +165,9 @@ export default function KnowledgeBaseDetailPage() {
                 bordered={false}
                 className="dashboard-side-panel !rounded-[30px] !shadow-none"
               >
-                <Typography.Text className="!flex !items-center !gap-2 !text-sm !font-semibold !uppercase !tracking-[0.18em] !text-ink/70">
-                  <BookOpenText className="h-4 w-4 text-brand" strokeWidth={2} />
+                <Typography.Text className="!text-sm !font-semibold !uppercase !tracking-[0.18em] !text-ink/70">
                   {t("kb.quickActions")}
                 </Typography.Text>
-                <Typography.Paragraph className="!mb-0 !mt-3 !text-sm !leading-7 !text-ink/68">
-                  {t("kb.quickActionsHint")}
-                </Typography.Paragraph>
                 <Space direction="vertical" className="!mt-4 !w-full" size={10}>
                   <Link href={`/kb/${kbId}/documents`} className="block">
                     <Button
@@ -223,24 +197,9 @@ export default function KnowledgeBaseDetailPage() {
                 <Typography.Text className="!text-sm !font-semibold !uppercase !tracking-[0.18em] !text-ink/70">
                   {t("kb.statusTitle")}
                 </Typography.Text>
-                <div className="mt-4 space-y-3">
-                  <div className="dashboard-process-card">
-                    <Typography.Text className="!block !text-sm !font-semibold !text-ink">
-                      {t("kb.statusReady")}
-                    </Typography.Text>
-                    <Typography.Paragraph className="!mb-0 !mt-2 !text-[13px] !leading-6 !text-ink/62">
-                      {t("kb.statusContent")}
-                    </Typography.Paragraph>
-                  </div>
-                  <div className="dashboard-process-card">
-                    <Typography.Text className="!block !text-sm !font-semibold !text-ink">
-                      {t("kb.statusFocus")}
-                    </Typography.Text>
-                    <Typography.Paragraph className="!mb-0 !mt-2 !text-[13px] !leading-6 !text-ink/62">
-                      {t("kb.nextStepsContent")}
-                    </Typography.Paragraph>
-                  </div>
-                </div>
+                <Typography.Paragraph className="!mb-0 !mt-3 !text-[13px] !leading-6 !text-ink/62">
+                  {t("kb.statusContent")}
+                </Typography.Paragraph>
               </Card>
             </div>
           </section>

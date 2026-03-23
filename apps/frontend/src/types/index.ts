@@ -72,3 +72,20 @@ export interface ChatMessage {
   sources: SourceChunk[];
   status: "streaming" | "done" | "error";
 }
+
+export interface BackendChatSession {
+  id: string;
+  title: string | null;
+  knowledgeBaseId: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface BackendChatMessage {
+  id: string;
+  conversationId: string;
+  role: MessageRole;
+  content: string;
+  createdAt: string;
+  sources?: SourceChunk[] | null;
+}

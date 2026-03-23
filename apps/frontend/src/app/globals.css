@@ -312,10 +312,25 @@ html[data-theme="dark"] .accent-panel {
   min-height: 180px;
 }
 
+.dashboard-hero-compact {
+  box-shadow: 0 22px 56px rgba(31, 48, 83, 0.08);
+}
+
+.dashboard-copy-block-compact {
+  min-height: 0;
+  max-width: 760px;
+}
+
 .dashboard-hero-title {
   font-size: clamp(2.1rem, 3.5vw, 3.1rem) !important;
   line-height: 1.06 !important;
   min-height: 3.5rem;
+}
+
+.dashboard-hero-title-compact {
+  font-size: clamp(1.8rem, 2.4vw, 2.45rem) !important;
+  line-height: 1.08 !important;
+  min-height: 0;
 }
 
 .dashboard-hero-description {
@@ -323,6 +338,13 @@ html[data-theme="dark"] .accent-panel {
   min-height: 3.5rem;
   font-size: 14px !important;
   line-height: 1.8 !important;
+}
+
+.dashboard-hero-description-compact {
+  max-width: 660px;
+  min-height: 0;
+  font-size: 13px !important;
+  line-height: 1.65 !important;
 }
 
 .dashboard-main-grid {
@@ -362,6 +384,12 @@ html[data-theme="dark"] .accent-panel {
   border-radius: 9999px;
   background: linear-gradient(135deg, rgba(107, 140, 255, 0.08), rgba(125, 162, 255, 0.18));
   color: #2a4373;
+}
+
+.dashboard-icon-ring-compact {
+  height: 2.35rem;
+  width: 2.35rem;
+  border-radius: 16px;
 }
 
 .dashboard-side-panel {
@@ -424,6 +452,33 @@ html[data-theme="dark"] .accent-panel {
   min-height: 48px;
   padding: 0 18px;
   font-size: 13px;
+}
+
+.dashboard-inline-note-compact {
+  min-height: 40px;
+  padding: 0 14px;
+  font-size: 12px;
+}
+
+.dashboard-summary-grid {
+  display: grid;
+  gap: 12px;
+}
+
+@media (min-width: 900px) {
+  .dashboard-summary-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.dashboard-summary-pill {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid rgba(37, 56, 88, 0.08);
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.7);
+  padding: 14px 16px;
 }
 
 .dashboard-primary-button {
@@ -549,6 +604,10 @@ html[data-theme="dark"] .accent-panel {
     white-space: normal;
   }
 
+  .dashboard-inline-note-compact {
+    padding: 10px 12px;
+  }
+
   .dashboard-copy-block {
     min-height: 0;
   }
@@ -582,7 +641,8 @@ html[data-theme="dark"] .accent-panel {
 
   .dashboard-process-card,
   .dashboard-overview-row,
-  .dashboard-kb-meta {
+  .dashboard-kb-meta,
+  .dashboard-summary-pill {
     border-radius: 18px;
   }
 }
@@ -622,6 +682,11 @@ html[data-theme="dark"] .dashboard-sidebar-brand {
 html[data-theme="dark"] .dashboard-icon-ring {
   background: linear-gradient(135deg, rgba(120, 174, 235, 0.12), rgba(68, 114, 173, 0.22));
   color: #cfe2fb;
+}
+
+html[data-theme="dark"] .dashboard-summary-pill {
+  border-color: rgba(220, 232, 247, 0.1);
+  background: rgba(13, 20, 32, 0.76);
 }
 
 html[data-theme="dark"] .dashboard-sidebar-link {

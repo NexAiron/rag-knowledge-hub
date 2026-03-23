@@ -1,6 +1,7 @@
 import { Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
 import { AuthModule } from "./mvp/modules/auth/auth.module";
+import { ChatModule } from "./mvp/modules/chat/chat.module";
 import { ConversationsModule } from "./mvp/modules/conversations/conversations.module";
 import { DocumentsModule } from "./mvp/modules/documents/documents.module";
 import { EmbeddingsModule } from "./mvp/modules/embeddings/embeddings.module";
@@ -18,6 +19,7 @@ import { PrismaModule } from "./mvp/prisma/prisma.module";
     PrismaModule,
     HealthModule,
     AuthModule,
+    ChatModule,
     UsersModule,
     KbModule,
     DocumentsModule,

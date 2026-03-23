@@ -11,6 +11,7 @@ import {
   UserCircle2,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useLoginRoute } from "@/hooks/use-login-route";
 import { useI18n } from "@/lib/i18n/use-i18n";
 import { useUserStore } from "@/stores/user-store";
 import { LanguageSwitcher } from "./language-switcher";
@@ -28,6 +29,7 @@ export function Header({ title, description, action }: HeaderProps) {
   const { t } = useI18n();
   const { message } = App.useApp();
   const router = useRouter();
+  const { redirectToLogin } = useLoginRoute();
 
   const menuItems = useMemo(
     () =>
@@ -60,7 +62,7 @@ export function Header({ title, description, action }: HeaderProps) {
     if (key === "logout") {
       await logout();
       message.success(t("header.logoutSuccess"));
-      router.push("/login");
+      redirectToLogin();
     }
   };
 
@@ -74,7 +76,7 @@ export function Header({ title, description, action }: HeaderProps) {
             className="m-0 inline-flex min-h-[28px] items-center gap-1.5 rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.24em]"
           >
             <Sparkles className="h-3 w-3" strokeWidth={2} />
-            {t("header.workspace")}
+            {t("common.brand")}
           </Tag>
           <Typography.Title
             level={1}

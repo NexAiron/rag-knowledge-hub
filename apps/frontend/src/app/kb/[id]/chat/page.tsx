@@ -15,7 +15,7 @@ export default function KnowledgeBaseChatPage() {
   return (
     <Layout
       title={t("chat.pageTitle")}
-      description={`${t("chat.pageDescription")} · ${kbId}`}
+      description={t("chat.pageDescription")}
       action={
         <Link href={`/kb/${kbId}`}>
           <Button className="dashboard-secondary-button !rounded-2xl">

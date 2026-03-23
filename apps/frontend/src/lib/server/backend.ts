@@ -98,12 +98,20 @@ export async function setAccessTokenCookie(token: string): Promise<void> {
   cookieStore.set(ACCESS_TOKEN_COOKIE, token, getAccessTokenCookieOptions());
 }
 
-export function getAccessTokenCookieOptions(maxAge = 60 * 60 * 24 * 7) {
-  return {
+export function getAccessTokenCookieOptions(maxAge?: number) {
+  const options = {
     httpOnly: true,
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
     path: "/",
+  } as const;
+
+  if (typeof maxAge !== "number") {
+    return options;
+  }
+
+  return {
+    ...options,
     maxAge,
   } as const;
 }

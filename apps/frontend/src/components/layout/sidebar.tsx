@@ -46,7 +46,7 @@ export function Sidebar() {
                 {t("common.brand")}
               </Typography.Text>
               <Typography.Paragraph className="!mb-0 !mt-1 !text-[11px] !text-ink/48">
-                {t("sidebar.workspaceLabel")}
+                {t("dashboard.title")}
               </Typography.Paragraph>
             </div>
           </div>
