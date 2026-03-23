@@ -48,6 +48,32 @@ export class ConversationsService {
     return conversation.messages;
   }
 
+  async listRecentMessages(conversationId: string, userId: string, limit = 12) {
+    const conversation = await this.prisma.conversation.findUnique({
+      where: { id: conversationId },
+      select: { userId: true },
+    });
+
+    if (!conversation) {
+      throw new NotFoundException("Conversation not found");
+    }
+    if (conversation.userId !== userId) {
+      throw new ForbiddenException("No permission to access this conversation");
+    }
+
+    const messages = await this.prisma.message.findMany({
+      where: { conversationId },
+      orderBy: { createdAt: "desc" },
+      take: limit,
+      select: {
+        role: true,
+        content: true,
+      },
+    });
+
+    return messages.reverse();
+  }
+
   async delete(conversationId: string, userId: string) {
     const conversation = await this.prisma.conversation.findUnique({
       where: { id: conversationId },
@@ -83,10 +109,15 @@ export class ConversationsService {
       if (existing.userId !== userId) {
         throw new ForbiddenException("No permission to access this conversation");
       }
+      if (existing.knowledgeBaseId !== knowledgeBaseId) {
+        throw new ForbiddenException(
+          "Conversation does not belong to this knowledge base",
+        );
+      }
       return existing;
     }
 
-    const title = this.generateTitle(firstQuestion ?? "新会话");
+    const title = this.generateTitle(firstQuestion ?? "New session");
     return this.prisma.conversation.create({
       data: {
         userId,
@@ -127,7 +158,7 @@ export class ConversationsService {
   private generateTitle(question: string): string {
     const normalized = question.trim().replace(/\s+/g, " ");
     if (!normalized) {
-      return "新会话";
+      return "New session";
     }
     return normalized.slice(0, 30);
   }

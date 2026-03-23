@@ -2,6 +2,7 @@ import { Injectable } from "@nestjs/common";
 import type { Response } from "express";
 import { MessageRole } from "@prisma/client";
 import { LlmService } from "../llm/llm.service";
+import { LlmMessage } from "../llm/providers/llm-provider.interface";
 import { RetrievalService } from "../retrieval/retrieval.service";
 import { ConversationsService } from "../conversations/conversations.service";
 import { PrismaService } from "../../prisma/prisma.service";
@@ -13,7 +14,7 @@ interface StreamChatInput {
   question: string;
 }
 
-interface ChatSource {
+export interface ChatSource {
   id: string;
   doc: string;
   title: string;
@@ -21,6 +22,12 @@ interface ChatSource {
   snippet: string;
   page?: string;
   score: number;
+}
+
+export interface ChatAskResponse {
+  conversationId: string;
+  answer: string;
+  sources: ChatSource[];
 }
 
 @Injectable()
@@ -32,7 +39,65 @@ export class ChatService {
     private readonly prisma: PrismaService,
   ) {}
 
+  async ask(input: StreamChatInput): Promise<ChatAskResponse> {
+    const prepared = await this.prepareChat(input);
+    const answer = await this.llmService.complete(prepared.messages);
+
+    await this.conversationsService.createMessage({
+      conversationId: prepared.conversation.id,
+      role: MessageRole.assistant,
+      content: answer,
+      sources: prepared.sources,
+    });
+    await this.conversationsService.touchConversation(prepared.conversation.id);
+
+    return {
+      conversationId: prepared.conversation.id,
+      answer,
+      sources: prepared.sources,
+    };
+  }
+
   async streamToResponse(input: StreamChatInput, response: Response) {
+    try {
+      const prepared = await this.prepareChat(input);
+
+      this.writeEvent(response, "session", {
+        id: prepared.conversation.id,
+        kbId: prepared.conversation.knowledgeBaseId,
+        title: prepared.conversation.title ?? prepared.question.slice(0, 30),
+        createdAt: prepared.conversation.createdAt.toISOString(),
+        updatedAt: prepared.conversation.updatedAt.toISOString(),
+      });
+      this.writeEvent(response, "sources", prepared.sources);
+
+      let answer = "";
+
+      for await (const token of this.llmService.stream(prepared.messages)) {
+        answer += token;
+        this.writeEvent(response, "token", token);
+      }
+
+      await this.conversationsService.createMessage({
+        conversationId: prepared.conversation.id,
+        role: MessageRole.assistant,
+        content: answer,
+        sources: prepared.sources,
+      });
+      await this.conversationsService.touchConversation(prepared.conversation.id);
+
+      this.writeEvent(response, "done", {
+        conversationId: prepared.conversation.id,
+      });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Chat stream failed";
+      this.writeEvent(response, "error", message);
+    } finally {
+      response.end();
+    }
+  }
+
+  private async prepareChat(input: StreamChatInput) {
     const question = input.question.trim();
     const conversation = await this.conversationsService.ensureConversation({
       userId: input.userId,
@@ -53,36 +118,18 @@ export class ChatService {
     });
 
     const sources = await this.buildSources(retrieval);
+    const history = await this.conversationsService.listRecentMessages(
+      conversation.id,
+      input.userId,
+      12,
+    );
 
-    this.writeEvent(response, "session", {
-      id: conversation.id,
-      kbId: conversation.knowledgeBaseId,
-      title: conversation.title ?? question.slice(0, 30),
-      createdAt: conversation.createdAt.toISOString(),
-      updatedAt: conversation.updatedAt.toISOString(),
-    });
-    this.writeEvent(response, "sources", sources);
-
-    const prompt = this.buildPrompt(question, sources);
-    let answer = "";
-
-    for await (const token of this.llmService.stream(prompt)) {
-      answer += token;
-      this.writeEvent(response, "token", token);
-    }
-
-    await this.conversationsService.createMessage({
-      conversationId: conversation.id,
-      role: MessageRole.assistant,
-      content: answer,
+    return {
+      question,
+      conversation,
       sources,
-    });
-    await this.conversationsService.touchConversation(conversation.id);
-
-    this.writeEvent(response, "done", {
-      conversationId: conversation.id,
-    });
-    response.end();
+      messages: this.buildMessages(history, sources),
+    };
   }
 
   private async buildSources(
@@ -118,25 +165,50 @@ export class ChatService {
     }));
   }
 
-  private buildPrompt(question: string, sources: ChatSource[]): string {
+  private buildMessages(
+    history: Array<{ role: MessageRole; content: string }>,
+    sources: ChatSource[],
+  ): LlmMessage[] {
     const sourceBlock =
       sources.length > 0
         ? sources
             .map(
               (source, index) =>
-                `[${index + 1}] ${source.title}\n${source.snippet}`,
+                `[${index + 1}] ${source.title}${source.page ? ` (page ${source.page})` : ""}\n${source.snippet.slice(0, 1200)}`,
             )
             .join("\n\n")
         : "No indexed sources were found for this question.";
 
-    return [
-      "You are answering based on the current knowledge base.",
-      "Keep the answer concise and grounded in the retrieved content.",
-      `Question: ${question}`,
-      "",
-      "Sources:",
-      sourceBlock,
-    ].join("\n");
+    const messages: LlmMessage[] = [
+      {
+        role: "system",
+        content: [
+          "You are a grounded RAG assistant for the current knowledge base.",
+          "Answer in Chinese unless the user clearly asks for another language.",
+          "Use the retrieved sources as the primary basis for your answer.",
+          "If the sources are insufficient, say so clearly and avoid making up facts.",
+          "When possible, cite source numbers like [1], [2] inline.",
+          "",
+          "Retrieved sources:",
+          sourceBlock,
+        ].join("\n"),
+      },
+    ];
+
+    for (const item of history) {
+      if (!item.content.trim()) {
+        continue;
+      }
+
+      if (item.role === MessageRole.user || item.role === MessageRole.assistant) {
+        messages.push({
+          role: item.role,
+          content: item.content,
+        });
+      }
+    }
+
+    return messages;
   }
 
   private writeEvent(response: Response, event: string, payload: unknown) {

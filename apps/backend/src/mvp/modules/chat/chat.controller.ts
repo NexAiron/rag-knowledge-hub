@@ -3,13 +3,27 @@ import type { Response } from "express";
 import { CurrentUser } from "../../common/decorators/current-user.decorator";
 import { JwtAuthGuard } from "../../common/guards/jwt-auth.guard";
 import { RequestUser } from "../../common/types/request-user.type";
+import { ChatDto } from "./dto/chat.dto";
 import { StreamChatDto } from "./dto/stream-chat.dto";
-import { ChatService } from "./chat.service";
+import { ChatAskResponse, ChatService } from "./chat.service";
 
 @UseGuards(JwtAuthGuard)
 @Controller("chat")
 export class ChatController {
   constructor(private readonly chatService: ChatService) {}
+
+  @Post("ask")
+  ask(
+    @CurrentUser() user: RequestUser,
+    @Body() dto: ChatDto,
+  ): Promise<ChatAskResponse> {
+    return this.chatService.ask({
+      userId: user.id,
+      knowledgeBaseId: dto.knowledgeBaseId,
+      conversationId: dto.conversationId,
+      question: dto.question,
+    });
+  }
 
   @Post("stream")
   async stream(

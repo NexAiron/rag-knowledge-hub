@@ -1,6 +1,13 @@
 export const LLM_PROVIDER = "LLM_PROVIDER";
 
+export type LlmMessageRole = "system" | "user" | "assistant";
+
+export interface LlmMessage {
+  role: LlmMessageRole;
+  content: string;
+}
+
 export interface LlmProvider {
-  complete(prompt: string): Promise<string>;
-  stream(prompt: string): AsyncGenerator<string>;
+  complete(messages: LlmMessage[]): Promise<string>;
+  stream(messages: LlmMessage[]): AsyncGenerator<string>;
 }

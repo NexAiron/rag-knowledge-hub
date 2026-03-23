@@ -1,5 +1,9 @@
 import { Inject, Injectable } from "@nestjs/common";
-import { LLM_PROVIDER, LlmProvider } from "./providers/llm-provider.interface";
+import {
+  LLM_PROVIDER,
+  LlmMessage,
+  LlmProvider,
+} from "./providers/llm-provider.interface";
 
 @Injectable()
 export class LlmService {
@@ -7,11 +11,11 @@ export class LlmService {
     @Inject(LLM_PROVIDER) private readonly provider: LlmProvider,
   ) {}
 
-  complete(prompt: string) {
-    return this.provider.complete(prompt);
+  complete(messages: LlmMessage[]) {
+    return this.provider.complete(messages);
   }
 
-  stream(prompt: string) {
-    return this.provider.stream(prompt);
+  stream(messages: LlmMessage[]) {
+    return this.provider.stream(messages);
   }
 }
