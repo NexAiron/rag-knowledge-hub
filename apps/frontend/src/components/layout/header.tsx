@@ -2,12 +2,11 @@
 
 import Link from "next/link";
 import { ReactNode, useMemo } from "react";
-import { App, Avatar, Button, Dropdown, Tag, Typography } from "antd";
+import { App, Avatar, Button, Dropdown, Typography } from "antd";
 import {
   ChevronDown,
   LogOut,
   Settings2,
-  Sparkles,
   UserCircle2,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -67,25 +66,17 @@ export function Header({ title, description, action }: HeaderProps) {
   };
 
   return (
-    <header className="glass-panel overflow-hidden rounded-[32px] p-5 lg:p-6">
+    <header className="knowledge-header p-4 lg:p-5">
       <div className="dashboard-header-shell">
         <div className="dashboard-header-copy">
-          <Tag
-            variant="filled"
-            color="blue"
-            className="m-0 inline-flex min-h-[28px] items-center gap-1.5 rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.24em]"
-          >
-            <Sparkles className="h-3 w-3" strokeWidth={2} />
-            {t("common.brand")}
-          </Tag>
           <Typography.Title
             level={1}
-            className="!mb-0 !mt-4 min-h-[2.2rem] !text-[1.75rem] !font-semibold !tracking-[-0.04em] !text-ink lg:min-h-[2.7rem] lg:!text-[2.05rem]"
+            className="!mb-0 min-h-[2rem] !text-[1.45rem] !font-semibold !tracking-[-0.035em] !text-ink lg:min-h-[2.3rem] lg:!text-[1.7rem]"
           >
             {title}
           </Typography.Title>
           {description ? (
-            <Typography.Paragraph className="!mb-0 !mt-3 min-h-[3rem] max-w-2xl !text-[13px] !leading-6 !text-ink/62">
+            <Typography.Paragraph className="!mb-0 !mt-2 max-w-2xl !text-[13px] !leading-6 !text-ink/60">
               {description}
             </Typography.Paragraph>
           ) : null}

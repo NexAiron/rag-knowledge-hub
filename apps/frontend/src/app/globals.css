@@ -147,20 +147,11 @@ html[data-theme="dark"] .accent-panel {
 
 .dashboard-sidebar {
   height: 100%;
-  border: 1px solid rgba(255, 255, 255, 0.62);
-  border-radius: 32px;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.76), rgba(245, 249, 255, 0.8));
-  box-shadow: 0 24px 80px rgba(26, 39, 67, 0.08);
-  backdrop-filter: blur(22px) saturate(140%);
-  padding: 20px;
-}
-
-.dashboard-sidebar-brand {
-  border: 1px solid rgba(107, 140, 255, 0.12);
-  background:
-    radial-gradient(circle at top right, rgba(125, 162, 255, 0.14), transparent 24%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.84), rgba(241, 247, 255, 0.9));
-  box-shadow: 0 16px 44px rgba(31, 48, 83, 0.08);
+  border-right: 1px solid rgba(37, 56, 88, 0.08);
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+  padding: 12px 14px 12px 0;
 }
 
 .dashboard-sidebar-link {
@@ -168,9 +159,9 @@ html[data-theme="dark"] .accent-panel {
   align-items: center;
   gap: 12px;
   border: 1px solid transparent;
-  border-radius: 20px;
+  border-radius: 18px;
   color: rgba(23, 32, 51, 0.86);
-  padding: 12px 14px;
+  padding: 11px 12px;
   transition:
     transform 180ms ease,
     background-color 180ms ease,
@@ -181,19 +172,15 @@ html[data-theme="dark"] .accent-panel {
 
 .dashboard-sidebar-link:hover {
   transform: translateY(-1px);
-  background: rgba(255, 255, 255, 0.6);
-  border-color: rgba(107, 140, 255, 0.12);
-  box-shadow: 0 14px 30px rgba(31, 48, 83, 0.07);
+  background: rgba(255, 255, 255, 0.52);
+  border-color: rgba(107, 140, 255, 0.1);
+  box-shadow: none;
 }
 
 .dashboard-sidebar-link.is-active {
-  border-color: rgba(107, 140, 255, 0.16);
-  background:
-    radial-gradient(circle at left top, rgba(125, 162, 255, 0.16), transparent 36%),
-    linear-gradient(180deg, rgba(236, 243, 255, 0.96), rgba(245, 248, 255, 0.94));
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.65),
-    0 18px 38px rgba(66, 96, 160, 0.08);
+  border-color: rgba(107, 140, 255, 0.14);
+  background: rgba(240, 245, 255, 0.9);
+  box-shadow: none;
   color: #1d3466;
 }
 
@@ -207,6 +194,20 @@ html[data-theme="dark"] .accent-panel {
   border-radius: 14px;
   background: rgba(255, 255, 255, 0.72);
   color: currentColor;
+}
+
+.knowledge-header {
+  border-bottom: 1px solid rgba(37, 56, 88, 0.08);
+  background: rgba(255, 255, 255, 0.34);
+  backdrop-filter: blur(14px);
+  border-radius: 24px;
+}
+
+.knowledge-sidebar-empty {
+  border: 1px dashed rgba(37, 56, 88, 0.12);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.38);
+  padding: 12px;
 }
 
 .dashboard-header-shell {
@@ -582,8 +583,7 @@ html[data-theme="dark"] .accent-panel {
   .dashboard-hero,
   .dashboard-form-panel,
   .dashboard-side-panel,
-  .dashboard-kb-card,
-  .dashboard-sidebar {
+  .dashboard-kb-card {
     border-radius: 28px;
   }
 }
@@ -673,8 +673,7 @@ html[data-theme="dark"] .dashboard-form-panel,
 html[data-theme="dark"] .dashboard-process-card,
 html[data-theme="dark"] .dashboard-overview-row,
 html[data-theme="dark"] .dashboard-kb-meta,
-html[data-theme="dark"] .dashboard-sidebar,
-html[data-theme="dark"] .dashboard-sidebar-brand {
+html[data-theme="dark"] .dashboard-sidebar {
   border-color: rgba(220, 232, 247, 0.1);
   background: rgba(13, 20, 32, 0.84);
 }
@@ -704,7 +703,7 @@ html[data-theme="dark"] .dashboard-sidebar-link:hover,
 html[data-theme="dark"] .dashboard-sidebar-link.is-active {
   background: rgba(19, 30, 47, 0.92);
   border-color: rgba(120, 174, 235, 0.14);
-  box-shadow: 0 18px 38px rgba(5, 10, 18, 0.26);
+  box-shadow: none;
 }
 
 html[data-theme="dark"] .dashboard-sidebar-icon,
@@ -715,6 +714,16 @@ html[data-theme="dark"] .dashboard-inline-note {
 html[data-theme="dark"] .dashboard-user-nav {
   color: #e6eef8;
   border-color: rgba(220, 232, 247, 0.1);
+}
+
+html[data-theme="dark"] .knowledge-header {
+  border-bottom-color: rgba(220, 232, 247, 0.08);
+  background: rgba(13, 20, 32, 0.34);
+}
+
+html[data-theme="dark"] .knowledge-sidebar-empty {
+  border-color: rgba(220, 232, 247, 0.12);
+  background: rgba(13, 20, 32, 0.34);
 }
 
 html[data-theme="dark"] .dashboard-empty-orb {

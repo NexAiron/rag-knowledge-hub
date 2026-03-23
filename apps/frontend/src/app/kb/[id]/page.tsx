@@ -12,6 +12,7 @@ import { Button, Card, Empty, Space, Statistic, Tag, Typography } from "antd";
 import { Layout } from "@/components/layout/layout";
 import { useI18n } from "@/lib/i18n/use-i18n";
 import { useKbStore } from "@/stores/kb-store";
+import { useUserStore } from "@/stores/user-store";
 
 export default function KnowledgeBaseDetailPage() {
   const params = useParams<{ id: string }>();
@@ -21,13 +22,24 @@ export default function KnowledgeBaseDetailPage() {
   const knowledgeBases = useKbStore((state) => state.knowledgeBases);
   const fetchKnowledgeBases = useKbStore((state) => state.fetchKnowledgeBases);
   const selectKnowledgeBase = useKbStore((state) => state.selectKnowledgeBase);
+  const user = useUserStore((state) => state.user);
+  const hasBootstrapped = useUserStore((state) => state.hasBootstrapped);
 
   useEffect(() => {
-    if (knowledgeBases.length === 0) {
+    if (hasBootstrapped && user && knowledgeBases.length === 0) {
       void fetchKnowledgeBases();
     }
-    selectKnowledgeBase(kbId);
-  }, [fetchKnowledgeBases, kbId, knowledgeBases.length, selectKnowledgeBase]);
+    if (hasBootstrapped && user) {
+      selectKnowledgeBase(kbId);
+    }
+  }, [
+    fetchKnowledgeBases,
+    hasBootstrapped,
+    kbId,
+    knowledgeBases.length,
+    selectKnowledgeBase,
+    user,
+  ]);
 
   const knowledgeBase = knowledgeBases.find((item) => item.id === kbId);
 

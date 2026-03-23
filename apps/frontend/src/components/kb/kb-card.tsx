@@ -82,6 +82,15 @@ export function KbCard({ kb, onSelect }: KbCardProps) {
             </Button>
           </Link>
           <Link
+            href={`/kb/${kb.id}/documents`}
+            onClick={() => onSelect?.(kb.id)}
+            className="flex-1"
+          >
+            <Button className="dashboard-secondary-button !w-full !rounded-2xl">
+              {t("kb.card.docs")}
+            </Button>
+          </Link>
+          <Link
             href={`/kb/${kb.id}/chat`}
             onClick={() => onSelect?.(kb.id)}
             className="flex-1"

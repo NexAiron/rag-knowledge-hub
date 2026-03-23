@@ -45,7 +45,7 @@ export function SourcePanel({ status, answer, sources }: SourcePanelProps) {
 
   return (
     <Card
-      bordered={false}
+      variant="borderless"
       className="dashboard-side-panel !rounded-[30px] !shadow-none"
     >
       <div className="flex items-center justify-between gap-3">

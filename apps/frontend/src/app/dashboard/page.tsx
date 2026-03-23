@@ -1,7 +1,14 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Boxes, FileStack, Plus, Sparkles } from "lucide-react";
+import {
+  Boxes,
+  FileStack,
+  MessageSquareText,
+  Plus,
+  Sparkles,
+} from "lucide-react";
 import {
   Alert,
   App,
@@ -18,6 +25,7 @@ import { Layout } from "@/components/layout/layout";
 import { KbCard } from "@/components/kb/kb-card";
 import { useI18n } from "@/lib/i18n/use-i18n";
 import { useKbStore } from "@/stores/kb-store";
+import { useUserStore } from "@/stores/user-store";
 
 interface CreateKbValues {
   name: string;
@@ -26,14 +34,18 @@ interface CreateKbValues {
 
 const dashboardCopy = {
   zh: {
-    badge: "AI Knowledge Hub",
-    heroTitle: "知识工作台",
+    badge: "知识库",
+    heroTitle: "先整理知识库，再接入文档和问答",
     heroDescription:
-      "只保留知识库创建、浏览和文档规模概览，把首页收成一个清爽入口。",
-    helper: "从一个知识库开始，后续再逐步接入文档和问答。",
-    listTitle: "知识库",
-    listDescription: "集中展示当前知识库列表，减少无关说明和装饰信息。",
-    emptyHint: "先创建一个知识库，再逐步补充文档内容。",
+      "首页只保留知识库创建、概览和高频入口，减少无用信息干扰。",
+    helper: "建议先按课程、专题或项目建立知识库，再逐步上传资料。",
+    listTitle: "我的知识库",
+    listDescription: "从这里可以直接进入详情、文档和问答，不需要绕路。",
+    emptyHint: "先创建一个知识库，后续再补充文档内容并开始问答。",
+    continueTitle: "继续使用",
+    continueDescription: "直接进入最近的知识库，继续上传文档或开始提问。",
+    openDocs: "文档",
+    openChat: "问答",
     stats: {
       collections: "知识库数量",
       documents: "文档总数",
@@ -47,24 +59,28 @@ const dashboardCopy = {
     },
   },
   en: {
-    badge: "AI Knowledge Hub",
-    heroTitle: "Knowledge Dashboard",
+    badge: "Knowledge Base",
+    heroTitle: "Start with knowledge bases, then connect documents and chat",
     heroDescription:
-      "Keep the dashboard focused on creating, browsing, and sizing knowledge bases.",
-    helper: "Start with one collection, then expand documents and QA later.",
-    listTitle: "Knowledge Bases",
-    listDescription: "Show current collections and remove secondary dashboard noise.",
+      "Keep the home page focused on knowledge-base creation, overview, and high-frequency actions.",
+    helper: "Create one knowledge base first, then add documents and grounded chat.",
+    listTitle: "My Knowledge Bases",
+    listDescription: "Jump directly into details, documents, or chat from here.",
     emptyHint:
       "Create your first knowledge base, then add documents when you are ready.",
+    continueTitle: "Continue",
+    continueDescription: "Jump back into a knowledge base and continue with documents or chat.",
+    openDocs: "Documents",
+    openChat: "Chat",
     stats: {
-      collections: "Collections",
+      collections: "Knowledge Bases",
       documents: "Documents",
       average: "Avg / KB",
     },
     createSuccess: "Knowledge base created",
     captions: {
-      collections: "Collections",
-      documents: "Documents",
+      collections: "Bases",
+      documents: "Docs",
       average: "Density",
     },
   },
@@ -81,14 +97,16 @@ export default function DashboardPage() {
   const fetchKnowledgeBases = useKbStore((state) => state.fetchKnowledgeBases);
   const createKnowledgeBase = useKbStore((state) => state.createKnowledgeBase);
   const selectKnowledgeBase = useKbStore((state) => state.selectKnowledgeBase);
+  const user = useUserStore((state) => state.user);
+  const hasBootstrapped = useUserStore((state) => state.hasBootstrapped);
 
   const [showCreateForm, setShowCreateForm] = useState(false);
 
   useEffect(() => {
-    if (knowledgeBases.length === 0) {
+    if (hasBootstrapped && user && knowledgeBases.length === 0) {
       void fetchKnowledgeBases();
     }
-  }, [fetchKnowledgeBases, knowledgeBases.length]);
+  }, [fetchKnowledgeBases, hasBootstrapped, knowledgeBases.length, user]);
 
   const handleCreate = async (values: CreateKbValues) => {
     await createKnowledgeBase({
@@ -107,6 +125,7 @@ export default function DashboardPage() {
     knowledgeBases.length > 0
       ? Math.round(totalDocuments / knowledgeBases.length)
       : 0;
+  const recentKnowledgeBase = knowledgeBases[0];
 
   const metrics = [
     {
@@ -161,7 +180,7 @@ export default function DashboardPage() {
               </Tag>
               <Typography.Title
                 level={2}
-                className="dashboard-hero-title dashboard-hero-title-compact !mb-0 !mt-4 !font-semibold !tracking-[-0.05em] !text-ink"
+                className="dashboard-hero-title dashboard-hero-title-compact !mb-0 !mt-4 !font-semibold !tracking-[-0.04em] !text-ink"
               >
                 {copy.heroTitle}
               </Typography.Title>
@@ -198,6 +217,43 @@ export default function DashboardPage() {
                 </div>
               ))}
             </div>
+
+            {recentKnowledgeBase ? (
+              <div className="dashboard-overview-row">
+                <div className="flex flex-wrap items-start justify-between gap-4">
+                  <div className="min-w-0">
+                    <Typography.Text className="!block !text-[11px] !font-semibold !uppercase !tracking-[0.16em] !text-ink/46">
+                      {copy.continueTitle}
+                    </Typography.Text>
+                    <Typography.Title
+                      level={4}
+                      className="!mb-0 !mt-2 truncate !text-lg !font-semibold !text-ink"
+                    >
+                      {recentKnowledgeBase.name}
+                    </Typography.Title>
+                    <Typography.Paragraph className="!mb-0 !mt-2 !text-[13px] !leading-6 !text-ink/64">
+                      {copy.continueDescription}
+                    </Typography.Paragraph>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    <Link href={`/kb/${recentKnowledgeBase.id}/documents`}>
+                      <Button className="dashboard-secondary-button !rounded-2xl">
+                        {copy.openDocs}
+                      </Button>
+                    </Link>
+                    <Link href={`/kb/${recentKnowledgeBase.id}/chat`}>
+                      <Button
+                        type="primary"
+                        icon={<MessageSquareText className="h-4 w-4" strokeWidth={2} />}
+                        className="dashboard-primary-button !rounded-2xl shadow-none"
+                      >
+                        {copy.openChat}
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            ) : null}
           </div>
         </Card>
 
@@ -292,7 +348,10 @@ export default function DashboardPage() {
           </div>
 
           {isLoading ? (
-            <Card variant="borderless" className="glass-panel !rounded-[28px] !shadow-none">
+            <Card
+              variant="borderless"
+              className="glass-panel !rounded-[28px] !shadow-none"
+            >
               {t("dashboard.loading")}
             </Card>
           ) : knowledgeBases.length === 0 ? (

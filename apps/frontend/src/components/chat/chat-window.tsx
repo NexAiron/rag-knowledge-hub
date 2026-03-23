@@ -1,8 +1,9 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { Alert, Card, Tag, Typography } from "antd";
-import { MessageSquareText } from "lucide-react";
+import { Alert, Button, Card, Tag, Typography } from "antd";
+import { FileStack, MessageSquareText } from "lucide-react";
 import { ChatInput } from "@/components/chat/chat-input";
 import { MessageList } from "@/components/chat/message-list";
 import { SessionList } from "@/components/chat/session-list";
@@ -85,37 +86,47 @@ export function ChatWindow({ kbId }: ChatWindowProps) {
     <div className="space-y-4">
       <Card
         variant="borderless"
-        className="dashboard-hero dashboard-hero-compact !rounded-[32px] !shadow-none"
-        styles={{ body: { padding: 22 } }}
+        className="dashboard-side-panel !rounded-[28px] !shadow-none"
       >
-        <div className="dashboard-hero-simple">
-          <div className="flex flex-wrap items-start justify-between gap-4">
-            <div className="dashboard-copy-block dashboard-copy-block-compact !max-w-3xl">
-              <Tag variant="filled" className="dashboard-soft-tag !m-0">
-                {t("chat.pageTitle")}
-              </Tag>
-              <Typography.Title
-                level={2}
-                className="dashboard-hero-title dashboard-hero-title-compact !mb-0 !mt-4 !text-ink"
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div className="max-w-3xl">
+            <Typography.Text className="!flex !items-center !gap-2 !text-[11px] !font-semibold !uppercase !tracking-[0.22em] !text-brand">
+              <MessageSquareText className="h-4 w-4" strokeWidth={2} />
+              {t("chat.pageTitle")}
+            </Typography.Text>
+            <Typography.Title
+              level={3}
+              className="!mb-0 !mt-2 !text-[1.45rem] !font-semibold !tracking-[-0.04em] !text-ink"
+            >
+              {t("chat.pageTitle")}
+            </Typography.Title>
+            <Typography.Paragraph className="!mb-0 !mt-2 !text-[13px] !leading-6 !text-ink/64">
+              {t("chat.pageDescription")}
+            </Typography.Paragraph>
+          </div>
+          <div className="flex items-center gap-2">
+            <Tag className="!rounded-full !px-3 !py-1">KB</Tag>
+            <Link href={`/kb/${kbId}/documents`}>
+              <Button
+                icon={<FileStack className="h-4 w-4" strokeWidth={2} />}
+                className="dashboard-secondary-button !rounded-2xl"
               >
-                {t("chat.pageTitle")}
-              </Typography.Title>
-              <Typography.Paragraph className="dashboard-hero-description dashboard-hero-description-compact !mb-0 !mt-3 !text-ink/64">
-                {t("chat.pageDescription")}
-              </Typography.Paragraph>
-            </div>
-            <Tag className="!rounded-full !px-3 !py-1">KB ID: {kbId}</Tag>
+                {t("chat.quickDocs")}
+              </Button>
+            </Link>
           </div>
         </div>
       </Card>
 
       <section className="grid gap-4 xl:grid-cols-[280px_minmax(0,1fr)_340px]">
-        <SessionList
-          sessions={currentSessions}
-          activeSessionId={activeSessionId}
-          onSelect={setActiveSession}
-          onCreate={() => createSession(kbId, t("chat.newSession"))}
-        />
+        <div className="xl:sticky xl:top-4 xl:self-start">
+          <SessionList
+            sessions={currentSessions}
+            activeSessionId={activeSessionId}
+            onSelect={setActiveSession}
+            onCreate={() => createSession(kbId, t("chat.newSession"))}
+          />
+        </div>
 
         <div className="flex min-h-[70vh] flex-col gap-4">
           <Card
@@ -132,7 +143,7 @@ export function ChatWindow({ kbId }: ChatWindowProps) {
                   level={3}
                   className="!mb-0 !mt-2 !text-xl !font-semibold !tracking-[-0.04em] !text-ink"
                 >
-                  {t("chat.pageTitle")}
+                  {t("chat.relatedAnswer")}
                 </Typography.Title>
               </div>
               <Tag className="!rounded-full">
@@ -158,9 +169,17 @@ export function ChatWindow({ kbId }: ChatWindowProps) {
               className="!rounded-2xl"
             />
           ) : null}
+
+          <div className="xl:hidden">
+            <SourcePanel
+              status={streamStatus}
+              answer={latestAssistantAnswer}
+              sources={activeSources}
+            />
+          </div>
         </div>
 
-        <div className="hidden xl:block">
+        <div className="hidden xl:block xl:sticky xl:top-4 xl:self-start">
           <SourcePanel
             status={streamStatus}
             answer={latestAssistantAnswer}

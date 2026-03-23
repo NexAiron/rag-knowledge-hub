@@ -32,7 +32,7 @@ export function ChatInput({
 
   return (
     <Card
-      bordered={false}
+      variant="borderless"
       className="dashboard-side-panel !rounded-[30px] !shadow-none"
     >
       <Input.TextArea
@@ -40,7 +40,7 @@ export function ChatInput({
         onChange={(event) => onChange(event.target.value)}
         onKeyDown={handleKeyDown}
         placeholder={t("chat.askPlaceholder")}
-        autoSize={{ minRows: 5, maxRows: 8 }}
+        autoSize={{ minRows: 3, maxRows: 7 }}
       />
 
       <div className="mt-3 flex flex-wrap items-center justify-between gap-3">

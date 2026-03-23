@@ -32,7 +32,23 @@ export const useKbStore = create<KbStoreState>((set) => ({
   error: null,
 
   fetchKnowledgeBases: async () => {
-    set({ isLoading: true, error: null });
+    let shouldLoad = true;
+    set((state) => {
+      if (state.isLoading) {
+        shouldLoad = false;
+        return state;
+      }
+
+      return {
+        isLoading: true,
+        error: null,
+      };
+    });
+
+    if (!shouldLoad) {
+      return;
+    }
+
     try {
       const data = await listKnowledgeBases();
       set((state) => ({

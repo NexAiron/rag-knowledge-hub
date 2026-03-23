@@ -13,6 +13,7 @@ import {
 } from "@/lib/api/documents";
 import { useI18n } from "@/lib/i18n/use-i18n";
 import { useKbStore } from "@/stores/kb-store";
+import { useUserStore } from "@/stores/user-store";
 import type { KnowledgeDocument } from "@/types";
 
 function isSupportedFile(file: File): boolean {
@@ -27,6 +28,8 @@ export default function DocumentsPage() {
   const { message } = App.useApp();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const syncKnowledgeBases = useKbStore((state) => state.syncKnowledgeBases);
+  const user = useUserStore((state) => state.user);
+  const hasBootstrapped = useUserStore((state) => state.hasBootstrapped);
 
   const [documents, setDocuments] = useState<KnowledgeDocument[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -70,12 +73,18 @@ export default function DocumentsPage() {
   }, [kbId, t]);
 
   useEffect(() => {
+    if (!hasBootstrapped || !user) {
+      return;
+    }
+
     void fetchDocuments();
     void syncKnowledgeBases();
-  }, [fetchDocuments, syncKnowledgeBases]);
+  }, [fetchDocuments, hasBootstrapped, syncKnowledgeBases, user]);
 
   useEffect(() => {
-    if (!hasPending) return undefined;
+    if (!hasBootstrapped || !user || !hasPending) {
+      return undefined;
+    }
 
     const timer = window.setInterval(() => {
       void fetchDocuments();
@@ -83,7 +92,7 @@ export default function DocumentsPage() {
     }, 3000);
 
     return () => window.clearInterval(timer);
-  }, [fetchDocuments, hasPending, syncKnowledgeBases]);
+  }, [fetchDocuments, hasBootstrapped, hasPending, syncKnowledgeBases, user]);
 
   const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];

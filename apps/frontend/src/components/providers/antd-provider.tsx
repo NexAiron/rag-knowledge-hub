@@ -15,7 +15,7 @@ export function AntdProvider({ children }: AntdProviderProps) {
   return (
     <ConfigProvider
       theme={{
-        // Keep Ant Design tokens aligned with the custom blue workspace theme.
+        // Keep Ant Design tokens aligned with the product's lightweight knowledge-base UI.
         algorithm: isDark ? antdTheme.darkAlgorithm : antdTheme.defaultAlgorithm,
         token: {
           colorPrimary: "#78AEEB",

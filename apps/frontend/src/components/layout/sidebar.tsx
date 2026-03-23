@@ -3,10 +3,11 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useMemo } from "react";
-import { BookOpen, LayoutDashboard, LibraryBig } from "lucide-react";
-import { Card, Empty, Spin, Tag, Typography } from "antd";
+import { BookOpen, ChevronRight, LayoutDashboard, LibraryBig } from "lucide-react";
+import { Empty, Spin, Tag, Typography } from "antd";
 import { useI18n } from "@/lib/i18n/use-i18n";
 import { useKbStore } from "@/stores/kb-store";
+import { useUserStore } from "@/stores/user-store";
 import { BrandMark } from "./brand-mark";
 
 export function Sidebar() {
@@ -17,57 +18,41 @@ export function Sidebar() {
   const isLoading = useKbStore((state) => state.isLoading);
   const fetchKnowledgeBases = useKbStore((state) => state.fetchKnowledgeBases);
   const selectKnowledgeBase = useKbStore((state) => state.selectKnowledgeBase);
+  const user = useUserStore((state) => state.user);
+  const hasBootstrapped = useUserStore((state) => state.hasBootstrapped);
 
   useEffect(() => {
-    if (knowledgeBases.length === 0) {
+    if (hasBootstrapped && user && knowledgeBases.length === 0) {
       void fetchKnowledgeBases();
     }
-  }, [fetchKnowledgeBases, knowledgeBases.length]);
+  }, [fetchKnowledgeBases, hasBootstrapped, knowledgeBases.length, user]);
 
   const selectedKey = useMemo(() => {
-    if (pathname === "/dashboard") return "dashboard";
+    if (pathname === "/kb" || pathname === "/dashboard") return "dashboard";
     if (activeKbId) return activeKbId;
     const matched = knowledgeBases.find((kb) => pathname.startsWith(`/kb/${kb.id}`));
     return matched?.id;
   }, [activeKbId, knowledgeBases, pathname]);
 
   return (
-    <aside className="hidden w-[320px] shrink-0 lg:block">
+    <aside className="hidden w-[280px] shrink-0 xl:block">
       <div className="dashboard-sidebar h-full">
-        <Card
-          variant="borderless"
-          className="dashboard-sidebar-brand !rounded-[28px] !shadow-none"
-          styles={{ body: { padding: 22 } }}
-        >
-          <div className="flex items-center gap-3">
-            <BrandMark />
-            <div>
-              <Typography.Text className="!text-[10px] !font-semibold !uppercase !tracking-[0.26em] !text-ink/58">
-                {t("common.brand")}
-              </Typography.Text>
-              <Typography.Paragraph className="!mb-0 !mt-1 !text-[11px] !text-ink/48">
-                {t("dashboard.title")}
-              </Typography.Paragraph>
-            </div>
+        <div className="flex items-center gap-3 px-1">
+          <BrandMark />
+          <div className="min-w-0">
+            <Typography.Text className="!block !truncate !text-[12px] !font-semibold !tracking-[-0.02em] !text-ink">
+              {t("common.brand")}
+            </Typography.Text>
+            <Typography.Text className="!text-[11px] !text-ink/52">
+              {t("sidebar.subtitle")}
+            </Typography.Text>
           </div>
-          <Typography.Title
-            level={3}
-            className="!mb-0 !mt-5 !text-[1.5rem] !font-semibold !tracking-[-0.05em] !text-ink"
-          >
-            {t("sidebar.title")}
-          </Typography.Title>
-          <Typography.Paragraph className="!mb-0 !mt-3 !text-[13px] !leading-6 !text-ink/66">
-            {t("sidebar.subtitle")}
-          </Typography.Paragraph>
-        </Card>
+        </div>
 
         <div className="mt-6">
-          <Typography.Text className="!text-[11px] !font-semibold !uppercase !tracking-[0.18em] !text-ink/46">
-            {t("sidebar.navigation")}
-          </Typography.Text>
           <div className="mt-3 space-y-2">
             <Link
-              href="/dashboard"
+              href="/kb"
               className={`dashboard-sidebar-link ${selectedKey === "dashboard" ? "is-active" : ""}`}
             >
               <div className="dashboard-sidebar-icon">
@@ -77,10 +62,11 @@ export function Sidebar() {
                 <Typography.Text className="!block !text-sm !font-semibold !text-current">
                   {t("sidebar.dashboard")}
                 </Typography.Text>
-                <Typography.Text className="!block !text-[12px] !text-current/60">
+                <Typography.Text className="!block !text-[12px] !text-current/58">
                   {t("sidebar.dashboardHint")}
                 </Typography.Text>
               </div>
+              <ChevronRight className="h-4 w-4 shrink-0 text-current/40" strokeWidth={2} />
             </Link>
           </div>
         </div>
@@ -102,15 +88,12 @@ export function Sidebar() {
               <span>{t("sidebar.loading")}</span>
             </div>
           ) : knowledgeBases.length === 0 ? (
-            <Card
-              variant="borderless"
-              className="ambient-card !mt-4 !rounded-[24px] !shadow-none"
-            >
+            <div className="knowledge-sidebar-empty !mt-4">
               <Empty
                 description={t("sidebar.empty")}
                 image={Empty.PRESENTED_IMAGE_SIMPLE}
               />
-            </Card>
+            </div>
           ) : (
             <div className="mt-3 space-y-2">
               {knowledgeBases.map((kb) => {
@@ -133,6 +116,7 @@ export function Sidebar() {
                         {kb.documentCount} {t("sidebar.docs")}
                       </Typography.Text>
                     </div>
+                    <ChevronRight className="h-4 w-4 shrink-0 text-current/40" strokeWidth={2} />
                   </Link>
                 );
               })}

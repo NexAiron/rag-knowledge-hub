@@ -38,7 +38,7 @@ export default function ProfilePage() {
       email: values.email.trim(),
     });
     message.success(t("profile.success"));
-    router.push("/dashboard");
+    router.push("/kb");
   };
 
   return (
@@ -46,7 +46,7 @@ export default function ProfilePage() {
       title={t("profile.title")}
       description={t("profile.description")}
       action={
-        <Link href="/dashboard">
+        <Link href="/kb">
           <Button
             className="dashboard-secondary-button !rounded-2xl"
             icon={<ArrowLeft className="h-4 w-4" strokeWidth={2} />}
@@ -58,7 +58,7 @@ export default function ProfilePage() {
     >
       <section className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_320px]">
         <Card
-          bordered={false}
+          variant="borderless"
           className="dashboard-form-panel !rounded-[32px] !shadow-none"
         >
           <div className="flex items-start gap-3">
@@ -129,7 +129,7 @@ export default function ProfilePage() {
                   >
                     {t("profile.submit")}
                   </Button>
-                  <Link href="/dashboard">
+                  <Link href="/kb">
                     <Button className="dashboard-secondary-button !rounded-2xl">
                       {t("common.cancel")}
                     </Button>
@@ -146,7 +146,7 @@ export default function ProfilePage() {
 
         <aside className="space-y-4">
           <Card
-            bordered={false}
+            variant="borderless"
             className="dashboard-side-panel !rounded-[30px] !shadow-none"
           >
             <Typography.Text className="!text-[11px] !font-semibold !uppercase !tracking-[0.18em] !text-ink/48">
@@ -158,7 +158,7 @@ export default function ProfilePage() {
           </Card>
 
           <Card
-            bordered={false}
+            variant="borderless"
             className="dashboard-side-panel !rounded-[30px] !shadow-none"
           >
             <div className="flex items-center gap-3">

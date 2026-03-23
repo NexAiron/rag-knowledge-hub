@@ -22,7 +22,7 @@ export function SessionList({
 
   return (
     <Card
-      bordered={false}
+      variant="borderless"
       className="dashboard-side-panel !rounded-[30px] !shadow-none"
     >
       <Typography.Text className="!text-[11px] !font-semibold !uppercase !tracking-[0.18em] !text-ink/48">
@@ -59,7 +59,7 @@ export function SessionList({
                   size="small"
                   hoverable
                   onClick={() => onSelect(session.id)}
-                  bordered={false}
+                  variant="borderless"
                   className={`w-full !rounded-[22px] !shadow-none ${
                     active ? "!bg-ink text-white" : "ambient-card"
                   }`}

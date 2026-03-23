@@ -3,7 +3,6 @@ import { NextResponse } from "next/server";
 import {
   ACCESS_TOKEN_COOKIE,
   AUTH_ROUTES,
-  DEFAULT_AUTHENTICATED_REDIRECT,
 } from "@/lib/auth/routes";
 
 function isAuthRoute(pathname: string) {
@@ -18,14 +17,18 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  if (isAuthRoute(pathname)) {
-    if (!hasAccessToken) {
-      return NextResponse.next();
+  if (pathname === "/dashboard") {
+    const kbUrl = new URL("/kb", request.url);
+
+    if (search) {
+      kbUrl.search = search;
     }
 
-    return NextResponse.redirect(
-      new URL(DEFAULT_AUTHENTICATED_REDIRECT, request.url),
-    );
+    return NextResponse.redirect(kbUrl);
+  }
+
+  if (isAuthRoute(pathname)) {
+    return NextResponse.next();
   }
 
   if (hasAccessToken) {

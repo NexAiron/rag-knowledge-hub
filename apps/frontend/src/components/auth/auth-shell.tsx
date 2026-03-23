@@ -41,14 +41,14 @@ export function AuthShell({
 
   return (
     <main className="relative flex min-h-screen items-center justify-center overflow-hidden px-6 py-10">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_18%,rgba(120,174,235,0.18),transparent_24%),radial-gradient(circle_at_82%_14%,rgba(84,127,191,0.12),transparent_20%),linear-gradient(180deg,rgba(255,255,255,0.4),rgba(255,255,255,0))]" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_18%,rgba(120,174,235,0.12),transparent_24%),radial-gradient(circle_at_82%_14%,rgba(84,127,191,0.08),transparent_20%),linear-gradient(180deg,rgba(255,255,255,0.24),rgba(255,255,255,0))]" />
 
       <Card
         variant="borderless"
-        className="relative z-10 w-full max-w-[1080px] !rounded-[32px] border border-white/45 bg-white/52 shadow-[0_40px_120px_rgba(15,23,42,0.16)] backdrop-blur-2xl"
+        className="relative z-10 w-full max-w-[1040px] !rounded-[30px] border border-white/40 bg-white/50 shadow-[0_28px_80px_rgba(15,23,42,0.12)] backdrop-blur-xl"
         styles={{ body: { padding: 0 } }}
       >
-        <div className="grid min-h-[640px] lg:grid-cols-[1.02fr_0.98fr]">
+        <div className="grid min-h-[620px] lg:grid-cols-[0.96fr_1.04fr]">
           <section className="border-b border-ink/8 px-8 py-8 lg:border-b-0 lg:border-r lg:px-10 lg:py-10">
             <div className="flex items-center justify-between gap-3">
               <div className="flex items-center gap-3">
@@ -78,7 +78,7 @@ export function AuthShell({
 
             <Typography.Title
               level={2}
-              className="!mb-0 !mt-5 max-w-[440px] !text-[2.1rem] !font-semibold !tracking-[-0.04em] !text-ink lg:!text-[2.45rem]"
+              className="!mb-0 !mt-5 max-w-[420px] !text-[1.95rem] !font-semibold !tracking-[-0.04em] !text-ink lg:!text-[2.2rem]"
             >
               {title}
             </Typography.Title>

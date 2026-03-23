@@ -9,6 +9,7 @@
     "dev": "pnpm -r --parallel dev",
     "dev:frontend": "pnpm --filter @nexairon/frontend dev",
     "dev:backend": "pnpm --filter @nexairon/backend start:dev",
+    "dev:backend:sync": "pnpm --filter @nexairon/backend start:dev:sync",
     "build": "pnpm -r build",
     "lint": "pnpm -r lint",
     "test": "pnpm --filter @nexairon/backend test"
@@ -17,4 +18,3 @@
     "node": ">=20.0.0"
   }
 }
-

@@ -25,8 +25,9 @@ export async function GET() {
   } catch (error) {
     const message =
       error instanceof BackendProxyError ? error.message : "Unauthorized";
-
-    return NextResponse.json({ message }, { status: 401 });
+    const response = NextResponse.json({ message }, { status: 401 });
+    response.cookies.set("access_token", "", getAccessTokenCookieOptions(0));
+    return response;
   }
 }
 
