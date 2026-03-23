@@ -1,10 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Alert, Button, Divider, Form, Input } from "antd";
 import { BookOpenText, ShieldCheck, Sparkles } from "lucide-react";
 import { AuthShell } from "@/components/auth/auth-shell";
+import { DEFAULT_AUTHENTICATED_REDIRECT } from "@/lib/auth/routes";
 import { useI18n } from "@/lib/i18n/use-i18n";
 import { useUserStore } from "@/stores/user-store";
 
@@ -15,7 +17,16 @@ interface RegisterFormValues {
 }
 
 export default function RegisterPage() {
+  return (
+    <Suspense fallback={null}>
+      <RegisterPageContent />
+    </Suspense>
+  );
+}
+
+function RegisterPageContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { t } = useI18n();
   const register = useUserStore((state) => state.register);
   const isLoading = useUserStore((state) => state.isLoading);
@@ -27,7 +38,7 @@ export default function RegisterPage() {
       email: values.email.trim(),
       password: values.password.trim(),
     });
-    router.push("/dashboard");
+    router.push(searchParams.get("next") || DEFAULT_AUTHENTICATED_REDIRECT);
   };
 
   return (

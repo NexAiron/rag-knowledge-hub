@@ -1,14 +1,16 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-
-const ACCESS_TOKEN_COOKIE = "access_token";
+import {
+  ACCESS_TOKEN_COOKIE,
+  DEFAULT_AUTHENTICATED_REDIRECT,
+} from "@/lib/auth/routes";
 
 export default async function HomePage() {
   const cookieStore = await cookies();
   const accessToken = cookieStore.get(ACCESS_TOKEN_COOKIE)?.value;
 
   if (accessToken) {
-    redirect("/dashboard");
+    redirect(DEFAULT_AUTHENTICATED_REDIRECT);
   }
 
   redirect("/login");
